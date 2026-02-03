@@ -1,0 +1,106 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  SOLANA_VERSION: 1.18.0
+  ANCHOR_VERSION: 0.30.1
+  NODE_VERSION: 18
+
+jobs:
+  build-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        
+      - name: Install Solana
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v${{ env.SOLANA_VERSION }}/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+          
+      - name: Install Anchor
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked --force
+          avm install ${{ env.ANCHOR_VERSION }}
+          avm use ${{ env.ANCHOR_VERSION }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install dependencies
+        run: yarn install
+        
+      - name: Build programs
+        run: anchor build
+        
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: program-artifacts
+          path: |
+            target/deploy/*.so
+            target/idl/*.json
+            target/types/*.ts
+
+  deploy-devnet:
+    needs: build-contracts
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: program-artifacts
+          path: target/
+          
+      - name: Install Solana
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v${{ env.SOLANA_VERSION }}/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> $GITHUB_PATH
+          
+      - name: Setup wallet
+        run: |
+          echo "${{ secrets.SOLANA_WALLET }}" > wallet.json
+          solana config set --keypair wallet.json
+          solana config set --url devnet
+          
+      - name: Deploy to devnet
+        run: |
+          solana program deploy target/deploy/reasoning_registry.so
+          solana program deploy target/deploy/threat_intelligence.so
+          solana program deploy target/deploy/agent_coordinator.so
+
+  test-agents:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          cd agents
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+          
+      - name: Run tests
+        run: |
+          cd agents
+          python -m pytest tests/ -v
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SOLANA_RPC_URL: https://api.devnet.solana.com
