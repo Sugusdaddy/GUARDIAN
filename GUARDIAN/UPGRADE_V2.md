@@ -147,7 +147,7 @@ GUARDIAN v2.0 - 14 Agent Swarm
 - [ ] Implement emergency wallet evacuate
 - [ ] Deploy updated agents to testnet
 - [ ] Create demo video showing all 14 agents
-- [ ] Update README with v2.0 features
+- [x] Update README with v2.0 features ✅
 - [ ] Test swarm coordination with new agents
 - [ ] Deploy on mainnet for demo
 
