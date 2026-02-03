@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN - Solana Immune System</title>
+    <meta name="description" content="16 autonomous AI agents protecting the Solana ecosystem 24/7. Real-time threat detection, emergency evacuation, and state-actor tracking.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1a1;
+            --text-tertiary: #6b6b6b;
+            --accent: #00d4ff;
+            --accent-dim: rgba(0, 212, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.08);
+            --gradient-1: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            --gradient-2: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--accent-dim);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero h1 span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 3rem;
+            line-height: 1.7;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 4rem;
+            margin-top: 5rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            margin-top: 0.25rem;
+        }
+
+        /* Section Styles */
+        section {
+            padding: 8rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        /* Problem Section */
+        .problem {
+            background: var(--bg-secondary);
+            padding: 8rem 4rem;
+            margin: 0;
+            max-width: 100%;
+        }
+
+        .problem-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .problem-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .problem-card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ff4757;
+            margin-bottom: 0.5rem;
+        }
+
+        .problem-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .problem-card-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Agents Section */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 4rem;
+        }
+
+        .agent-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .agent-card:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .agent-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .agent-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .agent-role {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        .agent-card.elite {
+            border-color: rgba(0, 212, 255, 0.3);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, transparent 100%);
+        }
+
+        /* Features Section */
+        .features {
+            background: var(--bg-secondary);
+            padding: 8rem 4rem;
+            margin: 0;
+            max-width: 100%;
+        }
+
+        .features-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 6rem;
+        }
+
+        .feature-row:nth-child(even) {
+            direction: rtl;
+        }
+
+        .feature-row:nth-child(even) > * {
+            direction: ltr;
+        }
+
+        .feature-content h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .feature-content p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .feature-visual {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            overflow: hidden;
+        }
+
+        .feature-visual pre {
+            white-space: pre-wrap;
+        }
+
+        .feature-visual .accent {
+            color: var(--accent);
+        }
+
+        .feature-visual .danger {
+            color: #ff4757;
+        }
+
+        .feature-visual .success {
+            color: #2ed573;
+        }
+
+        .feature-visual .warning {
+            color: #ffa502;
+        }
+
+        /* API Section */
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .api-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .api-method {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .api-method.post {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .api-method.get {
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+        }
+
+        .api-endpoint {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .api-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            text-align: center;
+            padding: 10rem 4rem;
+            position: relative;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-copy {
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            nav {
+                padding: 1rem 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            section, .problem, .features {
+                padding: 4rem 2rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .feature-row {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .feature-row:nth-child(even) {
+                direction: ltr;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 2rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="logo">
+            <div class="logo-icon">🛡️</div>
+            GUARDIAN
+        </a>
+        <ul class="nav-links">
+            <li><a href="#problem">Problem</a></li>
+            <li><a href="#agents">Agents</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#api">API</a></li>
+        </ul>
+        <a href="https://github.com/Sugusdaddy/GUARDIAN" class="nav-cta" target="_blank">View on GitHub</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span>Built for Colosseum Hackathon 2025</span>
+        </div>
+        <h1>The Immune System<br><span>Solana Deserves</span></h1>
+        <p class="hero-subtitle">16 autonomous AI agents protecting the ecosystem 24/7. Real-time threat detection, emergency evacuation, and state-actor tracking.</p>
+        <div class="hero-cta">
+            <a href="https://github.com/Sugusdaddy/GUARDIAN" class="btn btn-primary" target="_blank">
+                Get Started
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="#features" class="btn btn-secondary">Learn More</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-value">16</div>
+                <div class="stat-label">Autonomous Agents</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Real-time Protection</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">&lt;3s</div>
+                <div class="stat-label">Emergency Evacuation</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Open Source</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem" id="problem">
+        <div class="problem-inner">
+            <div class="section-label">The Problem</div>
+            <h2 class="section-title">DeFi security is broken</h2>
+            <p class="section-subtitle">Current solutions are reactive. Users lose funds before anyone can warn them.</p>
+            
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="problem-card-value">$3.4B+</div>
+                    <div class="problem-card-title">Stolen in 2024</div>
+                    <div class="problem-card-desc">Billions lost to exploits, rug pulls, and sophisticated attacks across DeFi protocols.</div>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-card-value">93%</div>
+                    <div class="problem-card-title">Scam Tokens</div>
+                    <div class="problem-card-desc">The vast majority of new tokens launched on pump.fun are honeypots or rug pulls.</div>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-card-value">🇰🇵</div>
+                    <div class="problem-card-title">State Actors</div>
+                    <div class="problem-card-desc">North Korea's Lazarus Group actively targets Solana with sophisticated attack campaigns.</div>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-card-value">0</div>
+                    <div class="problem-card-title">Proactive Solutions</div>
+                    <div class="problem-card-desc">Existing security tools alert users after the damage is done. We need prevention, not reaction.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agents Section -->
+    <section id="agents">
+        <div class="section-label">The Solution</div>
+        <h2 class="section-title">16 Specialized Agents</h2>
+        <p class="section-subtitle">A coordinated swarm of AI agents, each with distinct responsibilities, working together to protect the ecosystem.</p>
+        
+        <div class="agents-grid">
+            <div class="agent-card">
+                <div class="agent-icon">🔭</div>
+                <div class="agent-name">Sentinel</div>
+                <div class="agent-role">Transaction Monitor</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">🔍</div>
+                <div class="agent-name">Scanner</div>
+                <div class="agent-role">Contract Analyzer</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">🔮</div>
+                <div class="agent-name">Oracle</div>
+                <div class="agent-role">ML Risk Predictor</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">🎯</div>
+                <div class="agent-name">Coordinator</div>
+                <div class="agent-role">Swarm Orchestrator</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">🛡️</div>
+                <div class="agent-name">Guardian</div>
+                <div class="agent-role">Threat Defender</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">📚</div>
+                <div class="agent-name">Intel</div>
+                <div class="agent-role">Threat Database</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">📢</div>
+                <div class="agent-name">Reporter</div>
+                <div class="agent-role">Alert System</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">✅</div>
+                <div class="agent-name">Auditor</div>
+                <div class="agent-role">Reasoning Verifier</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">🔎</div>
+                <div class="agent-name">Hunter</div>
+                <div class="agent-role">Actor Tracker</div>
+            </div>
+            <div class="agent-card">
+                <div class="agent-icon">💚</div>
+                <div class="agent-name">Healer</div>
+                <div class="agent-role">Recovery Agent</div>
+            </div>
+            <div class="agent-card elite">
+                <div class="agent-icon">🍯</div>
+                <div class="agent-name">Honeypot</div>
+                <div class="agent-role">Active Traps</div>
+            </div>
+            <div class="agent-card elite">
+                <div class="agent-icon">🇰🇵</div>
+                <div class="agent-name">Lazarus</div>
+                <div class="agent-role">State-Actor Tracker</div>
+            </div>
+            <div class="agent-card elite">
+                <div class="agent-icon">🌐</div>
+                <div class="agent-name">Network</div>
+                <div class="agent-role">Infrastructure Monitor</div>
+            </div>
+            <div class="agent-card elite">
+                <div class="agent-icon">⚛️</div>
+                <div class="agent-name">Quantum</div>
+                <div class="agent-role">Post-Quantum Defense</div>
+            </div>
+            <div class="agent-card elite">
+                <div class="agent-icon">🛡️</div>
+                <div class="agent-name">SwapGuard</div>
+                <div class="agent-role">Trade Protection</div>
+            </div>
+            <div class="agent-card elite">
+                <div class="agent-icon">🚨</div>
+                <div class="agent-name">Evacuator</div>
+                <div class="agent-role">Emergency Extraction</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-inner">
+            <div class="section-label">Capabilities</div>
+            <h2 class="section-title">Built for real threats</h2>
+            <p class="section-subtitle">Every feature designed to solve actual problems facing Solana users today.</p>
+
+            <div class="feature-row">
+                <div class="feature-content">
+                    <h3>Honeypot Detection</h3>
+                    <p>Real-time analysis of every token. We test buy and sell transactions to identify honeypots before you can lose money.</p>
+                    <ul class="feature-list">
+                        <li>Simulated buy/sell transaction testing</li>
+                        <li>Mint authority detection</li>
+                        <li>Freeze authority warnings</li>
+                        <li>Holder concentration analysis</li>
+                    </ul>
+                </div>
+                <div class="feature-visual">
+                    <pre><span class="accent">SCANNER</span> analyzing $MOONSHOT...
+
+<span class="success">✓</span> Buy transaction: <span class="success">SUCCESS</span>
+<span class="danger">✗</span> Sell transaction: <span class="danger">BLOCKED</span>
+
+<span class="danger">🚨 HONEYPOT DETECTED</span>
+Risk Score: <span class="danger">98/100</span>
+Action: <span class="warning">BLACKLISTED</span></pre>
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-content">
+                    <h3>Lazarus Group Tracking</h3>
+                    <p>The first security tool on Solana specifically designed to detect state-sponsored activity from North Korea's Lazarus Group.</p>
+                    <ul class="feature-list">
+                        <li>UTC+9 timezone pattern detection</li>
+                        <li>Peel chain transaction analysis</li>
+                        <li>Mixer and tumbler tracking</li>
+                        <li>OFAC flagged address matching</li>
+                    </ul>
+                </div>
+                <div class="feature-visual">
+                    <pre><span class="accent">LAZARUS</span> monitoring patterns...
+
+Transaction timing: <span class="warning">UTC+9</span>
+Fund movement: <span class="warning">Peel chain</span>
+Mixer usage: <span class="warning">Detected</span>
+OFAC check: <span class="danger">FLAGGED</span>
+
+<span class="warning">🇰🇵 PATTERN MATCH: 87%</span>
+Connected wallets: <span class="accent">23</span>
+Fund flow tracked: <span class="accent">$2.3M</span></pre>
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-content">
+                    <h3>Risk-Aware Trading</h3>
+                    <p>SwapGuard intercepts every swap request and analyzes the target token across multiple risk vectors before execution.</p>
+                    <ul class="feature-list">
+                        <li>Pre-swap risk analysis</li>
+                        <li>Automatic position limits</li>
+                        <li>Intelligent slippage management</li>
+                        <li>Blacklist enforcement</li>
+                    </ul>
+                </div>
+                <div class="feature-visual">
+                    <pre><span class="accent">SWAPGUARD</span> intercepting...
+
+Swap: 5 SOL → $MOONSHOT
+Value: ~$750 USD
+
+Risk Analysis:
+Honeypot Risk    <span class="danger">[████████████] 100%</span>
+Rug Pull Risk    <span class="danger">[███████████░] 95%</span>
+Liquidity Risk   <span class="warning">[████████░░░░] 80%</span>
+
+<span class="danger">❌ SWAP BLOCKED</span>
+<span class="success">✓ USER PROTECTED - $750 SAVED</span></pre>
+                </div>
+            </div>
+
+            <div class="feature-row">
+                <div class="feature-content">
+                    <h3>Emergency Evacuation</h3>
+                    <p>When your wallet is compromised, every second counts. Evacuator moves all assets to safety in under 3 seconds.</p>
+                    <ul class="feature-list">
+                        <li>One-click emergency extraction</li>
+                        <li>Automatic approval revocation</li>
+                        <li>Multi-asset support (SOL, tokens, NFTs)</li>
+                        <li>Maximum priority transaction fees</li>
+                    </ul>
+                </div>
+                <div class="feature-visual">
+                    <pre><span class="danger">🚨 WALLET UNDER ATTACK</span>
+
+<span class="accent">EVACUATOR</span> emergency protocol...
+
+<span class="success">✓</span> Revoking 3 approvals
+<span class="success">✓</span> Transferring 2,450 USDC
+<span class="success">✓</span> Transferring NFT #4521
+<span class="success">✓</span> Transferring 45.7 SOL
+
+<span class="success">✅ EVACUATION COMPLETE</span>
+Time: <span class="accent">2.7 seconds</span>
+Saved: <span class="success">$12,450</span></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- API Section -->
+    <section id="api">
+        <div class="section-label">For Developers</div>
+        <h2 class="section-title">Full API Access</h2>
+        <p class="section-subtitle">Integrate GUARDIAN's protection into your dApp with our comprehensive REST API.</p>
+        
+        <div class="api-grid">
+            <div class="api-card">
+                <span class="api-method post">POST</span>
+                <span class="api-endpoint">/api/swap/evaluate</span>
+                <p class="api-desc">Evaluate swap risk before execution</p>
+            </div>
+            <div class="api-card">
+                <span class="api-method post">POST</span>
+                <span class="api-endpoint">/api/swap/quick-check</span>
+                <p class="api-desc">Fast honeypot detection</p>
+            </div>
+            <div class="api-card">
+                <span class="api-method post">POST</span>
+                <span class="api-endpoint">/api/evacuate/emergency</span>
+                <p class="api-desc">Emergency wallet evacuation</p>
+            </div>
+            <div class="api-card">
+                <span class="api-method get">GET</span>
+                <span class="api-endpoint">/api/swap/analyze/{mint}</span>
+                <p class="api-desc">Full token risk analysis</p>
+            </div>
+            <div class="api-card">
+                <span class="api-method post">POST</span>
+                <span class="api-endpoint">/api/evacuate/assess-threat</span>
+                <p class="api-desc">Wallet threat assessment</p>
+            </div>
+            <div class="api-card">
+                <span class="api-method get">GET</span>
+                <span class="api-endpoint">/api/threats</span>
+                <p class="api-desc">List active threats</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <h2>Protect Your Users</h2>
+        <p>GUARDIAN is open source and ready for integration. Join us in building a safer Solana ecosystem.</p>
+        <div class="hero-cta">
+            <a href="https://github.com/Sugusdaddy/GUARDIAN" class="btn btn-primary" target="_blank">
+                View on GitHub
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a href="https://github.com/Sugusdaddy/GUARDIAN/blob/master/README.md" class="btn btn-secondary" target="_blank">Read Documentation</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/Sugusdaddy/GUARDIAN" target="_blank">GitHub</a>
+            <a href="https://github.com/Sugusdaddy/GUARDIAN/blob/master/README.md" target="_blank">Documentation</a>
+            <a href="https://github.com/Sugusdaddy/GUARDIAN/blob/master/LICENSE" target="_blank">MIT License</a>
+        </div>
+        <div class="footer-copy">
+            Built for Colosseum Hackathon 2025
+        </div>
+    </footer>
+
+    <script>
+        // Smooth reveal on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.problem-card, .agent-card, .feature-row, .api-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
