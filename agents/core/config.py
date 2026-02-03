@@ -1,60 +1,58 @@
 """
-Agent Configuration
+GUARDIAN Configuration - Production Settings
 """
 import os
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import Optional
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
-
 @dataclass
 class AgentConfig:
-    """Configuration for autonomous agents"""
+    """Agent configuration with mainnet defaults"""
     
-    # API Keys
+    # Network - MAINNET by default
+    network: str = field(default_factory=lambda: os.getenv("NETWORK", "mainnet-beta"))
+    
+    # Solana RPC
+    solana_rpc_url: str = field(default_factory=lambda: os.getenv(
+        "SOLANA_RPC_URL",
+        "https://api.mainnet-beta.solana.com"
+    ))
+    
+    # Wallet
+    wallet_path: str = field(default_factory=lambda: os.getenv(
+        "WALLET_PATH",
+        str(Path(__file__).parent.parent.parent / "wallet.json")
+    ))
+    
+    # Anthropic
     anthropic_api_key: str = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY", ""))
+    model: str = field(default_factory=lambda: os.getenv("MODEL", "claude-sonnet-4-20250514"))
+    max_tokens: int = field(default_factory=lambda: int(os.getenv("MAX_TOKENS", "4096")))
+    
+    # Helius (for enhanced RPC)
     helius_api_key: str = field(default_factory=lambda: os.getenv("HELIUS_API_KEY", ""))
+    helius_webhook_secret: str = field(default_factory=lambda: os.getenv("HELIUS_WEBHOOK_SECRET", ""))
     
-    # Solana
-    solana_rpc_url: str = field(default_factory=lambda: os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com"))
-    wallet_path: str = field(default_factory=lambda: os.getenv("WALLET_PATH", "./wallets/guardian-wallet.json"))
-    network: str = field(default_factory=lambda: os.getenv("SOLANA_NETWORK", "devnet"))
+    # Agent settings
+    scan_interval_seconds: int = field(default_factory=lambda: int(os.getenv("SCAN_INTERVAL_SECONDS", "30")))
+    min_threat_confidence: float = field(default_factory=lambda: float(os.getenv("MIN_THREAT_CONFIDENCE", "0.6")))
+    max_memory_entries: int = field(default_factory=lambda: int(os.getenv("MAX_MEMORY_ENTRIES", "1000")))
     
-    # Program IDs (will be updated after deployment)
-    reasoning_registry_program_id: str = "11111111111111111111111111111111"
-    threat_intelligence_program_id: str = "11111111111111111111111111111111"
-    agent_coordinator_program_id: str = "11111111111111111111111111111111"
-    
-    # Agent behavior
-    scan_interval_seconds: int = 30
-    min_threat_confidence: float = 0.7
-    require_consensus_threshold: int = 3
-    max_memory_entries: int = 1000
-    
-    # Claude Opus settings
-    model: str = "claude-opus-4-20250514"
-    max_tokens: int = 2000
-    
-    # Logging
-    log_level: str = "INFO"
-    
-    def validate(self) -> bool:
+    def validate(self):
         """Validate configuration"""
-        errors = []
-        
         if not self.anthropic_api_key:
-            errors.append("Missing ANTHROPIC_API_KEY")
-        if not self.solana_rpc_url:
-            errors.append("Missing SOLANA_RPC_URL")
-        if not self.wallet_path:
-            errors.append("Missing WALLET_PATH")
-            
-        if errors:
-            raise ValueError(f"Configuration errors: {', '.join(errors)}")
+            print("Warning: ANTHROPIC_API_KEY not set")
         
-        return True
+        if self.network not in ["mainnet-beta", "devnet", "testnet"]:
+            raise ValueError(f"Invalid network: {self.network}")
+    
+    @property
+    def is_mainnet(self) -> bool:
+        return self.network == "mainnet-beta"
 
 
 # Global config instance
