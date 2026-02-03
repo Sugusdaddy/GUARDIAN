@@ -44,19 +44,19 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def type_text(text, delay=0.03, color=""):
+async def type_text(text, delay=0.03, color=""):
     """Typewriter effect"""
     for char in text:
         sys.stdout.write(f"{color}{char}{Colors.END}")
         sys.stdout.flush()
-        asyncio.get_event_loop().run_until_complete(asyncio.sleep(delay))
+        await asyncio.sleep(delay)
     print()
 
 
-def print_slow(text, delay=0.5, color=""):
+async def print_slow(text, delay=0.5, color=""):
     """Print with delay"""
     print(f"{color}{text}{Colors.END}")
-    asyncio.get_event_loop().run_until_complete(asyncio.sleep(delay))
+    await asyncio.sleep(delay)
 
 
 def print_instant(text, color=""):
@@ -99,9 +99,9 @@ async def scene_intro():
     print_banner()
     await asyncio.sleep(2)
     
-    print_slow("\n" + "═" * 70, color=Colors.DIM)
-    print_slow(f"  {Colors.WHITE}Initializing GUARDIAN Security Swarm...{Colors.END}", delay=1)
-    print_slow("═" * 70 + "\n", color=Colors.DIM)
+    await print_slow("\n" + "═" * 70, color=Colors.DIM)
+    await print_slow(f"  {Colors.WHITE}Initializing GUARDIAN Security Swarm...{Colors.END}", delay=1)
+    await print_slow("═" * 70 + "\n", color=Colors.DIM)
     
     await asyncio.sleep(0.5)
     
@@ -119,10 +119,10 @@ async def scene_intro():
         ("💚", "HEALER", "Recovery Agent"),
     ]
     
-    print_slow(f"  {Colors.BOLD}Loading Core Defense Squad (10 agents)...{Colors.END}\n", delay=0.3)
+    await print_slow(f"  {Colors.BOLD}Loading Core Defense Squad (10 agents)...{Colors.END}\n", delay=0.3)
     
     for emoji, name, role in core_agents:
-        print_slow(f"    {emoji}  {Colors.GREEN}[ONLINE]{Colors.END}  {Colors.BOLD}{name:12}{Colors.END} - {Colors.DIM}{role}{Colors.END}", delay=0.15)
+        await print_slow(f"    {emoji}  {Colors.GREEN}[ONLINE]{Colors.END}  {Colors.BOLD}{name:12}{Colors.END} - {Colors.DIM}{role}{Colors.END}", delay=0.15)
     
     await asyncio.sleep(0.5)
     
@@ -136,17 +136,17 @@ async def scene_intro():
         ("🚨", "EVACUATOR", "Emergency Extraction"),
     ]
     
-    print_slow(f"\n  {Colors.BOLD}Loading Elite Threat Squad (6 agents)...{Colors.END}\n", delay=0.3)
+    await print_slow(f"\n  {Colors.BOLD}Loading Elite Threat Squad (6 agents)...{Colors.END}\n", delay=0.3)
     
     for emoji, name, role in elite_agents:
-        print_slow(f"    {emoji}  {Colors.CYAN}[ONLINE]{Colors.END}  {Colors.BOLD}{name:12}{Colors.END} - {Colors.DIM}{role}{Colors.END}", delay=0.2)
+        await print_slow(f"    {emoji}  {Colors.CYAN}[ONLINE]{Colors.END}  {Colors.BOLD}{name:12}{Colors.END} - {Colors.DIM}{role}{Colors.END}", delay=0.2)
     
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n{'═' * 70}", color=Colors.DIM)
-    print_slow(f"  {Colors.GREEN}{Colors.BOLD}✓ ALL 16 AGENTS OPERATIONAL{Colors.END}", delay=0.5)
-    print_slow(f"  {Colors.DIM}Monitoring Solana mainnet in real-time...{Colors.END}", delay=0.3)
-    print_slow(f"{'═' * 70}\n", color=Colors.DIM)
+    await print_slow(f"\n{'═' * 70}", color=Colors.DIM)
+    await print_slow(f"  {Colors.GREEN}{Colors.BOLD}✓ ALL 16 AGENTS OPERATIONAL{Colors.END}", delay=0.5)
+    await print_slow(f"  {Colors.DIM}Monitoring Solana mainnet in real-time...{Colors.END}", delay=0.3)
+    await print_slow(f"{'═' * 70}\n", color=Colors.DIM)
     
     await asyncio.sleep(2)
 
@@ -155,26 +155,26 @@ async def scene_honeypot_detection():
     """Scene 2: Detect honeypot in real-time"""
     clear_screen()
     
-    print_slow(f"\n{Colors.CYAN}{'═' * 70}{Colors.END}")
-    print_slow(f"{Colors.CYAN}  SCENE 2: REAL-TIME HONEYPOT DETECTION{Colors.END}")
-    print_slow(f"{Colors.CYAN}{'═' * 70}{Colors.END}\n")
+    await print_slow(f"\n{Colors.CYAN}{'═' * 70}{Colors.END}")
+    await print_slow(f"{Colors.CYAN}  SCENE 2: REAL-TIME HONEYPOT DETECTION{Colors.END}")
+    await print_slow(f"{Colors.CYAN}{'═' * 70}{Colors.END}\n")
     
     await asyncio.sleep(1)
     
     # Simulated token data
     token_address = "ScAmT0k3n" + "".join(random.choices("0123456789ABCDEFabcdef", k=30))
     
-    print_slow(f"  {Colors.DIM}[{datetime.now().strftime('%H:%M:%S')}]{Colors.END} 🔭 SENTINEL scanning new token launches...")
+    await print_slow(f"  {Colors.DIM}[{datetime.now().strftime('%H:%M:%S')}]{Colors.END} 🔭 SENTINEL scanning new token launches...")
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.YELLOW}⚠️  New token detected on pump.fun{Colors.END}")
-    print_slow(f"     Token: {Colors.WHITE}$MOONSHOT{Colors.END}")
-    print_slow(f"     Mint:  {Colors.DIM}{token_address[:16]}...{Colors.END}")
-    print_slow(f"     Age:   {Colors.WHITE}2 minutes{Colors.END}")
+    await print_slow(f"\n  {Colors.YELLOW}⚠️  New token detected on pump.fun{Colors.END}")
+    await print_slow(f"     Token: {Colors.WHITE}$MOONSHOT{Colors.END}")
+    await print_slow(f"     Mint:  {Colors.DIM}{token_address[:16]}...{Colors.END}")
+    await print_slow(f"     Age:   {Colors.WHITE}2 minutes{Colors.END}")
     
     await asyncio.sleep(1)
     
-    print_slow(f"\n  {Colors.CYAN}🔍 SCANNER analyzing contract...{Colors.END}")
+    await print_slow(f"\n  {Colors.CYAN}🔍 SCANNER analyzing contract...{Colors.END}")
     await asyncio.sleep(0.3)
     
     # Analysis animation
@@ -187,7 +187,7 @@ async def scene_honeypot_detection():
     ]
     
     for check, result in checks:
-        print_slow(f"     • {check}...", delay=0.1, color=Colors.DIM)
+        await print_slow(f"     • {check}...", delay=0.1, color=Colors.DIM)
         await asyncio.sleep(0.4)
         if "❌" in result or "🚨" in result:
             color = Colors.RED
@@ -195,21 +195,21 @@ async def scene_honeypot_detection():
             color = Colors.YELLOW
         else:
             color = Colors.GREEN
-        print_slow(f"       {color}{result}{Colors.END}", delay=0.2)
+        await print_slow(f"       {color}{result}{Colors.END}", delay=0.2)
     
     await asyncio.sleep(0.5)
     
     # Alert
-    print_slow(f"\n  {Colors.BG_RED}{Colors.WHITE}{Colors.BOLD} 🚨 HONEYPOT DETECTED 🚨 {Colors.END}")
-    print_slow(f"\n  {Colors.RED}Risk Score: {Colors.BOLD}98/100{Colors.END}")
-    print_slow(f"  {Colors.RED}Classification: {Colors.BOLD}HONEYPOT + RUG PULL{Colors.END}")
-    print_slow(f"  {Colors.RED}Action: {Colors.BOLD}BLACKLISTED{Colors.END}")
+    await print_slow(f"\n  {Colors.BG_RED}{Colors.WHITE}{Colors.BOLD} 🚨 HONEYPOT DETECTED 🚨 {Colors.END}")
+    await print_slow(f"\n  {Colors.RED}Risk Score: {Colors.BOLD}98/100{Colors.END}")
+    await print_slow(f"  {Colors.RED}Classification: {Colors.BOLD}HONEYPOT + RUG PULL{Colors.END}")
+    await print_slow(f"  {Colors.RED}Action: {Colors.BOLD}BLACKLISTED{Colors.END}")
     
     await asyncio.sleep(1)
     
-    print_slow(f"\n  {Colors.GREEN}✓ Token added to global blacklist{Colors.END}")
-    print_slow(f"  {Colors.GREEN}✓ Alert sent to 1,247 protected wallets{Colors.END}")
-    print_slow(f"  {Colors.GREEN}✓ Pattern saved for ML training{Colors.END}")
+    await print_slow(f"\n  {Colors.GREEN}✓ Token added to global blacklist{Colors.END}")
+    await print_slow(f"  {Colors.GREEN}✓ Alert sent to 1,247 protected wallets{Colors.END}")
+    await print_slow(f"  {Colors.GREEN}✓ Pattern saved for ML training{Colors.END}")
     
     await asyncio.sleep(2)
 
@@ -218,29 +218,29 @@ async def scene_swapguard():
     """Scene 3: SwapGuard blocks dangerous trade"""
     clear_screen()
     
-    print_slow(f"\n{Colors.CYAN}{'═' * 70}{Colors.END}")
-    print_slow(f"{Colors.CYAN}  SCENE 3: SWAPGUARD PROTECTS USER FROM SCAM{Colors.END}")
-    print_slow(f"{Colors.CYAN}{'═' * 70}{Colors.END}\n")
+    await print_slow(f"\n{Colors.CYAN}{'═' * 70}{Colors.END}")
+    await print_slow(f"{Colors.CYAN}  SCENE 3: SWAPGUARD PROTECTS USER FROM SCAM{Colors.END}")
+    await print_slow(f"{Colors.CYAN}{'═' * 70}{Colors.END}\n")
     
     await asyncio.sleep(1)
     
     user_wallet = "7xK9" + "".join(random.choices("0123456789ABCDEFabcdef", k=40))
     
-    print_slow(f"  {Colors.DIM}[{datetime.now().strftime('%H:%M:%S')}]{Colors.END} 💱 Incoming swap request...")
+    await print_slow(f"  {Colors.DIM}[{datetime.now().strftime('%H:%M:%S')}]{Colors.END} 💱 Incoming swap request...")
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.WHITE}User Request:{Colors.END}")
-    print_slow(f"     Wallet: {Colors.DIM}{user_wallet[:16]}...{Colors.END}")
-    print_slow(f"     Action: {Colors.WHITE}SWAP 5 SOL → $MOONSHOT{Colors.END}")
-    print_slow(f"     Value:  {Colors.WHITE}~$750 USD{Colors.END}")
+    await print_slow(f"\n  {Colors.WHITE}User Request:{Colors.END}")
+    await print_slow(f"     Wallet: {Colors.DIM}{user_wallet[:16]}...{Colors.END}")
+    await print_slow(f"     Action: {Colors.WHITE}SWAP 5 SOL → $MOONSHOT{Colors.END}")
+    await print_slow(f"     Value:  {Colors.WHITE}~$750 USD{Colors.END}")
     
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.CYAN}🛡️ SWAPGUARD intercepting...{Colors.END}")
+    await print_slow(f"\n  {Colors.CYAN}🛡️ SWAPGUARD intercepting...{Colors.END}")
     await asyncio.sleep(0.3)
     
     # Risk analysis
-    print_slow(f"\n     {Colors.BOLD}Risk Analysis:{Colors.END}")
+    await print_slow(f"\n     {Colors.BOLD}Risk Analysis:{Colors.END}")
     await asyncio.sleep(0.2)
     
     risks = [
@@ -252,15 +252,15 @@ async def scene_swapguard():
     
     for name, score, color in risks:
         bar = "█" * (score // 5) + "░" * (20 - score // 5)
-        print_slow(f"     {name:20} {color}[{bar}] {score}%{Colors.END}", delay=0.15)
+        await print_slow(f"     {name:20} {color}[{bar}] {score}%{Colors.END}", delay=0.15)
     
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.BG_RED}{Colors.WHITE}{Colors.BOLD} ❌ SWAP BLOCKED ❌ {Colors.END}")
+    await print_slow(f"\n  {Colors.BG_RED}{Colors.WHITE}{Colors.BOLD} ❌ SWAP BLOCKED ❌ {Colors.END}")
     
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.YELLOW}Warnings sent to user:{Colors.END}")
+    await print_slow(f"\n  {Colors.YELLOW}Warnings sent to user:{Colors.END}")
     warnings = [
         "🚨 HONEYPOT DETECTED - Cannot sell this token!",
         "⚠️ Mint authority enabled - Unlimited supply risk",
@@ -268,11 +268,11 @@ async def scene_swapguard():
         "⚠️ Top holder owns 94.7% - Extreme concentration",
     ]
     for w in warnings:
-        print_slow(f"     {Colors.RED}{w}{Colors.END}", delay=0.2)
+        await print_slow(f"     {Colors.RED}{w}{Colors.END}", delay=0.2)
     
     await asyncio.sleep(1)
     
-    print_slow(f"\n  {Colors.GREEN}{Colors.BOLD}✓ USER PROTECTED - $750 SAVED{Colors.END}")
+    await print_slow(f"\n  {Colors.GREEN}{Colors.BOLD}✓ USER PROTECTED - $750 SAVED{Colors.END}")
     
     await asyncio.sleep(2)
 
@@ -281,21 +281,21 @@ async def scene_lazarus():
     """Scene 4: Lazarus Group detection"""
     clear_screen()
     
-    print_slow(f"\n{Colors.CYAN}{'═' * 70}{Colors.END}")
-    print_slow(f"{Colors.CYAN}  SCENE 4: STATE-ACTOR THREAT DETECTION{Colors.END}")
-    print_slow(f"{Colors.CYAN}{'═' * 70}{Colors.END}\n")
+    await print_slow(f"\n{Colors.CYAN}{'═' * 70}{Colors.END}")
+    await print_slow(f"{Colors.CYAN}  SCENE 4: STATE-ACTOR THREAT DETECTION{Colors.END}")
+    await print_slow(f"{Colors.CYAN}{'═' * 70}{Colors.END}\n")
     
     await asyncio.sleep(1)
     
-    print_slow(f"  {Colors.DIM}[{datetime.now().strftime('%H:%M:%S')}]{Colors.END} 🇰🇵 LAZARUS agent monitoring for DPRK patterns...")
+    await print_slow(f"  {Colors.DIM}[{datetime.now().strftime('%H:%M:%S')}]{Colors.END} 🇰🇵 LAZARUS agent monitoring for DPRK patterns...")
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.YELLOW}⚠️  Suspicious activity cluster detected{Colors.END}")
+    await print_slow(f"\n  {Colors.YELLOW}⚠️  Suspicious activity cluster detected{Colors.END}")
     await asyncio.sleep(0.3)
     
     attacker = "Hx7K" + "".join(random.choices("0123456789ABCDEFabcdef", k=40))
     
-    print_slow(f"\n  {Colors.WHITE}Analysis:{Colors.END}")
+    await print_slow(f"\n  {Colors.WHITE}Analysis:{Colors.END}")
     
     indicators = [
         ("Transaction timing", "UTC+9 pattern (Pyongyang timezone)", "🚨"),
@@ -306,15 +306,15 @@ async def scene_lazarus():
     ]
     
     for name, detail, emoji in indicators:
-        print_slow(f"     {emoji} {Colors.WHITE}{name}:{Colors.END} {Colors.DIM}{detail}{Colors.END}", delay=0.25)
+        await print_slow(f"     {emoji} {Colors.WHITE}{name}:{Colors.END} {Colors.DIM}{detail}{Colors.END}", delay=0.25)
     
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.BG_YELLOW}{Colors.WHITE}{Colors.BOLD} 🇰🇵 LAZARUS GROUP PATTERN MATCH: 87% CONFIDENCE 🇰🇵 {Colors.END}")
+    await print_slow(f"\n  {Colors.BG_YELLOW}{Colors.WHITE}{Colors.BOLD} 🇰🇵 LAZARUS GROUP PATTERN MATCH: 87% CONFIDENCE 🇰🇵 {Colors.END}")
     
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.CYAN}Automated response:{Colors.END}")
+    await print_slow(f"\n  {Colors.CYAN}Automated response:{Colors.END}")
     actions = [
         "✓ Address flagged in global database",
         "✓ Connected wallets identified (23 wallets)",
@@ -323,7 +323,7 @@ async def scene_lazarus():
         "✓ Pattern saved for future detection",
     ]
     for a in actions:
-        print_slow(f"     {Colors.GREEN}{a}{Colors.END}", delay=0.2)
+        await print_slow(f"     {Colors.GREEN}{a}{Colors.END}", delay=0.2)
     
     await asyncio.sleep(2)
 
@@ -332,36 +332,36 @@ async def scene_evacuation():
     """Scene 5: Emergency wallet evacuation"""
     clear_screen()
     
-    print_slow(f"\n{Colors.RED}{'═' * 70}{Colors.END}")
-    print_slow(f"{Colors.RED}  SCENE 5: EMERGENCY WALLET EVACUATION{Colors.END}")
-    print_slow(f"{Colors.RED}{'═' * 70}{Colors.END}\n")
+    await print_slow(f"\n{Colors.RED}{'═' * 70}{Colors.END}")
+    await print_slow(f"{Colors.RED}  SCENE 5: EMERGENCY WALLET EVACUATION{Colors.END}")
+    await print_slow(f"{Colors.RED}{'═' * 70}{Colors.END}\n")
     
     await asyncio.sleep(1)
     
     victim_wallet = "VcTm" + "".join(random.choices("0123456789ABCDEFabcdef", k=40))
     safe_wallet = "SaFe" + "".join(random.choices("0123456789ABCDEFabcdef", k=40))
     
-    print_slow(f"  {Colors.RED}{Colors.BOLD}🚨 ALERT: WALLET UNDER ATTACK 🚨{Colors.END}")
+    await print_slow(f"  {Colors.RED}{Colors.BOLD}🚨 ALERT: WALLET UNDER ATTACK 🚨{Colors.END}")
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.WHITE}Compromised wallet:{Colors.END} {Colors.DIM}{victim_wallet[:20]}...{Colors.END}")
-    print_slow(f"  {Colors.WHITE}Attack type:{Colors.END} {Colors.RED}Drainer contract triggered{Colors.END}")
-    print_slow(f"  {Colors.WHITE}Assets at risk:{Colors.END} {Colors.YELLOW}$12,450 USD{Colors.END}")
+    await print_slow(f"\n  {Colors.WHITE}Compromised wallet:{Colors.END} {Colors.DIM}{victim_wallet[:20]}...{Colors.END}")
+    await print_slow(f"  {Colors.WHITE}Attack type:{Colors.END} {Colors.RED}Drainer contract triggered{Colors.END}")
+    await print_slow(f"  {Colors.WHITE}Assets at risk:{Colors.END} {Colors.YELLOW}$12,450 USD{Colors.END}")
     
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.CYAN}🚨 EVACUATOR activating emergency protocol...{Colors.END}")
+    await print_slow(f"\n  {Colors.CYAN}🚨 EVACUATOR activating emergency protocol...{Colors.END}")
     await asyncio.sleep(0.3)
     
-    print_slow(f"\n  {Colors.WHITE}Evacuation Plan:{Colors.END}")
-    print_slow(f"     Destination: {Colors.DIM}{safe_wallet[:20]}...{Colors.END}")
-    print_slow(f"     Priority: {Colors.RED}CRITICAL (max fees){Colors.END}")
-    print_slow(f"     Estimated time: {Colors.WHITE}~3 seconds{Colors.END}")
+    await print_slow(f"\n  {Colors.WHITE}Evacuation Plan:{Colors.END}")
+    await print_slow(f"     Destination: {Colors.DIM}{safe_wallet[:20]}...{Colors.END}")
+    await print_slow(f"     Priority: {Colors.RED}CRITICAL (max fees){Colors.END}")
+    await print_slow(f"     Estimated time: {Colors.WHITE}~3 seconds{Colors.END}")
     
     await asyncio.sleep(0.5)
     
     # Evacuation progress
-    print_slow(f"\n  {Colors.YELLOW}Executing evacuation...{Colors.END}\n")
+    await print_slow(f"\n  {Colors.YELLOW}Executing evacuation...{Colors.END}\n")
     
     steps = [
         ("Revoking 3 dangerous approvals", 0.4),
@@ -373,23 +373,23 @@ async def scene_evacuation():
     ]
     
     for step, delay in steps:
-        print_slow(f"     ⏳ {step}...", delay=0.1, color=Colors.DIM)
+        await print_slow(f"     ⏳ {step}...", delay=0.1, color=Colors.DIM)
         await asyncio.sleep(delay)
-        print_slow(f"     {Colors.GREEN}✓ Complete{Colors.END}", delay=0.1)
+        await print_slow(f"     {Colors.GREEN}✓ Complete{Colors.END}", delay=0.1)
     
     await asyncio.sleep(0.5)
     
-    print_slow(f"\n  {Colors.BG_GREEN}{Colors.WHITE}{Colors.BOLD} ✅ EVACUATION COMPLETE ✅ {Colors.END}")
+    await print_slow(f"\n  {Colors.BG_GREEN}{Colors.WHITE}{Colors.BOLD} ✅ EVACUATION COMPLETE ✅ {Colors.END}")
     
-    print_slow(f"\n  {Colors.GREEN}Results:{Colors.END}")
-    print_slow(f"     Assets saved: {Colors.BOLD}$12,450 USD{Colors.END}")
-    print_slow(f"     Transactions: {Colors.WHITE}6 confirmed{Colors.END}")
-    print_slow(f"     Time elapsed: {Colors.WHITE}2.7 seconds{Colors.END}")
-    print_slow(f"     Fees paid: {Colors.WHITE}0.015 SOL (~$2.25){Colors.END}")
+    await print_slow(f"\n  {Colors.GREEN}Results:{Colors.END}")
+    await print_slow(f"     Assets saved: {Colors.BOLD}$12,450 USD{Colors.END}")
+    await print_slow(f"     Transactions: {Colors.WHITE}6 confirmed{Colors.END}")
+    await print_slow(f"     Time elapsed: {Colors.WHITE}2.7 seconds{Colors.END}")
+    await print_slow(f"     Fees paid: {Colors.WHITE}0.015 SOL (~$2.25){Colors.END}")
     
     await asyncio.sleep(1)
     
-    print_slow(f"\n  {Colors.GREEN}{Colors.BOLD}💰 USER FUNDS SECURED BEFORE ATTACKER COULD DRAIN 💰{Colors.END}")
+    await print_slow(f"\n  {Colors.GREEN}{Colors.BOLD}💰 USER FUNDS SECURED BEFORE ATTACKER COULD DRAIN 💰{Colors.END}")
     
     await asyncio.sleep(2)
 
@@ -398,13 +398,13 @@ async def scene_finale():
     """Scene 6: Stats and finale"""
     clear_screen()
     
-    print_slow(f"\n{Colors.CYAN}{'═' * 70}{Colors.END}")
-    print_slow(f"{Colors.CYAN}  GUARDIAN - PROTECTING SOLANA 24/7{Colors.END}")
-    print_slow(f"{Colors.CYAN}{'═' * 70}{Colors.END}\n")
+    await print_slow(f"\n{Colors.CYAN}{'═' * 70}{Colors.END}")
+    await print_slow(f"{Colors.CYAN}  GUARDIAN - PROTECTING SOLANA 24/7{Colors.END}")
+    await print_slow(f"{Colors.CYAN}{'═' * 70}{Colors.END}\n")
     
     await asyncio.sleep(1)
     
-    print_slow(f"  {Colors.BOLD}📊 DEMO SESSION STATISTICS{Colors.END}\n")
+    await print_slow(f"  {Colors.BOLD}📊 DEMO SESSION STATISTICS{Colors.END}\n")
     
     stats = [
         ("Agents Active", "16/16"),
@@ -418,13 +418,13 @@ async def scene_finale():
     ]
     
     for name, value in stats:
-        print_slow(f"     {Colors.WHITE}{name:25}{Colors.END} {Colors.GREEN}{Colors.BOLD}{value}{Colors.END}", delay=0.2)
+        await print_slow(f"     {Colors.WHITE}{name:25}{Colors.END} {Colors.GREEN}{Colors.BOLD}{value}{Colors.END}", delay=0.2)
     
     await asyncio.sleep(1)
     
-    print_slow(f"\n{'═' * 70}", color=Colors.DIM)
+    await print_slow(f"\n{'═' * 70}", color=Colors.DIM)
     
-    print_slow(f"\n  {Colors.BOLD}🛡️ GUARDIAN CAPABILITIES:{Colors.END}\n")
+    await print_slow(f"\n  {Colors.BOLD}🛡️ GUARDIAN CAPABILITIES:{Colors.END}\n")
     
     capabilities = [
         "✅ Real-time honeypot detection",
@@ -438,11 +438,11 @@ async def scene_finale():
     ]
     
     for cap in capabilities:
-        print_slow(f"     {Colors.CYAN}{cap}{Colors.END}", delay=0.15)
+        await print_slow(f"     {Colors.CYAN}{cap}{Colors.END}", delay=0.15)
     
     await asyncio.sleep(1)
     
-    print_slow(f"\n{'═' * 70}\n", color=Colors.DIM)
+    await print_slow(f"\n{'═' * 70}\n", color=Colors.DIM)
     
     # Final banner
     final = """
