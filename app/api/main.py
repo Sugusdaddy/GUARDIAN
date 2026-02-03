@@ -358,6 +358,51 @@ async def broadcast_event(event_type: str, data: Dict):
             websocket_connections.remove(ws)
 
 
+# ============== Pump.fun Monitoring ==============
+
+@app.get("/api/pumpfun/new")
+async def get_new_pumpfun_tokens():
+    """Get recently launched pump.fun tokens with risk analysis"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent.parent / "agents"))
+        from integrations.pumpfun import get_pumpfun
+        
+        pf = get_pumpfun()
+        high_risk = await pf.scan_new_launches()
+        return {"tokens": high_risk, "count": len(high_risk)}
+    except Exception as e:
+        return {"error": str(e), "tokens": []}
+
+@app.get("/api/pumpfun/analyze/{mint}")
+async def analyze_pumpfun_token(mint: str):
+    """Analyze a specific pump.fun token"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent.parent / "agents"))
+        from integrations.pumpfun import get_pumpfun
+        
+        pf = get_pumpfun()
+        token_info = await pf.get_token_details(mint)
+        if token_info:
+            analysis = await pf.analyze_token(token_info)
+            return analysis
+        return {"error": "Token not found", "mint": mint}
+    except Exception as e:
+        return {"error": str(e), "mint": mint}
+
+@app.get("/api/dex/liquidity/{token}")
+async def get_token_liquidity(token: str):
+    """Get liquidity info from DexScreener"""
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent.parent / "agents"))
+        from integrations.pumpfun import get_dexscreener
+        
+        dex = get_dexscreener()
+        result = await dex.analyze_liquidity(token)
+        return result
+    except Exception as e:
+        return {"error": str(e), "token": token}
+
+
 # ============== Live Solana Analysis ==============
 
 @app.get("/api/analyze/token/{mint}")
