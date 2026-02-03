@@ -1,0 +1,42 @@
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+keypairs/
+wallets/
+
+# Anchor / Solana
+target/
+.anchor/
+test-ledger/
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+dist/
+build/
+*.so
