@@ -444,16 +444,71 @@
     </footer>
     
     <script>
-        // Simulate real-time updates
-        function updateStats() {
+        const API_URL = 'http://localhost:8080';
+        
+        // Fetch stats from API
+        async function fetchStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/stats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('agents-active').textContent = `${data.agents_active}/${data.agents_total}`;
+                    document.getElementById('threats-detected').textContent = data.threats_detected_24h;
+                    document.getElementById('threats-blocked').textContent = data.threats_blocked;
+                    document.getElementById('sol-protected').textContent = `~${data.sol_protected.toLocaleString()}`;
+                    document.getElementById('accuracy').textContent = `${data.accuracy_rate}%`;
+                    document.getElementById('response-time').textContent = `${data.avg_response_time_seconds}s`;
+                }
+            } catch (e) {
+                console.log('API not available, using demo data');
+            }
+        }
+        
+        // Fetch threats from API
+        async function fetchThreats() {
+            try {
+                const response = await fetch(`${API_URL}/api/threats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateThreatsTable(data.threats);
+                }
+            } catch (e) {
+                console.log('Using demo threat data');
+            }
+        }
+        
+        function updateThreatsTable(threats) {
+            const tbody = document.querySelector('.threats-table tbody');
+            tbody.innerHTML = threats.map(t => `
+                <tr>
+                    <td>#${t.id}</td>
+                    <td>${t.type}</td>
+                    <td><span class="address">${t.target}</span></td>
+                    <td><span class="severity-badge severity-${t.severity > 80 ? 'high' : t.severity > 50 ? 'medium' : 'low'}">${t.severity}%</span></td>
+                    <td>${t.detected_by}</td>
+                    <td><span class="status-badge-small">${t.status}</span></td>
+                </tr>
+            `).join('');
+        }
+        
+        // Simulate real-time updates when API not available
+        function simulateUpdates() {
             const threats = Math.floor(Math.random() * 5) + 45;
             const blocked = Math.floor(threats * 0.25);
             document.getElementById('threats-detected').textContent = threats;
             document.getElementById('threats-blocked').textContent = blocked;
         }
         
+        // Initialize
+        fetchStats();
+        fetchThreats();
+        
         // Update every 30 seconds
-        setInterval(updateStats, 30000);
+        setInterval(() => {
+            fetchStats();
+            fetchThreats();
+            simulateUpdates();
+        }, 30000);
     </script>
 </body>
 </html>
