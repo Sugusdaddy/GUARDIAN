@@ -1,5 +1,5 @@
-# GUARDIAN v2.1 - Elite Agents Module
-# 5 Advanced specialized agents for Solana security
+# GUARDIAN v2.2 - Elite Agents Module
+# 6 Advanced specialized agents for Solana security
 
 from .agents.specialized import (
     # Elite Agents
@@ -8,6 +8,7 @@ from .agents.specialized import (
     HoneypotAgent,
     NetworkAgent,
     SwapGuardAgent,
+    EvacuatorAgent,
     
     # SwapGuard utilities
     SwapRequest,
@@ -17,9 +18,18 @@ from .agents.specialized import (
     TokenAnalysis,
     get_swapguard,
     evaluate_swap,
+    
+    # Evacuator utilities
+    EvacuationPlan,
+    EvacuationResult,
+    EvacuationStatus,
+    ThreatUrgency,
+    WalletAsset,
+    get_evacuator,
+    emergency_evacuate,
 )
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 __all__ = [
     # Agents
     "LazarusAgent",
@@ -27,6 +37,7 @@ __all__ = [
     "HoneypotAgent",
     "NetworkAgent",
     "SwapGuardAgent",
+    "EvacuatorAgent",
     
     # SwapGuard utilities
     "SwapRequest",
@@ -36,4 +47,13 @@ __all__ = [
     "TokenAnalysis",
     "get_swapguard",
     "evaluate_swap",
+    
+    # Evacuator utilities
+    "EvacuationPlan",
+    "EvacuationResult",
+    "EvacuationStatus",
+    "ThreatUrgency",
+    "WalletAsset",
+    "get_evacuator",
+    "emergency_evacuate",
 ]

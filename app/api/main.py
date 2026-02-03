@@ -35,6 +35,13 @@ try:
 except ImportError:
     HAS_SWAP_ROUTES = False
 
+# Import evacuate routes
+try:
+    from evacuate_routes import router as evacuate_router
+    HAS_EVACUATE_ROUTES = True
+except ImportError:
+    HAS_EVACUATE_ROUTES = False
+
 logger = structlog.get_logger()
 
 # WebSocket connections for real-time updates
@@ -69,6 +76,11 @@ app.add_middleware(
 if HAS_SWAP_ROUTES:
     app.include_router(swap_router)
     logger.info("🛡️ SwapGuard routes loaded")
+
+# Include evacuate routes (Emergency Evacuation)
+if HAS_EVACUATE_ROUTES:
+    app.include_router(evacuate_router)
+    logger.info("🚨 Evacuator routes loaded")
 
 
 # ============== Pydantic Models ==============

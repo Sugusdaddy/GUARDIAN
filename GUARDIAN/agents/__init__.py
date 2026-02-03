@@ -6,6 +6,7 @@ from .specialized import (
     HoneypotAgent,
     NetworkAgent,
     SwapGuardAgent,
+    EvacuatorAgent,
     
     # SwapGuard utilities
     SwapRequest,
@@ -15,6 +16,15 @@ from .specialized import (
     TokenAnalysis,
     get_swapguard,
     evaluate_swap,
+    
+    # Evacuator utilities
+    EvacuationPlan,
+    EvacuationResult,
+    EvacuationStatus,
+    ThreatUrgency,
+    WalletAsset,
+    get_evacuator,
+    emergency_evacuate,
 )
 
 __all__ = [
@@ -24,6 +34,7 @@ __all__ = [
     "HoneypotAgent", 
     "NetworkAgent",
     "SwapGuardAgent",
+    "EvacuatorAgent",
     
     # SwapGuard
     "SwapRequest",
@@ -33,4 +44,13 @@ __all__ = [
     "TokenAnalysis",
     "get_swapguard",
     "evaluate_swap",
+    
+    # Evacuator
+    "EvacuationPlan",
+    "EvacuationResult",
+    "EvacuationStatus",
+    "ThreatUrgency",
+    "WalletAsset",
+    "get_evacuator",
+    "emergency_evacuate",
 ]

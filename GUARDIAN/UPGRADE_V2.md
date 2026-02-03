@@ -72,7 +72,7 @@ Features:
 - 5-level congestion assessment
 - Program upgrade tracking
 
-### 5. 🛡️ SWAPGUARD Agent - Risk-Aware Trading (v2.1) 🆕
+### 5. 🛡️ SWAPGUARD Agent - Risk-Aware Trading (v2.1)
 **Your bodyguard for every DEX trade.**
 
 Features:
@@ -90,11 +90,38 @@ API Endpoints:
 - `POST /api/swap/execute` - Get protected swap transaction
 - `GET /api/swap/analyze/{mint}` - Full token analysis
 
+### 6. 🚨 EVACUATOR Agent - Emergency Wallet Evacuation (v2.2) 🆕
+**Your panic button when under attack.**
+
+Features:
+- One-click emergency evacuation
+- Multi-asset support (SOL, tokens, NFTs)
+- Automatic approval revocation
+- Priority fee management by urgency
+- Safe wallet pre-registration
+- Jito bundle support for critical evacuations
+- Full wallet analysis
+
+API Endpoints:
+- `POST /api/evacuate/emergency` - 🚨 PANIC BUTTON
+- `POST /api/evacuate/register-safe-wallet` - Pre-register safe wallet
+- `POST /api/evacuate/analyze` - Analyze wallet assets
+- `POST /api/evacuate/assess-threat` - Check if evacuation needed
+- `POST /api/evacuate/plan` - Create evacuation plan
+- `POST /api/evacuate/execute` - Execute evacuation
+
+Urgency Levels:
+- LOW: ~0.00001 SOL priority fee
+- MEDIUM: ~0.0001 SOL priority fee
+- HIGH: ~0.001 SOL priority fee
+- CRITICAL: ~0.01 SOL priority fee (max speed)
+
 ## 📈 Agent Count Comparison
 
 | System | Agents | Unique Features |
 |--------|--------|-----------------|
-| **GUARDIAN v2.1** | **15** | Lazarus, Quantum, SwapGuard, ML embeddings |
+| **GUARDIAN v2.2** | **16** | Lazarus, Quantum, SwapGuard, Evacuator, ML embeddings |
+| **GUARDIAN v2.1** | 15 | Lazarus, Quantum, SwapGuard |
 | **GUARDIAN v2.0** | 14 | Lazarus, Quantum, Honeypot, Network |
 | REKT Shield | 11 | Cyberpunk dashboard |
 | Original GUARDIAN | 10 | On-chain verification |
@@ -102,7 +129,7 @@ API Endpoints:
 ## 🏗️ Architecture Update
 
 ```
-GUARDIAN v2.1 - 15 Agent Swarm
+GUARDIAN v2.2 - 16 Agent Swarm
 ═══════════════════════════════════════════════════════════════
 
 ┌─────────────────────────────────────────────────────────────┐
@@ -124,9 +151,13 @@ GUARDIAN v2.1 - 15 Agent Swarm
 ┌─────────────────────────────────────────────────────────────┐
 │                     DEFENSE TIER                            │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
-│  │ GUARDIAN │ │ HONEYPOT │ │  HUNTER  │ │SWAPGUARD │ ← NEW │
+│  │ GUARDIAN │ │ HONEYPOT │ │  HUNTER  │ │SWAPGUARD │       │
 │  │ Defend   │ │ Trap     │ │ Track    │ │ Trading  │       │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
+│                           ┌──────────┐                      │
+│                           │EVACUATOR │ ← NEW                │
+│                           │ Emergency│                      │
+│                           └──────────┘                      │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
@@ -145,14 +176,15 @@ GUARDIAN v2.1 - 15 Agent Swarm
 
 ### What Sets GUARDIAN Apart:
 
-1. **Most Agents (15)** - Largest autonomous swarm in the hackathon
+1. **Most Agents (16)** - Largest autonomous swarm in the hackathon
 2. **Unique LAZARUS Tracking** - First tool on Solana for DPRK detection
 3. **Risk-Aware Trading** - SwapGuard protects every DEX trade
-4. **Post-Quantum Ready** - Preparing for 2035 before others
-5. **ML-Powered** - Embeddings + clustering + anomaly detection
-6. **On-Chain Verification** - 3 Anchor programs deployed
-7. **Active Defense** - Honeypots catch attackers proactively
-8. **Full API** - Ready for dApp integration
+4. **Emergency Evacuation** - One-click panic button saves funds
+5. **Post-Quantum Ready** - Preparing for 2035 before others
+6. **ML-Powered** - Embeddings + clustering + anomaly detection
+7. **On-Chain Verification** - 3 Anchor programs deployed
+8. **Active Defense** - Honeypots catch attackers proactively
+9. **Full API** - Ready for dApp integration
 
 ### Judging Criteria Alignment:
 
@@ -164,11 +196,12 @@ GUARDIAN v2.1 - 15 Agent Swarm
 ## 📝 TODO Before Submission
 
 - [x] Add Jupiter integration for risk-aware swaps ✅ (SwapGuard Agent)
-- [ ] Implement emergency wallet evacuate
+- [x] Implement emergency wallet evacuate ✅ (Evacuator Agent)
 - [ ] Deploy updated agents to testnet
-- [ ] Create demo video showing all 15 agents
+- [ ] Create demo video showing all 16 agents
 - [x] Update README with v2.0 features ✅
 - [x] Update README with v2.1 features ✅ (SwapGuard)
+- [x] Update README with v2.2 features ✅ (Evacuator)
 - [ ] Test swarm coordination with new agents
 - [ ] Deploy on mainnet for demo
 

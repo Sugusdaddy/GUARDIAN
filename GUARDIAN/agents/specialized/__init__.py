@@ -1,17 +1,18 @@
 # Specialized Agents for Solana Immune System
-# 15 Autonomous Agents - Complete Security Swarm
+# 16 Autonomous Agents - Complete Security Swarm
 
 # Original 10 Agents (in agents/specialized/)
 # - SentinelAgent, ScannerAgent, OracleAgent, CoordinatorAgent
 # - GuardianAgent, IntelAgent, ReporterAgent, AuditorAgent
 # - HunterAgent, HealerAgent
 
-# Elite Agents v2.0 (in GUARDIAN/agents/specialized/)
+# Elite Agents v2.0+ (in GUARDIAN/agents/specialized/)
 from .lazarus_agent import LazarusAgent      # 🇰🇵 DPRK/State-actor tracking
 from .quantum_agent import QuantumAgent      # ⚛️ Post-quantum defense
 from .honeypot_agent import HoneypotAgent    # 🪤 Active bait wallet traps
 from .network_agent import NetworkAgent      # 🌐 Solana infrastructure health
-from .swapguard_agent import SwapGuardAgent  # 🛡️ Risk-aware DEX trading (NEW v2.1)
+from .swapguard_agent import SwapGuardAgent  # 🛡️ Risk-aware DEX trading (v2.1)
+from .evacuator_agent import EvacuatorAgent  # 🚨 Emergency wallet evacuation (v2.2)
 
 # SwapGuard convenience exports
 from .swapguard_agent import (
@@ -22,6 +23,17 @@ from .swapguard_agent import (
     TokenAnalysis,
     get_swapguard,
     evaluate_swap,
+)
+
+# Evacuator convenience exports
+from .evacuator_agent import (
+    EvacuationPlan,
+    EvacuationResult,
+    EvacuationStatus,
+    ThreatUrgency,
+    WalletAsset,
+    get_evacuator,
+    emergency_evacuate,
 )
 
 __all__ = [
@@ -40,8 +52,18 @@ __all__ = [
     "TokenAnalysis",
     "get_swapguard",
     "evaluate_swap",
+    
+    # Emergency Evacuation (v2.2)
+    "EvacuatorAgent",   # 🚨 Emergency wallet evacuation
+    "EvacuationPlan",
+    "EvacuationResult",
+    "EvacuationStatus",
+    "ThreatUrgency",
+    "WalletAsset",
+    "get_evacuator",
+    "emergency_evacuate",
 ]
 
-# Agent count: 15 (10 original + 5 elite)
-AGENT_COUNT = 15
-ELITE_AGENT_COUNT = 5
+# Agent count: 16 (10 original + 6 elite)
+AGENT_COUNT = 16
+ELITE_AGENT_COUNT = 6

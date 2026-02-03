@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Solana](https://img.shields.io/badge/Solana-Mainnet-purple)](https://solana.com)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
-[![Agents](https://img.shields.io/badge/Agents-15-green.svg)](#-15-specialized-agents)
+[![Agents](https://img.shields.io/badge/Agents-16-green.svg)](#-16-specialized-agents)
 
 **Protecting the Solana ecosystem 24/7 with AI-powered threat detection and autonomous response.**
 
@@ -22,7 +22,7 @@
 
 ## 💡 The Solution
 
-GUARDIAN is a **15-agent autonomous swarm** that protects the Solana ecosystem in **real-time**:
+GUARDIAN is a **16-agent autonomous swarm** that protects the Solana ecosystem in **real-time**:
 
 - 🔭 **Continuous monitoring** of transactions and contracts
 - 🧠 **AI-powered analysis** using Claude Opus
@@ -38,7 +38,7 @@ GUARDIAN is a **15-agent autonomous swarm** that protects the Solana ecosystem i
 
 ## ✨ Features
 
-### 🤖 15 Specialized Agents
+### 🤖 16 Specialized Agents
 
 #### Core Defense Squad (10 Agents)
 
@@ -55,7 +55,7 @@ GUARDIAN is a **15-agent autonomous swarm** that protects the Solana ecosystem i
 | 🔎 **HUNTER** | Track | Malicious actor tracking, fund flow analysis, attribution |
 | 💚 **HEALER** | Recover | Fund recovery attempts, victim assistance, post-incident response |
 
-#### Elite Threat Squad (5 Advanced Agents) 🆕
+#### Elite Threat Squad (6 Advanced Agents) 🆕
 
 | Agent | Role | Description |
 |-------|------|-------------|
@@ -63,7 +63,8 @@ GUARDIAN is a **15-agent autonomous swarm** that protects the Solana ecosystem i
 | 🇰🇵 **LAZARUS** | Counter-Intel | **First on Solana** - Tracks DPRK/Lazarus Group operations, OFAC flagged addresses, UTC+9 patterns |
 | 🌐 **NETWORK** | Infrastructure | Monitors TPS, block time, DDoS indicators, MEV/sandwich attacks, validator concentration |
 | ⚛️ **QUANTUM** | Future-Proof | Post-quantum cryptography assessment, NIST 2035 deadline tracking, migration roadmap |
-| 🛡️ **SWAPGUARD** | Trading | **Risk-aware DEX trading** - Honeypot detection, rug pull warnings, intelligent slippage 🆕 |
+| 🛡️ **SWAPGUARD** | Trading | **Risk-aware DEX trading** - Honeypot detection, rug pull warnings, intelligent slippage |
+| 🚨 **EVACUATOR** | Emergency | **Emergency wallet evacuation** - Move all funds to safety before attackers drain you 🆕 |
 
 ---
 
@@ -98,6 +99,69 @@ Honeypot types:
 - **High Value** (10+ SOL) - Whale hunter traps
 - **Token Approval** - Fake approval exploits
 - **NFT Bait** - Valuable-looking NFT traps
+
+---
+
+### 🚨 Emergency Evacuation (Evacuator)
+
+**When your wallet is under attack, every second counts.**
+
+Evacuator is your panic button - it moves ALL funds to safety and revokes dangerous approvals before attackers can drain your wallet.
+
+#### How It Works
+
+```
+1. REGISTER  → Pre-register your safe wallet (do this NOW)
+2. DETECT    → Recognize you're under attack
+3. EVACUATE  → One-click emergency extraction
+4. PROTECT   → All funds moved, all approvals revoked
+```
+
+#### Pre-Register Your Safe Wallet
+
+**Do this BEFORE you need it!** When your wallet is being drained, you don't want to be typing addresses.
+
+```python
+from GUARDIAN import get_evacuator
+
+evacuator = get_evacuator()
+evacuator.register_safe_wallet(
+    user_wallet="your_main_wallet",
+    safe_wallet="your_cold_wallet"
+)
+```
+
+#### Emergency Evacuation
+
+```python
+from GUARDIAN import emergency_evacuate
+
+# 🚨 PANIC BUTTON - One click to save everything
+result = await emergency_evacuate(
+    source_wallet="compromised_wallet",
+    destination_wallet="safe_wallet"
+)
+
+print(f"Saved ${result.total_evacuated_usd:.2f}!")
+```
+
+#### What Gets Evacuated
+
+| Asset Type | Action |
+|------------|--------|
+| SOL | Transferred (keeps 0.01 for rent) |
+| SPL Tokens | All transferred |
+| NFTs | All transferred |
+| Token Approvals | All revoked |
+
+#### Priority Fees by Urgency
+
+| Urgency | Priority Fee | Use When |
+|---------|--------------|----------|
+| LOW | ~0.00001 SOL | Suspicious activity |
+| MEDIUM | ~0.0001 SOL | Threat detected |
+| HIGH | ~0.001 SOL | Wallet being probed |
+| CRITICAL | ~0.01 SOL | **ACTIVELY BEING DRAINED** |
 
 ---
 
@@ -310,12 +374,13 @@ GUARDIAN/
 │   └── tests/                  # Test suite
 ├── GUARDIAN/                   # Elite agents module
 │   └── agents/
-│       └── specialized/        # 5 Advanced agents
+│       └── specialized/        # 6 Advanced agents
 │           ├── honeypot_agent.py
 │           ├── lazarus_agent.py
 │           ├── network_agent.py
 │           ├── quantum_agent.py
-│           └── swapguard_agent.py  # 🆕 Risk-aware trading
+│           ├── swapguard_agent.py  # Risk-aware trading
+│           └── evacuator_agent.py  # 🆕 Emergency evacuation
 ├── programs/                   # Anchor smart contracts
 │   ├── reasoning-registry/
 │   ├── threat-intelligence/
@@ -371,7 +436,7 @@ POST /api/score               # Risk scoring
 POST /api/quantum/assess      # Quantum readiness
 WS   /ws                      # Real-time updates
 
-# SwapGuard - Risk-Aware Trading 🆕
+# SwapGuard - Risk-Aware Trading
 POST /api/swap/evaluate       # Evaluate swap risk before execution
 POST /api/swap/quick-check    # Quick honeypot/liquidity check
 POST /api/swap/execute        # Get protected swap transaction
@@ -380,6 +445,16 @@ GET  /api/swap/stats          # SwapGuard statistics
 GET  /api/swap/honeypots      # Recently detected honeypots
 GET  /api/swap/quote          # Raw Jupiter quote
 GET  /api/swap/price/{mint}   # Token price
+
+# Evacuator - Emergency Wallet Protection 🆕
+POST /api/evacuate/register-safe-wallet  # Pre-register safe wallet
+POST /api/evacuate/analyze               # Analyze wallet assets & approvals
+POST /api/evacuate/assess-threat         # Check if evacuation needed
+POST /api/evacuate/plan                  # Create evacuation plan
+POST /api/evacuate/execute               # Execute evacuation
+POST /api/evacuate/emergency             # 🚨 ONE-CLICK PANIC BUTTON
+GET  /api/evacuate/stats                 # Evacuator statistics
+GET  /api/evacuate/history               # Recent evacuations
 ```
 
 ---
@@ -424,7 +499,7 @@ anchor deploy --provider.cluster devnet
 | Detection Time | < 30s | ✅ ~15s |
 | False Positive Rate | < 5% | ✅ ~3% |
 | Uptime | 99.9% | ✅ 99.9% |
-| Agents Active | 15 | ✅ 15 |
+| Agents Active | 16 | ✅ 16 |
 | Threats Tracked | ∞ | 📈 Growing |
 
 ---
@@ -507,14 +582,15 @@ Built for the **Solana AI Hackathon** by Colosseum.
 
 ### Why GUARDIAN?
 
-1. **15 specialized agents** - Most comprehensive security swarm
+1. **16 specialized agents** - Most comprehensive security swarm
 2. **Lazarus tracking** - First on Solana, critical for ecosystem safety
 3. **Risk-aware trading** - SwapGuard protects every DEX transaction
-4. **Active defense** - Honeypots turn attackers into intel sources
-5. **Future-proof** - Quantum readiness before it's too late
-6. **Fully autonomous** - 24/7 protection without human intervention
-7. **Transparent AI** - On-chain verifiable reasoning
-8. **Full API** - Ready for dApp integration
+4. **Emergency evacuation** - One-click panic button saves your funds
+5. **Active defense** - Honeypots turn attackers into intel sources
+6. **Future-proof** - Quantum readiness before it's too late
+7. **Fully autonomous** - 24/7 protection without human intervention
+8. **Transparent AI** - On-chain verifiable reasoning
+9. **Full API** - Ready for dApp integration
 
 ---
 
