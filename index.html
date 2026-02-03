@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUARDIAN v2.2 - Solana Immune System</title>
-    <meta name="description" content="16 autonomous AI agents protecting the Solana ecosystem 24/7.">
+    <title>GUARDIAN - Solana Immune System</title>
+    <meta name="description" content="16 autonomous AI agents protecting the Solana ecosystem 24/7. Real-time threat detection, emergency evacuation, and state-actor tracking.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
             --bg-primary: #000000;
             --bg-secondary: #0a0a0a;
@@ -27,260 +28,1112 @@
             --danger: #ef4444;
             --border: rgba(255, 255, 255, 0.08);
             --border-hover: rgba(255, 255, 255, 0.15);
+            --gradient-1: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            --gradient-2: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+
         html { scroll-behavior: smooth; }
+        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
+            overflow-x: hidden;
         }
-        
-        /* Navigation */
+
+        /* ==========================================
+           NAVIGATION
+        ========================================== */
         nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            padding: 1rem 2rem;
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0, 0, 0, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
         }
+
+        nav.scrolled {
+            padding: 0.75rem 3rem;
+            background: rgba(0, 0, 0, 0.95);
+        }
+
         .logo {
-            font-size: 1.25rem; font-weight: 700;
-            color: var(--text-primary); text-decoration: none;
-            display: flex; align-items: center; gap: 0.5rem;
-        }
-        .nav-links { display: flex; gap: 0.25rem; list-style: none; }
-        .nav-links a {
-            color: var(--text-secondary); text-decoration: none;
-            font-size: 0.9rem; font-weight: 500;
-            padding: 0.5rem 1rem; border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .nav-links a:hover, .nav-links a.active {
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--text-primary);
-            background: rgba(255,255,255,0.05);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
-        .nav-right { display: flex; align-items: center; gap: 1rem; }
-        
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Buttons */
         .btn {
-            padding: 0.6rem 1.2rem; border-radius: 8px;
-            font-size: 0.9rem; font-weight: 600;
-            text-decoration: none; border: none; cursor: pointer;
-            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.85rem 1.75rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
             transition: all 0.2s;
         }
-        .btn-primary { background: var(--accent); color: #000; }
-        .btn-primary:hover { background: #00b8e6; transform: translateY(-1px); }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .btn-accent:hover {
+            background: #00b8e6;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.25);
+        }
+
         .btn-secondary {
-            background: rgba(255,255,255,0.1);
+            background: transparent;
             color: var(--text-primary);
             border: 1px solid var(--border);
         }
-        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
 
-        /* Layout */
-        .app-container { display: flex; padding-top: 60px; min-height: 100vh; }
-        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        /* ==========================================
+           LANDING PAGE - HERO
+        ========================================== */
+        #landing {
+            display: block;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 1000px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+            animation: pulse-glow 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 1.25rem;
+            background: var(--accent-dim);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 100px;
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-bottom: 2.5rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: clamp(3.5rem, 10vw, 6rem);
+            font-weight: 800;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .hero h1 span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin-bottom: 3rem;
+            line-height: 1.7;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 5rem;
+            margin-top: 6rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--border);
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-tertiary);
+            margin-top: 0.5rem;
+        }
+
+        /* ==========================================
+           LANDING - SECTIONS
+        ========================================== */
+        .landing-section {
+            padding: 8rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-full {
+            max-width: 100%;
+            padding: 8rem 4rem;
+            margin: 0;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(2.25rem, 5vw, 3.75rem);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        /* Problem Section */
+        .problem {
+            background: var(--bg-secondary);
+        }
+
+        .problem-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.75rem;
+            margin-top: 4rem;
+        }
+
+        .problem-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.25rem;
+            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .problem-card-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #ff4757;
+            margin-bottom: 0.5rem;
+        }
+
+        .problem-card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .problem-card-desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Agents Section */
+        .agents-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 4rem;
+        }
+
+        .agent-card-landing {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card-landing:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .agent-card-landing.elite {
+            border-color: rgba(0, 212, 255, 0.3);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, transparent 100%);
+        }
+
+        .agent-card-landing .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .agent-card-landing .name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .agent-card-landing .role {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Features Section */
+        .features {
+            background: var(--bg-secondary);
+        }
+
+        .features-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .feature-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: center;
+            margin-top: 6rem;
+        }
+
+        .feature-row.reverse {
+            direction: rtl;
+        }
+
+        .feature-row.reverse > * {
+            direction: ltr;
+        }
+
+        .feature-content h3 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .feature-content p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .feature-visual {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            overflow: hidden;
+        }
+
+        .feature-visual pre {
+            white-space: pre-wrap;
+        }
+
+        .feature-visual .accent { color: var(--accent); }
+        .feature-visual .danger { color: #ff4757; }
+        .feature-visual .success { color: #2ed573; }
+        .feature-visual .warning { color: #ffa502; }
+
+        /* API Section */
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin-top: 4rem;
+        }
+
+        .api-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            transition: border-color 0.2s;
+        }
+
+        .api-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .api-method {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-right: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .api-method.post {
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .api-method.get {
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+        }
+
+        .api-endpoint {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .api-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            text-align: center;
+            padding: 10rem 4rem;
+            position: relative;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta h2 {
+            font-size: clamp(2.75rem, 6vw, 4.5rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        .landing-footer {
+            padding: 3rem 4rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-copy {
+            color: var(--text-tertiary);
+            font-size: 0.9rem;
+        }
+
+        /* ==========================================
+           APPLICATION
+        ========================================== */
+        #app {
+            display: none;
+        }
+
+        #app.active {
+            display: block;
+        }
+
+        #landing.hidden {
+            display: none;
+        }
+
+        .app-nav {
+            padding: 0.75rem 2rem !important;
+        }
+
+        .app-nav .nav-links {
+            gap: 0.25rem;
+        }
+
+        .app-nav .nav-links a {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .app-nav .nav-links a:hover,
+        .app-nav .nav-links a.active {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .app-container {
+            display: flex;
+            padding-top: 60px;
+            min-height: 100vh;
+        }
+
         .sidebar {
             width: 220px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border);
             padding: 1.5rem 0.75rem;
-            position: fixed; top: 60px; bottom: 0;
+            position: fixed;
+            top: 60px;
+            bottom: 0;
+            overflow-y: auto;
         }
-        .sidebar-section { margin-bottom: 1.5rem; }
+
+        .sidebar-section {
+            margin-bottom: 1.5rem;
+        }
+
         .sidebar-title {
-            font-size: 0.7rem; font-weight: 600;
+            font-size: 0.7rem;
+            font-weight: 600;
             color: var(--text-tertiary);
-            text-transform: uppercase; letter-spacing: 0.05em;
-            margin-bottom: 0.5rem; padding: 0 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            padding: 0 0.75rem;
         }
+
         .sidebar-link {
-            display: flex; align-items: center; gap: 0.75rem;
-            padding: 0.6rem 0.75rem;
-            color: var(--text-secondary); text-decoration: none;
-            border-radius: 8px; font-size: 0.85rem;
-            transition: all 0.2s; margin-bottom: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.75rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            margin-bottom: 0.2rem;
         }
-        .sidebar-link:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
-        .sidebar-link.active { background: var(--accent-dim); color: var(--accent); }
-        .sidebar-link .icon { font-size: 1rem; width: 20px; text-align: center; }
 
-        .main-content { flex: 1; margin-left: 220px; padding: 2rem; max-width: 1100px; }
-        
-        .page-header { margin-bottom: 1.5rem; }
-        .page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
-        .page-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
 
+        .sidebar-link.active {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .sidebar-link .icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 2rem;
+            max-width: 1100px;
+        }
+
+        .page-header {
+            margin-bottom: 1.75rem;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Cards */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.25rem;
+            border-radius: 14px;
+            padding: 1.35rem;
             margin-bottom: 1.25rem;
         }
+
         .card-header {
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 1rem;
         }
+
         .card-title {
-            font-size: 0.95rem; font-weight: 600;
-            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem; margin-bottom: 1.5rem;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
+
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
+            border-radius: 14px;
+            padding: 1.15rem;
         }
-        .stat-label { font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 0.25rem; }
-        .stat-value { font-size: 1.5rem; font-weight: 700; }
-        .stat-value.success { color: var(--success); }
-        .stat-value.warning { color: var(--warning); }
-        .stat-value.danger { color: var(--danger); }
-        .stat-value.accent { color: var(--accent); }
 
-        .input-group { margin-bottom: 1rem; }
-        .input-label { display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.4rem; color: var(--text-secondary); }
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-bottom: 0.3rem;
+            margin-top: 0;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.65rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .stat-card .stat-value.success { color: var(--success); }
+        .stat-card .stat-value.warning { color: var(--warning); }
+        .stat-card .stat-value.danger { color: var(--danger); }
+        .stat-card .stat-value.accent { color: var(--accent); }
+
+        /* Form Elements */
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            color: var(--text-secondary);
+        }
+
         .input {
-            width: 100%; padding: 0.7rem 1rem;
+            width: 100%;
+            padding: 0.75rem 1rem;
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--text-primary);
-            font-size: 0.9rem; font-family: inherit;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
         }
-        .input:focus { outline: none; border-color: var(--accent); }
-        .input::placeholder { color: var(--text-tertiary); }
-        .input-with-btn { display: flex; gap: 0.5rem; }
-        .input-with-btn .input { flex: 1; }
 
+        .input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .input-with-btn .input {
+            flex: 1;
+        }
+
+        /* Results */
         .result-box {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem; margin-top: 1rem;
+            border-radius: 10px;
+            padding: 1.15rem;
+            margin-top: 1rem;
         }
-        .result-box.success { border-color: var(--success); background: rgba(34, 197, 94, 0.1); }
-        .result-box.danger { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
-        .result-box.warning { border-color: var(--warning); background: rgba(245, 158, 11, 0.1); }
-        .result-header { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; margin-bottom: 0.75rem; }
+
+        .result-box.success {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .result-box.danger {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .result-box.warning {
+            border-color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            margin-bottom: 0.85rem;
+        }
+
         .result-item {
-            display: flex; justify-content: space-between;
-            padding: 0.4rem 0; border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            padding: 0.45rem 0;
+            border-bottom: 1px solid var(--border);
             font-size: 0.85rem;
         }
-        .result-item:last-child { border-bottom: none; }
-        .result-item .label { color: var(--text-secondary); }
 
-        .risk-meter { margin: 1rem 0; }
-        .risk-bar { height: 8px; background: var(--bg-tertiary); border-radius: 4px; overflow: hidden; }
-        .risk-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item .label {
+            color: var(--text-secondary);
+        }
+
+        /* Risk Meter */
+        .risk-meter {
+            margin: 1rem 0;
+        }
+
+        .risk-bar {
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .risk-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
         .risk-fill.safe { background: var(--success); }
         .risk-fill.low { background: #84cc16; }
         .risk-fill.medium { background: var(--warning); }
         .risk-fill.high { background: #f97316; }
         .risk-fill.critical { background: var(--danger); }
 
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
-        
-        .loading { display: flex; align-items: center; justify-content: center; padding: 2rem; color: var(--text-tertiary); }
+        /* Layout helpers */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: var(--text-tertiary);
+        }
+
         .spinner {
-            width: 20px; height: 20px;
+            width: 20px;
+            height: 20px;
             border: 2px solid var(--border);
             border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-right: 0.75rem;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .section { display: none; }
-        .section.active { display: block; }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
+        /* Sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Agent Grid (App) */
         .agents-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 0.6rem;
+            grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+            gap: 0.65rem;
         }
+
         .agent-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 0.9rem; text-align: center;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
             transition: all 0.2s;
         }
-        .agent-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
-        .agent-card.online { border-color: rgba(34, 197, 94, 0.3); }
-        .agent-card .icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
-        .agent-card .name { font-size: 0.8rem; font-weight: 600; }
-        .agent-card .status {
-            font-size: 0.65rem; color: var(--success);
-            display: flex; align-items: center; justify-content: center; gap: 0.25rem;
-        }
-        .agent-card .status::before {
-            content: ''; width: 5px; height: 5px;
-            background: var(--success); border-radius: 50%;
+
+        .agent-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
         }
 
+        .agent-card.online {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .agent-card .icon {
+            font-size: 1.6rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .agent-card .name {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .agent-card .status {
+            font-size: 0.65rem;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-top: 0.25rem;
+        }
+
+        .agent-card .status::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background: var(--success);
+            border-radius: 50%;
+        }
+
+        /* Badges */
         .badge {
-            display: inline-flex; padding: 0.2rem 0.5rem;
-            border-radius: 4px; font-size: 0.65rem; font-weight: 600;
+            display: inline-flex;
+            padding: 0.2rem 0.55rem;
+            border-radius: 5px;
+            font-size: 0.65rem;
+            font-weight: 600;
             text-transform: uppercase;
         }
+
         .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
         .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
         .badge-info { background: var(--accent-dim); color: var(--accent); }
 
+        /* Terminal */
         .terminal {
-            background: #050505; border: 1px solid var(--border);
-            border-radius: 8px; font-family: 'Monaco', monospace; font-size: 0.8rem;
+            background: #050505;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.8rem;
         }
+
         .terminal-header {
-            background: var(--bg-secondary); padding: 0.6rem 1rem;
-            display: flex; gap: 0.4rem; border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            padding: 0.6rem 1rem;
+            display: flex;
+            gap: 0.4rem;
+            border-bottom: 1px solid var(--border);
+            border-radius: 10px 10px 0 0;
         }
-        .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
         .terminal-dot.red { background: #ff5f57; }
         .terminal-dot.yellow { background: #febc2e; }
         .terminal-dot.green { background: #28c840; }
-        .terminal-body { padding: 0.75rem; max-height: 250px; overflow-y: auto; }
-        .terminal-line { margin-bottom: 0.4rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+        .terminal-body {
+            padding: 0.85rem;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin-bottom: 0.4rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
         .terminal-prompt { color: var(--accent); }
         .terminal-text { color: var(--text-secondary); }
         .terminal-success { color: var(--success); }
         .terminal-danger { color: var(--danger); }
         .terminal-warning { color: var(--warning); }
 
+        /* Wallet */
         .wallet-info {
-            background: var(--bg-secondary); border: 1px solid var(--border);
-            border-radius: 8px; padding: 1rem; margin-bottom: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
-        .wallet-address { font-family: monospace; font-size: 0.85rem; color: var(--accent); }
-        .wallet-balance { font-size: 1.25rem; font-weight: 700; margin-top: 0.5rem; }
 
-        @media (max-width: 900px) {
-            .sidebar { display: none; }
-            .main-content { margin-left: 0; }
-            .two-col { grid-template-columns: 1fr; }
+        .wallet-address {
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        .wallet-balance {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            nav { padding: 1rem 2rem; }
+            .nav-links { gap: 1.5rem; }
+            .landing-section, .section-full { padding: 5rem 2rem; }
+            .hero-stats { gap: 3rem; }
+            .feature-row { grid-template-columns: 1fr; gap: 2.5rem; }
+            .feature-row.reverse { direction: ltr; }
+        }
+
+        @media (max-width: 768px) {
             .nav-links { display: none; }
+            nav { padding: 1rem 1.5rem; }
+            .hero { padding: 7rem 1.5rem 3rem; }
+            .hero h1 { font-size: 2.75rem; }
+            .hero-stats { flex-direction: column; gap: 2rem; }
+            .stat-value { font-size: 2.25rem; }
+            .landing-section, .section-full { padding: 4rem 1.5rem; }
+            .landing-footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 1.5rem; }
+            .two-col { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <nav>
-        <a href="#" class="logo">🛡️ GUARDIAN</a>
-        <ul class="nav-links">
+    <!-- ==========================================
+         NAVIGATION
+    ========================================== -->
+    <nav id="main-nav">
+        <a href="#" class="logo" onclick="goToLanding()">
+            <div class="logo-icon">🛡️</div>
+            GUARDIAN
+        </a>
+        <ul class="nav-links" id="nav-links-landing">
+            <li><a href="#problem">Problem</a></li>
+            <li><a href="#agents">Agents</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#api">API</a></li>
+        </ul>
+        <ul class="nav-links" id="nav-links-app" style="display: none;">
             <li><a href="#" onclick="showSection('dashboard')" class="active" id="nav-dashboard">Dashboard</a></li>
             <li><a href="#" onclick="showSection('scanner')" id="nav-scanner">Scanner</a></li>
             <li><a href="#" onclick="showSection('swapguard')" id="nav-swapguard">SwapGuard</a></li>
@@ -288,276 +1141,624 @@
             <li><a href="#" onclick="showSection('agents')" id="nav-agents">Agents</a></li>
         </ul>
         <div class="nav-right">
-            <a href="https://github.com/Sugusdaddy/GUARDIAN" target="_blank" class="btn btn-secondary">GitHub</a>
-            <button class="btn btn-primary" onclick="connectWallet()" id="wallet-btn">Connect Wallet</button>
+            <a href="https://github.com/Sugusdaddy/GUARDIAN" target="_blank" class="btn btn-secondary btn-sm">GitHub</a>
+            <button class="btn btn-accent btn-sm" onclick="launchApp()" id="launch-btn">Launch App</button>
+            <button class="btn btn-primary btn-sm" onclick="connectWallet()" id="wallet-btn" style="display: none;">Connect Wallet</button>
         </div>
     </nav>
 
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title">Protection</div>
-                <a href="#" onclick="showSection('dashboard')" class="sidebar-link active" id="side-dashboard">
-                    <span class="icon">📊</span> Dashboard
-                </a>
-                <a href="#" onclick="showSection('scanner')" class="sidebar-link" id="side-scanner">
-                    <span class="icon">🔍</span> Token Scanner
-                </a>
-                <a href="#" onclick="showSection('swapguard')" class="sidebar-link" id="side-swapguard">
-                    <span class="icon">🛡️</span> SwapGuard
-                </a>
-                <a href="#" onclick="showSection('evacuator')" class="sidebar-link" id="side-evacuator">
-                    <span class="icon">🚨</span> Evacuator
-                </a>
+    <!-- ==========================================
+         LANDING PAGE
+    ========================================== -->
+    <div id="landing">
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-badge">
+                <span>Built for Colosseum Hackathon 2025</span>
             </div>
-            <div class="sidebar-section">
-                <div class="sidebar-title">System</div>
-                <a href="#" onclick="showSection('agents')" class="sidebar-link" id="side-agents">
-                    <span class="icon">🤖</span> Agents
-                </a>
-                <a href="#" onclick="showSection('wallet')" class="sidebar-link" id="side-wallet">
-                    <span class="icon">💰</span> My Wallet
-                </a>
+            <h1>The Immune System<br><span>Solana Deserves</span></h1>
+            <p class="hero-subtitle">16 autonomous AI agents protecting the ecosystem 24/7. Real-time threat detection, emergency evacuation, and state-actor tracking.</p>
+            <div class="hero-cta">
+                <button class="btn btn-primary" onclick="launchApp()">
+                    Launch App
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <a href="#features" class="btn btn-secondary">Learn More</a>
             </div>
-        </aside>
-
-        <main class="main-content">
-            <!-- Dashboard -->
-            <div class="section active" id="section-dashboard">
-                <div class="page-header">
-                    <h1 class="page-title">Dashboard</h1>
-                    <p class="page-subtitle">Real-time Solana protection status</p>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-value">16</div>
+                    <div class="stat-label">Autonomous Agents</div>
                 </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Agents Online</div>
-                        <div class="stat-value success">16/16</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">SOL Price</div>
-                        <div class="stat-value accent" id="sol-price">$--</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Network TPS</div>
-                        <div class="stat-value" id="network-tps">--</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Slot Height</div>
-                        <div class="stat-value" id="slot-height" style="font-size:1.1rem;">--</div>
-                    </div>
+                <div class="stat">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">Real-time Protection</div>
                 </div>
+                <div class="stat">
+                    <div class="stat-value">&lt;3s</div>
+                    <div class="stat-label">Emergency Evacuation</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Open Source</div>
+                </div>
+            </div>
+        </section>
 
-                <div class="two-col">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">📡 Live Network</div>
-                        </div>
-                        <div class="terminal">
-                            <div class="terminal-header">
-                                <span class="terminal-dot red"></span>
-                                <span class="terminal-dot yellow"></span>
-                                <span class="terminal-dot green"></span>
-                            </div>
-                            <div class="terminal-body" id="live-terminal"></div>
-                        </div>
+        <!-- Problem Section -->
+        <section class="landing-section section-full problem" id="problem">
+            <div class="problem-inner">
+                <div class="section-label">The Problem</div>
+                <h2 class="section-title">DeFi security is broken</h2>
+                <p class="section-subtitle">Current solutions are reactive. Users lose funds before anyone can warn them.</p>
+                
+                <div class="problem-grid">
+                    <div class="problem-card">
+                        <div class="problem-card-value">$3.4B+</div>
+                        <div class="problem-card-title">Stolen in 2024</div>
+                        <div class="problem-card-desc">Billions lost to exploits, rug pulls, and sophisticated attacks across DeFi protocols.</div>
                     </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">💰 Quick Token Check</div>
-                        </div>
-                        <div class="input-with-btn">
-                            <input type="text" class="input" id="quick-token" placeholder="Token address...">
-                            <button class="btn btn-primary" onclick="quickCheck()">Check</button>
-                        </div>
-                        <div id="quick-result"></div>
+                    <div class="problem-card">
+                        <div class="problem-card-value">93%</div>
+                        <div class="problem-card-title">Scam Tokens</div>
+                        <div class="problem-card-desc">The vast majority of new tokens launched on pump.fun are honeypots or rug pulls.</div>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-card-value">🇰🇵</div>
+                        <div class="problem-card-title">State Actors</div>
+                        <div class="problem-card-desc">North Korea's Lazarus Group actively targets Solana with sophisticated attack campaigns.</div>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-card-value">0</div>
+                        <div class="problem-card-title">Proactive Solutions</div>
+                        <div class="problem-card-desc">Existing security tools alert users after the damage is done. We need prevention, not reaction.</div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Token Scanner -->
-            <div class="section" id="section-scanner">
-                <div class="page-header">
-                    <h1 class="page-title">🔍 Token Scanner</h1>
-                    <p class="page-subtitle">Analyze any Solana token for risks using real on-chain data</p>
+        <!-- Agents Section -->
+        <section class="landing-section" id="agents">
+            <div class="section-label">The Solution</div>
+            <h2 class="section-title">16 Specialized Agents</h2>
+            <p class="section-subtitle">A coordinated swarm of AI agents, each with distinct responsibilities, working together to protect the ecosystem.</p>
+            
+            <div class="agents-showcase">
+                <div class="agent-card-landing">
+                    <div class="icon">🔭</div>
+                    <div class="name">Sentinel</div>
+                    <div class="role">Transaction Monitor</div>
                 </div>
+                <div class="agent-card-landing">
+                    <div class="icon">🔍</div>
+                    <div class="name">Scanner</div>
+                    <div class="role">Contract Analyzer</div>
+                </div>
+                <div class="agent-card-landing">
+                    <div class="icon">🔮</div>
+                    <div class="name">Oracle</div>
+                    <div class="role">ML Risk Predictor</div>
+                </div>
+                <div class="agent-card-landing">
+                    <div class="icon">🎯</div>
+                    <div class="name">Coordinator</div>
+                    <div class="role">Swarm Orchestrator</div>
+                </div>
+                <div class="agent-card-landing">
+                    <div class="icon">🛡️</div>
+                    <div class="name">Guardian</div>
+                    <div class="role">Threat Defender</div>
+                </div>
+                <div class="agent-card-landing">
+                    <div class="icon">📚</div>
+                    <div class="name">Intel</div>
+                    <div class="role">Threat Database</div>
+                </div>
+                <div class="agent-card-landing">
+                    <div class="icon">📢</div>
+                    <div class="name">Reporter</div>
+                    <div class="role">Alert System</div>
+                </div>
+                <div class="agent-card-landing">
+                    <div class="icon">✅</div>
+                    <div class="name">Auditor</div>
+                    <div class="role">Reasoning Verifier</div>
+                </div>
+                <div class="agent-card-landing">
+                    <div class="icon">🔎</div>
+                    <div class="name">Hunter</div>
+                    <div class="role">Actor Tracker</div>
+                </div>
+                <div class="agent-card-landing">
+                    <div class="icon">💚</div>
+                    <div class="name">Healer</div>
+                    <div class="role">Recovery Agent</div>
+                </div>
+                <div class="agent-card-landing elite">
+                    <div class="icon">🍯</div>
+                    <div class="name">Honeypot</div>
+                    <div class="role">Active Traps</div>
+                </div>
+                <div class="agent-card-landing elite">
+                    <div class="icon">🇰🇵</div>
+                    <div class="name">Lazarus</div>
+                    <div class="role">State-Actor Tracker</div>
+                </div>
+                <div class="agent-card-landing elite">
+                    <div class="icon">🌐</div>
+                    <div class="name">Network</div>
+                    <div class="role">Infrastructure Monitor</div>
+                </div>
+                <div class="agent-card-landing elite">
+                    <div class="icon">⚛️</div>
+                    <div class="name">Quantum</div>
+                    <div class="role">Post-Quantum Defense</div>
+                </div>
+                <div class="agent-card-landing elite">
+                    <div class="icon">🛡️</div>
+                    <div class="name">SwapGuard</div>
+                    <div class="role">Trade Protection</div>
+                </div>
+                <div class="agent-card-landing elite">
+                    <div class="icon">🚨</div>
+                    <div class="name">Evacuator</div>
+                    <div class="role">Emergency Extraction</div>
+                </div>
+            </div>
+        </section>
 
-                <div class="card">
-                    <div class="input-group">
-                        <label class="input-label">Token Mint Address</label>
-                        <div class="input-with-btn">
-                            <input type="text" class="input" id="token-input" placeholder="Enter token mint address (e.g., EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v)">
-                            <button class="btn btn-primary" onclick="analyzeToken()">Analyze</button>
-                        </div>
+        <!-- Features Section -->
+        <section class="landing-section section-full features" id="features">
+            <div class="features-inner">
+                <div class="section-label">Capabilities</div>
+                <h2 class="section-title">Built for real threats</h2>
+                <p class="section-subtitle">Every feature designed to solve actual problems facing Solana users today.</p>
+
+                <div class="feature-row">
+                    <div class="feature-content">
+                        <h3>Honeypot Detection</h3>
+                        <p>Real-time analysis of every token. We test buy and sell transactions to identify honeypots before you can lose money.</p>
+                        <ul class="feature-list">
+                            <li>Simulated buy/sell transaction testing</li>
+                            <li>Mint authority detection</li>
+                            <li>Freeze authority warnings</li>
+                            <li>Holder concentration analysis</li>
+                        </ul>
                     </div>
-                    <div id="scanner-result"></div>
+                    <div class="feature-visual">
+                        <pre><span class="accent">SCANNER</span> analyzing $MOONSHOT...
+
+<span class="success">✓</span> Buy transaction: <span class="success">SUCCESS</span>
+<span class="danger">✗</span> Sell transaction: <span class="danger">BLOCKED</span>
+
+<span class="danger">🚨 HONEYPOT DETECTED</span>
+Risk Score: <span class="danger">98/100</span>
+Action: <span class="warning">BLACKLISTED</span></pre>
+                    </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-title" style="margin-bottom:1rem;">🔥 Popular Tokens</div>
-                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                        <button class="btn btn-secondary" onclick="analyzeKnownToken('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'USDC')">USDC</button>
-                        <button class="btn btn-secondary" onclick="analyzeKnownToken('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', 'BONK')">BONK</button>
-                        <button class="btn btn-secondary" onclick="analyzeKnownToken('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN', 'JUP')">JUP</button>
-                        <button class="btn btn-secondary" onclick="analyzeKnownToken('7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr', 'POPCAT')">POPCAT</button>
-                        <button class="btn btn-secondary" onclick="analyzeKnownToken('EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', 'WIF')">WIF</button>
+                <div class="feature-row reverse">
+                    <div class="feature-content">
+                        <h3>Lazarus Group Tracking</h3>
+                        <p>The first security tool on Solana specifically designed to detect state-sponsored activity from North Korea's Lazarus Group.</p>
+                        <ul class="feature-list">
+                            <li>UTC+9 timezone pattern detection</li>
+                            <li>Peel chain transaction analysis</li>
+                            <li>Mixer and tumbler tracking</li>
+                            <li>OFAC flagged address matching</li>
+                        </ul>
+                    </div>
+                    <div class="feature-visual">
+                        <pre><span class="accent">LAZARUS</span> monitoring patterns...
+
+Transaction timing: <span class="warning">UTC+9</span>
+Fund movement: <span class="warning">Peel chain</span>
+Mixer usage: <span class="warning">Detected</span>
+OFAC check: <span class="danger">FLAGGED</span>
+
+<span class="warning">🇰🇵 PATTERN MATCH: 87%</span>
+Connected wallets: <span class="accent">23</span>
+Fund flow tracked: <span class="accent">$2.3M</span></pre>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-content">
+                        <h3>Risk-Aware Trading</h3>
+                        <p>SwapGuard intercepts every swap request and analyzes the target token across multiple risk vectors before execution.</p>
+                        <ul class="feature-list">
+                            <li>Pre-swap risk analysis</li>
+                            <li>Automatic position limits</li>
+                            <li>Intelligent slippage management</li>
+                            <li>Blacklist enforcement</li>
+                        </ul>
+                    </div>
+                    <div class="feature-visual">
+                        <pre><span class="accent">SWAPGUARD</span> intercepting...
+
+Swap: 5 SOL → $MOONSHOT
+Value: ~$750 USD
+
+Risk Analysis:
+Honeypot Risk    <span class="danger">[████████████] 100%</span>
+Rug Pull Risk    <span class="danger">[███████████░] 95%</span>
+Liquidity Risk   <span class="warning">[████████░░░░] 80%</span>
+
+<span class="danger">❌ SWAP BLOCKED</span>
+<span class="success">✓ USER PROTECTED - $750 SAVED</span></pre>
+                    </div>
+                </div>
+
+                <div class="feature-row reverse">
+                    <div class="feature-content">
+                        <h3>Emergency Evacuation</h3>
+                        <p>When your wallet is compromised, every second counts. Evacuator moves all assets to safety in under 3 seconds.</p>
+                        <ul class="feature-list">
+                            <li>One-click emergency extraction</li>
+                            <li>Automatic approval revocation</li>
+                            <li>Multi-asset support (SOL, tokens, NFTs)</li>
+                            <li>Maximum priority transaction fees</li>
+                        </ul>
+                    </div>
+                    <div class="feature-visual">
+                        <pre><span class="danger">🚨 WALLET UNDER ATTACK</span>
+
+<span class="accent">EVACUATOR</span> emergency protocol...
+
+<span class="success">✓</span> Revoking 3 approvals
+<span class="success">✓</span> Transferring 2,450 USDC
+<span class="success">✓</span> Transferring NFT #4521
+<span class="success">✓</span> Transferring 45.7 SOL
+
+<span class="success">✅ EVACUATION COMPLETE</span>
+Time: <span class="accent">2.7 seconds</span>
+Saved: <span class="success">$12,450</span></pre>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- SwapGuard -->
-            <div class="section" id="section-swapguard">
-                <div class="page-header">
-                    <h1 class="page-title">🛡️ SwapGuard</h1>
-                    <p class="page-subtitle">Check swap safety using real Jupiter quotes</p>
+        <!-- API Section -->
+        <section class="landing-section" id="api">
+            <div class="section-label">For Developers</div>
+            <h2 class="section-title">Full API Access</h2>
+            <p class="section-subtitle">Integrate GUARDIAN's protection into your dApp with our comprehensive REST API.</p>
+            
+            <div class="api-grid">
+                <div class="api-card">
+                    <span class="api-method post">POST</span>
+                    <span class="api-endpoint">/api/swap/evaluate</span>
+                    <p class="api-desc">Evaluate swap risk before execution</p>
                 </div>
-
-                <div class="two-col">
-                    <div class="card">
-                        <div class="card-title" style="margin-bottom:1rem;">Evaluate Swap</div>
-                        
-                        <div class="input-group">
-                            <label class="input-label">From</label>
-                            <select class="input" id="swap-from">
-                                <option value="So11111111111111111111111111111111111111112">SOL</option>
-                                <option value="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v">USDC</option>
-                            </select>
-                        </div>
-
-                        <div class="input-group">
-                            <label class="input-label">To (Token Address)</label>
-                            <input type="text" class="input" id="swap-to" placeholder="Token mint address">
-                        </div>
-
-                        <div class="input-group">
-                            <label class="input-label">Amount</label>
-                            <input type="number" class="input" id="swap-amount" value="1" min="0.001" step="0.1">
-                        </div>
-
-                        <button class="btn btn-primary" onclick="evaluateSwap()" style="width:100%;">
-                            Check Swap Safety
-                        </button>
-
-                        <div id="swap-result"></div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-title" style="margin-bottom:1rem;">How It Works</div>
-                        <div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7;">
-                            <p><strong>1. Get Quote</strong> - Fetches real quote from Jupiter</p>
-                            <p style="margin-top:0.5rem;"><strong>2. Test Liquidity</strong> - Checks if you can buy AND sell</p>
-                            <p style="margin-top:0.5rem;"><strong>3. Price Impact</strong> - Analyzes slippage and liquidity depth</p>
-                            <p style="margin-top:0.5rem;"><strong>4. Risk Score</strong> - Calculates overall risk based on data</p>
-                        </div>
-                        
-                        <div style="margin-top:1rem; padding:0.75rem; background:var(--accent-dim); border-radius:8px; font-size:0.8rem;">
-                            <strong>🍯 Honeypot Detection:</strong> If you can buy but can't sell, it's a honeypot!
-                        </div>
-                    </div>
+                <div class="api-card">
+                    <span class="api-method post">POST</span>
+                    <span class="api-endpoint">/api/swap/quick-check</span>
+                    <p class="api-desc">Fast honeypot detection</p>
+                </div>
+                <div class="api-card">
+                    <span class="api-method post">POST</span>
+                    <span class="api-endpoint">/api/evacuate/emergency</span>
+                    <p class="api-desc">Emergency wallet evacuation</p>
+                </div>
+                <div class="api-card">
+                    <span class="api-method get">GET</span>
+                    <span class="api-endpoint">/api/swap/analyze/{mint}</span>
+                    <p class="api-desc">Full token risk analysis</p>
+                </div>
+                <div class="api-card">
+                    <span class="api-method post">POST</span>
+                    <span class="api-endpoint">/api/evacuate/assess-threat</span>
+                    <p class="api-desc">Wallet threat assessment</p>
+                </div>
+                <div class="api-card">
+                    <span class="api-method get">GET</span>
+                    <span class="api-endpoint">/api/threats</span>
+                    <p class="api-desc">List active threats</p>
                 </div>
             </div>
+        </section>
 
-            <!-- Evacuator -->
-            <div class="section" id="section-evacuator">
-                <div class="page-header">
-                    <h1 class="page-title">🚨 Emergency Evacuator</h1>
-                    <p class="page-subtitle">Analyze your wallet and prepare emergency evacuation</p>
+        <!-- CTA Section -->
+        <section class="cta">
+            <h2>Protect Your Users</h2>
+            <p>GUARDIAN is open source and ready for integration. Join us in building a safer Solana ecosystem.</p>
+            <div class="hero-cta">
+                <button class="btn btn-primary" onclick="launchApp()">
+                    Launch App
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <a href="https://github.com/Sugusdaddy/GUARDIAN" class="btn btn-secondary" target="_blank">View on GitHub</a>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <div class="footer-links">
+                <a href="https://github.com/Sugusdaddy/GUARDIAN" target="_blank">GitHub</a>
+                <a href="https://github.com/Sugusdaddy/GUARDIAN/blob/master/README.md" target="_blank">Documentation</a>
+                <a href="https://github.com/Sugusdaddy/GUARDIAN/blob/master/LICENSE" target="_blank">MIT License</a>
+            </div>
+            <div class="footer-copy">
+                Built for Colosseum Hackathon 2025
+            </div>
+        </footer>
+    </div>
+
+    <!-- ==========================================
+         APPLICATION
+    ========================================== -->
+    <div id="app">
+        <div class="app-container">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Protection</div>
+                    <a href="#" onclick="showSection('dashboard')" class="sidebar-link active" id="side-dashboard">
+                        <span class="icon">📊</span> Dashboard
+                    </a>
+                    <a href="#" onclick="showSection('scanner')" class="sidebar-link" id="side-scanner">
+                        <span class="icon">🔍</span> Token Scanner
+                    </a>
+                    <a href="#" onclick="showSection('swapguard')" class="sidebar-link" id="side-swapguard">
+                        <span class="icon">🛡️</span> SwapGuard
+                    </a>
+                    <a href="#" onclick="showSection('evacuator')" class="sidebar-link" id="side-evacuator">
+                        <span class="icon">🚨</span> Evacuator
+                    </a>
                 </div>
-
-                <div class="card" id="wallet-required" style="text-align:center; padding:3rem;">
-                    <p style="font-size:1.1rem; margin-bottom:1rem;">Connect your wallet to use the Evacuator</p>
-                    <button class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
+                <div class="sidebar-section">
+                    <div class="sidebar-title">System</div>
+                    <a href="#" onclick="showSection('agents')" class="sidebar-link" id="side-agents">
+                        <span class="icon">🤖</span> Agents
+                    </a>
+                    <a href="#" onclick="showSection('wallet')" class="sidebar-link" id="side-wallet">
+                        <span class="icon">💰</span> My Wallet
+                    </a>
                 </div>
+                <div class="sidebar-section" style="margin-top: auto; padding-top: 2rem;">
+                    <a href="#" onclick="goToLanding()" class="sidebar-link">
+                        <span class="icon">←</span> Back to Home
+                    </a>
+                </div>
+            </aside>
 
-                <div id="evacuator-content" style="display:none;">
-                    <div class="wallet-info">
-                        <div style="font-size:0.8rem; color:var(--text-tertiary);">Connected Wallet</div>
-                        <div class="wallet-address" id="evac-wallet-address">-</div>
-                        <div class="wallet-balance"><span id="evac-wallet-balance">0</span> SOL</div>
+            <main class="main-content">
+                <!-- Dashboard -->
+                <div class="section active" id="section-dashboard">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-subtitle">Real-time Solana protection status</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Agents Online</div>
+                            <div class="stat-value success">16/16</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">SOL Price</div>
+                            <div class="stat-value accent" id="sol-price">$--</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Network TPS</div>
+                            <div class="stat-value" id="network-tps">--</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Slot Height</div>
+                            <div class="stat-value" id="slot-height" style="font-size: 1.1rem;">--</div>
+                        </div>
                     </div>
 
                     <div class="two-col">
                         <div class="card">
-                            <div class="card-title" style="margin-bottom:1rem;">📊 Wallet Analysis</div>
-                            <div id="wallet-analysis">
-                                <div class="loading"><div class="spinner"></div>Loading wallet data...</div>
+                            <div class="card-header">
+                                <div class="card-title">📡 Live Network</div>
+                            </div>
+                            <div class="terminal">
+                                <div class="terminal-header">
+                                    <span class="terminal-dot red"></span>
+                                    <span class="terminal-dot yellow"></span>
+                                    <span class="terminal-dot green"></span>
+                                </div>
+                                <div class="terminal-body" id="live-terminal"></div>
                             </div>
                         </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">💰 Quick Token Check</div>
+                            </div>
+                            <div class="input-with-btn">
+                                <input type="text" class="input" id="quick-token" placeholder="Token address...">
+                                <button class="btn btn-accent btn-sm" onclick="quickCheck()">Check</button>
+                            </div>
+                            <div id="quick-result"></div>
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="card" style="border-color:var(--danger);">
-                            <div class="card-title" style="color:var(--danger); margin-bottom:1rem;">🚨 Emergency Transfer</div>
+                <!-- Token Scanner -->
+                <div class="section" id="section-scanner">
+                    <div class="page-header">
+                        <h1 class="page-title">🔍 Token Scanner</h1>
+                        <p class="page-subtitle">Analyze any Solana token for risks using real on-chain data</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="input-group">
+                            <label class="input-label">Token Mint Address</label>
+                            <div class="input-with-btn">
+                                <input type="text" class="input" id="token-input" placeholder="Enter token mint address (e.g., EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v)">
+                                <button class="btn btn-accent btn-sm" onclick="analyzeToken()">Analyze</button>
+                            </div>
+                        </div>
+                        <div id="scanner-result"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title" style="margin-bottom: 1rem;">🔥 Popular Tokens</div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button class="btn btn-secondary btn-sm" onclick="analyzeKnownToken('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', 'USDC')">USDC</button>
+                            <button class="btn btn-secondary btn-sm" onclick="analyzeKnownToken('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', 'BONK')">BONK</button>
+                            <button class="btn btn-secondary btn-sm" onclick="analyzeKnownToken('JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN', 'JUP')">JUP</button>
+                            <button class="btn btn-secondary btn-sm" onclick="analyzeKnownToken('7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr', 'POPCAT')">POPCAT</button>
+                            <button class="btn btn-secondary btn-sm" onclick="analyzeKnownToken('EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', 'WIF')">WIF</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SwapGuard -->
+                <div class="section" id="section-swapguard">
+                    <div class="page-header">
+                        <h1 class="page-title">🛡️ SwapGuard</h1>
+                        <p class="page-subtitle">Check swap safety using real Jupiter quotes</p>
+                    </div>
+
+                    <div class="two-col">
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 1rem;">Evaluate Swap</div>
+                            
                             <div class="input-group">
-                                <label class="input-label">Safe Wallet Address</label>
-                                <input type="text" class="input" id="safe-wallet" placeholder="Your cold wallet / safe address">
+                                <label class="input-label">From</label>
+                                <select class="input" id="swap-from">
+                                    <option value="So11111111111111111111111111111111111111112">SOL</option>
+                                    <option value="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v">USDC</option>
+                                </select>
                             </div>
-                            <button class="btn btn-danger" onclick="prepareEvacuation()" style="width:100%;">
-                                Prepare Evacuation
+
+                            <div class="input-group">
+                                <label class="input-label">To (Token Address)</label>
+                                <input type="text" class="input" id="swap-to" placeholder="Token mint address">
+                            </div>
+
+                            <div class="input-group">
+                                <label class="input-label">Amount</label>
+                                <input type="number" class="input" id="swap-amount" value="1" min="0.001" step="0.1">
+                            </div>
+
+                            <button class="btn btn-accent" onclick="evaluateSwap()" style="width: 100%;">
+                                Check Swap Safety
                             </button>
-                            <p style="font-size:0.75rem; color:var(--text-tertiary); margin-top:0.75rem;">
-                                This will show you the transactions needed to move all assets. You'll need to approve each one.
-                            </p>
+
+                            <div id="swap-result"></div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title" style="margin-bottom: 1rem;">How It Works</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7;">
+                                <p><strong>1. Get Quote</strong> — Fetches real quote from Jupiter</p>
+                                <p style="margin-top: 0.5rem;"><strong>2. Test Liquidity</strong> — Checks if you can buy AND sell</p>
+                                <p style="margin-top: 0.5rem;"><strong>3. Price Impact</strong> — Analyzes slippage and liquidity depth</p>
+                                <p style="margin-top: 0.5rem;"><strong>4. Risk Score</strong> — Calculates overall risk based on data</p>
+                            </div>
+                            
+                            <div style="margin-top: 1rem; padding: 0.85rem; background: var(--accent-dim); border-radius: 10px; font-size: 0.8rem;">
+                                <strong>🍯 Honeypot Detection:</strong> If you can buy but can't sell, it's a honeypot!
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Agents -->
-            <div class="section" id="section-agents">
-                <div class="page-header">
-                    <h1 class="page-title">🤖 Agent Swarm</h1>
-                    <p class="page-subtitle">16 specialized AI agents protecting Solana</p>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Core Defense Squad</div>
-                        <span class="badge badge-success">10 Online</span>
+                <!-- Evacuator -->
+                <div class="section" id="section-evacuator">
+                    <div class="page-header">
+                        <h1 class="page-title">🚨 Emergency Evacuator</h1>
+                        <p class="page-subtitle">Analyze your wallet and prepare emergency evacuation</p>
                     </div>
-                    <div class="agents-grid">
-                        <div class="agent-card online"><div class="icon">🔭</div><div class="name">Sentinel</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">🔍</div><div class="name">Scanner</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">🔮</div><div class="name">Oracle</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">🎯</div><div class="name">Coordinator</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">🛡️</div><div class="name">Guardian</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">📚</div><div class="name">Intel</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">📢</div><div class="name">Reporter</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">✅</div><div class="name">Auditor</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">🔎</div><div class="name">Hunter</div><div class="status">Online</div></div>
-                        <div class="agent-card online"><div class="icon">💚</div><div class="name">Healer</div><div class="status">Online</div></div>
-                    </div>
-                </div>
 
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Elite Threat Squad</div>
-                        <span class="badge badge-info">6 Online</span>
+                    <div class="card" id="wallet-required" style="text-align: center; padding: 3rem;">
+                        <p style="font-size: 1.1rem; margin-bottom: 1rem;">Connect your wallet to use the Evacuator</p>
+                        <button class="btn btn-accent" onclick="connectWallet()">Connect Wallet</button>
                     </div>
-                    <div class="agents-grid">
-                        <div class="agent-card online" style="border-color:rgba(0,212,255,0.3);"><div class="icon">🍯</div><div class="name">Honeypot</div><div class="status">Online</div></div>
-                        <div class="agent-card online" style="border-color:rgba(0,212,255,0.3);"><div class="icon">🇰🇵</div><div class="name">Lazarus</div><div class="status">Online</div></div>
-                        <div class="agent-card online" style="border-color:rgba(0,212,255,0.3);"><div class="icon">🌐</div><div class="name">Network</div><div class="status">Online</div></div>
-                        <div class="agent-card online" style="border-color:rgba(0,212,255,0.3);"><div class="icon">⚛️</div><div class="name">Quantum</div><div class="status">Online</div></div>
-                        <div class="agent-card online" style="border-color:rgba(0,212,255,0.3);"><div class="icon">🛡️</div><div class="name">SwapGuard</div><div class="status">Online</div></div>
-                        <div class="agent-card online" style="border-color:rgba(0,212,255,0.3);"><div class="icon">🚨</div><div class="name">Evacuator</div><div class="status">Online</div></div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Wallet -->
-            <div class="section" id="section-wallet">
-                <div class="page-header">
-                    <h1 class="page-title">💰 My Wallet</h1>
-                    <p class="page-subtitle">Your connected wallet details</p>
-                </div>
+                    <div id="evacuator-content" style="display: none;">
+                        <div class="wallet-info">
+                            <div style="font-size: 0.8rem; color: var(--text-tertiary);">Connected Wallet</div>
+                            <div class="wallet-address" id="evac-wallet-address">-</div>
+                            <div class="wallet-balance"><span id="evac-wallet-balance">0</span> SOL</div>
+                        </div>
 
-                <div id="wallet-section-content">
-                    <div class="card" style="text-align:center; padding:3rem;">
-                        <p style="font-size:1.1rem; margin-bottom:1rem;">Connect your wallet to view details</p>
-                        <button class="btn btn-primary" onclick="connectWallet()">Connect Phantom</button>
+                        <div class="two-col">
+                            <div class="card">
+                                <div class="card-title" style="margin-bottom: 1rem;">📊 Wallet Analysis</div>
+                                <div id="wallet-analysis">
+                                    <div class="loading"><div class="spinner"></div>Loading wallet data...</div>
+                                </div>
+                            </div>
+
+                            <div class="card" style="border-color: var(--danger);">
+                                <div class="card-title" style="color: var(--danger); margin-bottom: 1rem;">🚨 Emergency Transfer</div>
+                                <div class="input-group">
+                                    <label class="input-label">Safe Wallet Address</label>
+                                    <input type="text" class="input" id="safe-wallet" placeholder="Your cold wallet / safe address">
+                                </div>
+                                <button class="btn btn-danger" onclick="prepareEvacuation()" style="width: 100%;">
+                                    Prepare Evacuation
+                                </button>
+                                <p style="font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.85rem;">
+                                    This will show you the transactions needed to move all assets. You'll need to approve each one.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </main>
+
+                <!-- Agents -->
+                <div class="section" id="section-agents">
+                    <div class="page-header">
+                        <h1 class="page-title">🤖 Agent Swarm</h1>
+                        <p class="page-subtitle">16 specialized AI agents protecting Solana</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Core Defense Squad</div>
+                            <span class="badge badge-success">10 Online</span>
+                        </div>
+                        <div class="agents-grid">
+                            <div class="agent-card online"><div class="icon">🔭</div><div class="name">Sentinel</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">🔍</div><div class="name">Scanner</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">🔮</div><div class="name">Oracle</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">🎯</div><div class="name">Coordinator</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">🛡️</div><div class="name">Guardian</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">📚</div><div class="name">Intel</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">📢</div><div class="name">Reporter</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">✅</div><div class="name">Auditor</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">🔎</div><div class="name">Hunter</div><div class="status">Online</div></div>
+                            <div class="agent-card online"><div class="icon">💚</div><div class="name">Healer</div><div class="status">Online</div></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Elite Threat Squad</div>
+                            <span class="badge badge-info">6 Online</span>
+                        </div>
+                        <div class="agents-grid">
+                            <div class="agent-card online" style="border-color: rgba(0, 212, 255, 0.3);"><div class="icon">🍯</div><div class="name">Honeypot</div><div class="status">Online</div></div>
+                            <div class="agent-card online" style="border-color: rgba(0, 212, 255, 0.3);"><div class="icon">🇰🇵</div><div class="name">Lazarus</div><div class="status">Online</div></div>
+                            <div class="agent-card online" style="border-color: rgba(0, 212, 255, 0.3);"><div class="icon">🌐</div><div class="name">Network</div><div class="status">Online</div></div>
+                            <div class="agent-card online" style="border-color: rgba(0, 212, 255, 0.3);"><div class="icon">⚛️</div><div class="name">Quantum</div><div class="status">Online</div></div>
+                            <div class="agent-card online" style="border-color: rgba(0, 212, 255, 0.3);"><div class="icon">🛡️</div><div class="name">SwapGuard</div><div class="status">Online</div></div>
+                            <div class="agent-card online" style="border-color: rgba(0, 212, 255, 0.3);"><div class="icon">🚨</div><div class="name">Evacuator</div><div class="status">Online</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet -->
+                <div class="section" id="section-wallet">
+                    <div class="page-header">
+                        <h1 class="page-title">💰 My Wallet</h1>
+                        <p class="page-subtitle">Your connected wallet details</p>
+                    </div>
+
+                    <div id="wallet-section-content">
+                        <div class="card" style="text-align: center; padding: 3rem;">
+                            <p style="font-size: 1.1rem; margin-bottom: 1rem;">Connect your wallet to view details</p>
+                            <button class="btn btn-accent" onclick="connectWallet()">Connect Phantom</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script>
@@ -573,19 +1774,48 @@
         const USDC_MINT = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
 
         // ===========================================
-        // WALLET STATE
+        // STATE
         // ===========================================
         let connectedWallet = null;
         let walletBalance = 0;
+        let isAppMode = false;
 
         // ===========================================
-        // NAVIGATION
+        // APP / LANDING NAVIGATION
+        // ===========================================
+        function launchApp() {
+            isAppMode = true;
+            document.getElementById('landing').classList.add('hidden');
+            document.getElementById('app').classList.add('active');
+            document.getElementById('nav-links-landing').style.display = 'none';
+            document.getElementById('nav-links-app').style.display = 'flex';
+            document.getElementById('launch-btn').style.display = 'none';
+            document.getElementById('wallet-btn').style.display = 'inline-flex';
+            document.getElementById('main-nav').classList.add('app-nav');
+            window.scrollTo(0, 0);
+            initApp();
+        }
+
+        function goToLanding() {
+            isAppMode = false;
+            document.getElementById('landing').classList.remove('hidden');
+            document.getElementById('app').classList.remove('active');
+            document.getElementById('nav-links-landing').style.display = 'flex';
+            document.getElementById('nav-links-app').style.display = 'none';
+            document.getElementById('launch-btn').style.display = 'inline-flex';
+            document.getElementById('wallet-btn').style.display = 'none';
+            document.getElementById('main-nav').classList.remove('app-nav');
+            window.scrollTo(0, 0);
+        }
+
+        // ===========================================
+        // SECTION NAVIGATION
         // ===========================================
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById('section-' + sectionId).classList.add('active');
             
-            document.querySelectorAll('.nav-links a, .sidebar-link').forEach(a => a.classList.remove('active'));
+            document.querySelectorAll('#nav-links-app a, .sidebar-link').forEach(a => a.classList.remove('active'));
             const navLink = document.getElementById('nav-' + sectionId);
             const sideLink = document.getElementById('side-' + sectionId);
             if (navLink) navLink.classList.add('active');
@@ -615,26 +1845,21 @@
                     const resp = await window.solana.connect();
                     connectedWallet = resp.publicKey.toString();
                     
-                    // Get real balance
                     walletBalance = await getWalletBalance(connectedWallet);
                     
                     btn.innerHTML = connectedWallet.slice(0, 4) + '...' + connectedWallet.slice(-4);
-                    btn.classList.remove('btn-primary');
+                    btn.classList.remove('btn-primary', 'btn-accent');
                     btn.classList.add('btn-secondary');
                     
-                    // Update evacuator
                     document.getElementById('wallet-required').style.display = 'none';
                     document.getElementById('evacuator-content').style.display = 'block';
                     document.getElementById('evac-wallet-address').textContent = connectedWallet;
                     document.getElementById('evac-wallet-balance').textContent = walletBalance.toFixed(4);
                     
-                    // Load wallet analysis
                     loadWalletAnalysis();
-                    
-                    // Update wallet section
                     updateWalletSection();
                     
-                    addTerminalLine('GUARDIAN', `Wallet connected: ${connectedWallet.slice(0,8)}...`, 'success');
+                    addTerminalLine('GUARDIAN', `Wallet connected: ${connectedWallet.slice(0, 8)}...`, 'success');
                 } catch (err) {
                     console.error(err);
                     btn.innerHTML = 'Connect Wallet';
@@ -750,13 +1975,12 @@
             }
 
             resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Analyzing token with real data...</div>';
-            addTerminalLine('SCANNER', `Analyzing ${mint.slice(0,8)}...`, '');
+            addTerminalLine('SCANNER', `Analyzing ${mint.slice(0, 8)}...`, '');
 
             try {
-                // Fetch real data in parallel
                 const [dexData, buyQuote, price] = await Promise.all([
                     getDexScreenerData(mint),
-                    getJupiterQuote(SOL_MINT, mint, 100000000), // 0.1 SOL
+                    getJupiterQuote(SOL_MINT, mint, 100000000),
                     getTokenPrice(mint)
                 ]);
 
@@ -764,7 +1988,6 @@
                 let warnings = [];
                 let info = {};
 
-                // Analyze DexScreener data
                 if (dexData) {
                     info.name = dexData.baseToken?.name || 'Unknown';
                     info.symbol = dexData.baseToken?.symbol || '???';
@@ -774,7 +1997,6 @@
                     info.priceChange24h = dexData.priceChange?.h24 || 0;
                     info.fdv = dexData.fdv || 0;
                     
-                    // Risk: Low liquidity
                     if (info.liquidity < 1000) {
                         riskScore += 40;
                         warnings.push('🚨 Extremely low liquidity (< $1,000)');
@@ -786,7 +2008,6 @@
                         warnings.push('⚠️ Moderate liquidity');
                     }
                     
-                    // Risk: Low volume
                     if (info.volume24h < 100) {
                         riskScore += 15;
                         warnings.push('⚠️ Very low trading volume');
@@ -798,7 +2019,6 @@
                     info.symbol = '???';
                 }
 
-                // Test if tradeable on Jupiter (honeypot test)
                 info.canBuy = buyQuote !== null;
                 
                 if (!info.canBuy) {
@@ -806,7 +2026,6 @@
                     warnings.push('⚠️ Cannot get buy quote from Jupiter');
                 }
 
-                // Try to get sell quote (honeypot detection)
                 if (info.canBuy && buyQuote) {
                     const outputAmount = buyQuote.outAmount;
                     const sellQuote = await getJupiterQuote(mint, SOL_MINT, Math.floor(outputAmount * 0.9));
@@ -817,7 +2036,6 @@
                         warnings.push('🚨 HONEYPOT WARNING: Can buy but CANNOT SELL!');
                     }
                     
-                    // Check price impact
                     if (buyQuote.priceImpactPct) {
                         const impact = Math.abs(parseFloat(buyQuote.priceImpactPct) * 100);
                         info.priceImpact = impact.toFixed(2) + '%';
@@ -828,28 +2046,17 @@
                     }
                 }
 
-                // Determine risk level
                 let riskLevel, riskClass, resultClass;
                 if (riskScore >= 70) {
-                    riskLevel = 'CRITICAL';
-                    riskClass = 'critical';
-                    resultClass = 'danger';
+                    riskLevel = 'CRITICAL'; riskClass = 'critical'; resultClass = 'danger';
                 } else if (riskScore >= 50) {
-                    riskLevel = 'HIGH';
-                    riskClass = 'high';
-                    resultClass = 'danger';
+                    riskLevel = 'HIGH'; riskClass = 'high'; resultClass = 'danger';
                 } else if (riskScore >= 30) {
-                    riskLevel = 'MEDIUM';
-                    riskClass = 'medium';
-                    resultClass = 'warning';
+                    riskLevel = 'MEDIUM'; riskClass = 'medium'; resultClass = 'warning';
                 } else if (riskScore >= 15) {
-                    riskLevel = 'LOW';
-                    riskClass = 'low';
-                    resultClass = 'success';
+                    riskLevel = 'LOW'; riskClass = 'low'; resultClass = 'success';
                 } else {
-                    riskLevel = 'SAFE';
-                    riskClass = 'safe';
-                    resultClass = 'success';
+                    riskLevel = 'SAFE'; riskClass = 'safe'; resultClass = 'success';
                 }
 
                 addTerminalLine('SCANNER', `${info.symbol}: ${riskLevel} risk (${riskScore}/100)`, riskScore >= 50 ? 'danger' : 'success');
@@ -864,50 +2071,24 @@
                             <div class="risk-bar">
                                 <div class="risk-fill ${riskClass}" style="width: ${Math.min(riskScore, 100)}%"></div>
                             </div>
-                            <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-tertiary);margin-top:0.25rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.25rem;">
                                 <span>Safe</span>
                                 <span>Risk: ${riskScore}/100 (${riskLevel})</span>
                                 <span>Critical</span>
                             </div>
                         </div>
                         
-                        <div class="result-item">
-                            <span class="label">Price</span>
-                            <span>${info.price || 'N/A'}</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="label">Liquidity</span>
-                            <span style="color:${info.liquidity < 10000 ? 'var(--warning)' : 'var(--text-primary)'}">$${(info.liquidity || 0).toLocaleString()}</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="label">24h Volume</span>
-                            <span>$${(info.volume24h || 0).toLocaleString()}</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="label">Can Buy (Jupiter)</span>
-                            <span style="color:${info.canBuy ? 'var(--success)' : 'var(--danger)'}">
-                                ${info.canBuy ? '✅ Yes' : '❌ No'}
-                            </span>
-                        </div>
-                        <div class="result-item">
-                            <span class="label">Can Sell (Honeypot Test)</span>
-                            <span style="color:${info.canSell ? 'var(--success)' : 'var(--danger)'}">
-                                ${info.canSell === undefined ? '⏳ Not tested' : info.canSell ? '✅ Yes' : '❌ NO - HONEYPOT!'}
-                            </span>
-                        </div>
-                        ${info.priceImpact ? `
-                        <div class="result-item">
-                            <span class="label">Price Impact (0.1 SOL)</span>
-                            <span>${info.priceImpact}</span>
-                        </div>
-                        ` : ''}
+                        <div class="result-item"><span class="label">Price</span><span>${info.price || 'N/A'}</span></div>
+                        <div class="result-item"><span class="label">Liquidity</span><span style="color: ${info.liquidity < 10000 ? 'var(--warning)' : 'var(--text-primary)'}">$${(info.liquidity || 0).toLocaleString()}</span></div>
+                        <div class="result-item"><span class="label">24h Volume</span><span>$${(info.volume24h || 0).toLocaleString()}</span></div>
+                        <div class="result-item"><span class="label">Can Buy (Jupiter)</span><span style="color: ${info.canBuy ? 'var(--success)' : 'var(--danger)'}">${info.canBuy ? '✅ Yes' : '❌ No'}</span></div>
+                        <div class="result-item"><span class="label">Can Sell (Honeypot Test)</span><span style="color: ${info.canSell ? 'var(--success)' : 'var(--danger)'}">${info.canSell === undefined ? '⏳ Not tested' : info.canSell ? '✅ Yes' : '❌ NO - HONEYPOT!'}</span></div>
+                        ${info.priceImpact ? `<div class="result-item"><span class="label">Price Impact (0.1 SOL)</span><span>${info.priceImpact}</span></div>` : ''}
                         
                         ${warnings.length > 0 ? `
-                        <div style="margin-top:1rem;padding:0.75rem;background:rgba(239,68,68,0.1);border-radius:6px;font-size:0.85rem;">
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; font-size: 0.85rem;">
                             <strong>⚠️ Warnings:</strong>
-                            <ul style="margin:0.5rem 0 0 1rem;color:var(--text-secondary);">
-                                ${warnings.map(w => `<li>${w}</li>`).join('')}
-                            </ul>
+                            <ul style="margin: 0.5rem 0 0 1rem; color: var(--text-secondary);">${warnings.map(w => `<li>${w}</li>`).join('')}</ul>
                         </div>
                         ` : ''}
                     </div>
@@ -915,7 +2096,7 @@
 
             } catch (e) {
                 console.error(e);
-                resultDiv.innerHTML = `<div class="result-box danger"><div class="result-header">❌ Error analyzing token</div><p style="font-size:0.85rem;color:var(--text-secondary);">${e.message}</p></div>`;
+                resultDiv.innerHTML = `<div class="result-box danger"><div class="result-header">❌ Error analyzing token</div><p style="font-size: 0.85rem; color: var(--text-secondary);">${e.message}</p></div>`;
             }
         }
 
@@ -933,7 +2114,7 @@
             
             if (!mint) return;
             
-            resultDiv.innerHTML = '<div class="loading" style="padding:1rem;"><div class="spinner"></div>Checking...</div>';
+            resultDiv.innerHTML = '<div class="loading" style="padding: 1rem;"><div class="spinner"></div>Checking...</div>';
             
             const quote = await getJupiterQuote(SOL_MINT, mint, 100000000);
             
@@ -942,18 +2123,14 @@
                 const isHoneypot = !sellQuote;
                 
                 resultDiv.innerHTML = `
-                    <div class="result-box ${isHoneypot ? 'danger' : 'success'}" style="margin-top:1rem;">
+                    <div class="result-box ${isHoneypot ? 'danger' : 'success'}" style="margin-top: 1rem;">
                         <div class="result-header">${isHoneypot ? '🚨 HONEYPOT' : '✅ Tradeable'}</div>
-                        <div class="result-item">
-                            <span class="label">Can Buy</span><span style="color:var(--success)">✅</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="label">Can Sell</span><span style="color:${isHoneypot ? 'var(--danger)' : 'var(--success)'}">${isHoneypot ? '❌ NO!' : '✅'}</span>
-                        </div>
+                        <div class="result-item"><span class="label">Can Buy</span><span style="color: var(--success)">✅</span></div>
+                        <div class="result-item"><span class="label">Can Sell</span><span style="color: ${isHoneypot ? 'var(--danger)' : 'var(--success)'}">${isHoneypot ? '❌ NO!' : '✅'}</span></div>
                     </div>
                 `;
             } else {
-                resultDiv.innerHTML = '<div class="result-box warning" style="margin-top:1rem;"><div class="result-header">⚠️ No liquidity on Jupiter</div></div>';
+                resultDiv.innerHTML = '<div class="result-box warning" style="margin-top: 1rem;"><div class="result-header">⚠️ No liquidity on Jupiter</div></div>';
             }
         }
 
@@ -967,35 +2144,32 @@
             const resultDiv = document.getElementById('swap-result');
 
             if (!toMint || toMint.length < 32) {
-                resultDiv.innerHTML = '<div class="result-box warning" style="margin-top:1rem;"><div class="result-header">⚠️ Enter a valid token address</div></div>';
+                resultDiv.innerHTML = '<div class="result-box warning" style="margin-top: 1rem;"><div class="result-header">⚠️ Enter a valid token address</div></div>';
                 return;
             }
 
             const amountLamports = Math.floor(amount * 1e9);
-            resultDiv.innerHTML = '<div class="loading" style="padding:1.5rem;"><div class="spinner"></div>Checking swap safety...</div>';
+            resultDiv.innerHTML = '<div class="loading" style="padding: 1.5rem;"><div class="spinner"></div>Checking swap safety...</div>';
 
-            addTerminalLine('SWAPGUARD', `Evaluating swap to ${toMint.slice(0,8)}...`, '');
+            addTerminalLine('SWAPGUARD', `Evaluating swap to ${toMint.slice(0, 8)}...`, '');
 
             try {
-                // Get buy quote
                 const buyQuote = await getJupiterQuote(fromMint, toMint, amountLamports);
                 
                 if (!buyQuote) {
                     resultDiv.innerHTML = `
-                        <div class="result-box danger" style="margin-top:1rem;">
+                        <div class="result-box danger" style="margin-top: 1rem;">
                             <div class="result-header">❌ SWAP BLOCKED</div>
-                            <p style="font-size:0.9rem;color:var(--text-secondary);">Cannot get quote from Jupiter. Token may have no liquidity.</p>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary);">Cannot get quote from Jupiter. Token may have no liquidity.</p>
                         </div>
                     `;
                     addTerminalLine('SWAPGUARD', 'No route found - BLOCKED', 'danger');
                     return;
                 }
 
-                // Get sell quote (honeypot test)
                 const sellQuote = await getJupiterQuote(toMint, fromMint, Math.floor(buyQuote.outAmount * 0.9));
                 const isHoneypot = !sellQuote;
 
-                // Calculate risk
                 let riskScore = 0;
                 let warnings = [];
 
@@ -1016,7 +2190,6 @@
                     warnings.push(`⚠️ Moderate price impact: ${priceImpact.toFixed(1)}%`);
                 }
 
-                // Get DexScreener data for more info
                 const dexData = await getDexScreenerData(toMint);
                 if (dexData) {
                     if (dexData.liquidity?.usd < 5000) {
@@ -1031,38 +2204,24 @@
                 addTerminalLine('SWAPGUARD', `Risk: ${riskLevel} (${riskScore}/100) ${blocked ? '- BLOCKED' : '- OK'}`, blocked ? 'danger' : 'success');
 
                 resultDiv.innerHTML = `
-                    <div class="result-box ${blocked ? 'danger' : riskScore >= 30 ? 'warning' : 'success'}" style="margin-top:1rem;">
+                    <div class="result-box ${blocked ? 'danger' : riskScore >= 30 ? 'warning' : 'success'}" style="margin-top: 1rem;">
                         <div class="result-header">${blocked ? '❌ SWAP BLOCKED' : riskScore >= 30 ? '⚠️ PROCEED WITH CAUTION' : '✅ SWAP APPROVED'}</div>
                         
                         <div class="risk-meter">
                             <div class="risk-bar">
-                                <div class="risk-fill ${riskScore >= 70 ? 'critical' : riskScore >= 50 ? 'high' : riskScore >= 30 ? 'medium' : 'safe'}" style="width:${Math.min(riskScore,100)}%"></div>
+                                <div class="risk-fill ${riskScore >= 70 ? 'critical' : riskScore >= 50 ? 'high' : riskScore >= 30 ? 'medium' : 'safe'}" style="width: ${Math.min(riskScore, 100)}%"></div>
                             </div>
                         </div>
                         
-                        <div class="result-item">
-                            <span class="label">Risk Level</span>
-                            <span>${riskLevel} (${riskScore}/100)</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="label">Expected Output</span>
-                            <span>${(buyQuote.outAmount / 1e6).toLocaleString()} tokens</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="label">Price Impact</span>
-                            <span style="color:${priceImpact > 10 ? 'var(--danger)' : 'var(--text-primary)'}">${priceImpact.toFixed(2)}%</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="label">Honeypot Test</span>
-                            <span style="color:${isHoneypot ? 'var(--danger)' : 'var(--success)'}">${isHoneypot ? '❌ FAILED' : '✅ PASSED'}</span>
-                        </div>
+                        <div class="result-item"><span class="label">Risk Level</span><span>${riskLevel} (${riskScore}/100)</span></div>
+                        <div class="result-item"><span class="label">Expected Output</span><span>${(buyQuote.outAmount / 1e6).toLocaleString()} tokens</span></div>
+                        <div class="result-item"><span class="label">Price Impact</span><span style="color: ${priceImpact > 10 ? 'var(--danger)' : 'var(--text-primary)'}">${priceImpact.toFixed(2)}%</span></div>
+                        <div class="result-item"><span class="label">Honeypot Test</span><span style="color: ${isHoneypot ? 'var(--danger)' : 'var(--success)'}">${isHoneypot ? '❌ FAILED' : '✅ PASSED'}</span></div>
                         
                         ${warnings.length > 0 ? `
-                        <div style="margin-top:1rem;padding:0.75rem;background:rgba(239,68,68,0.1);border-radius:6px;font-size:0.85rem;">
+                        <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; font-size: 0.85rem;">
                             <strong>Warnings:</strong>
-                            <ul style="margin:0.5rem 0 0 1rem;color:var(--text-secondary);">
-                                ${warnings.map(w => `<li>${w}</li>`).join('')}
-                            </ul>
+                            <ul style="margin: 0.5rem 0 0 1rem; color: var(--text-secondary);">${warnings.map(w => `<li>${w}</li>`).join('')}</ul>
                         </div>
                         ` : ''}
                     </div>
@@ -1070,7 +2229,7 @@
 
             } catch (e) {
                 console.error(e);
-                resultDiv.innerHTML = `<div class="result-box danger" style="margin-top:1rem;"><div class="result-header">❌ Error</div><p>${e.message}</p></div>`;
+                resultDiv.innerHTML = `<div class="result-box danger" style="margin-top: 1rem;"><div class="result-header">❌ Error</div><p>${e.message}</p></div>`;
             }
         }
 
@@ -1082,7 +2241,6 @@
             if (!connectedWallet) return;
 
             try {
-                // Get token accounts
                 const tokenAccounts = await solanaRPC('getTokenAccountsByOwner', [
                     connectedWallet,
                     { programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' },
@@ -1096,25 +2254,14 @@
                 });
 
                 analysisDiv.innerHTML = `
-                    <div class="result-item">
-                        <span class="label">SOL Balance</span>
-                        <span>${walletBalance.toFixed(4)} SOL</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="label">Token Accounts</span>
-                        <span>${nonZeroTokens.length} with balance</span>
-                    </div>
-                    <div class="result-item">
-                        <span class="label">Risk Level</span>
-                        <span style="color:var(--success);">Low</span>
-                    </div>
-                    <div style="margin-top:1rem;font-size:0.8rem;color:var(--text-tertiary);">
-                        Connect more data sources for detailed analysis.
-                    </div>
+                    <div class="result-item"><span class="label">SOL Balance</span><span>${walletBalance.toFixed(4)} SOL</span></div>
+                    <div class="result-item"><span class="label">Token Accounts</span><span>${nonZeroTokens.length} with balance</span></div>
+                    <div class="result-item"><span class="label">Risk Level</span><span style="color: var(--success);">Low</span></div>
+                    <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-tertiary);">Connect more data sources for detailed analysis.</div>
                 `;
 
             } catch (e) {
-                analysisDiv.innerHTML = `<p style="color:var(--text-tertiary);">Error loading wallet data</p>`;
+                analysisDiv.innerHTML = `<p style="color: var(--text-tertiary);">Error loading wallet data</p>`;
             }
         }
 
@@ -1124,8 +2271,8 @@
 
             content.innerHTML = `
                 <div class="card">
-                    <div class="card-title" style="margin-bottom:1rem;">Connected Wallet</div>
-                    <div class="wallet-info" style="margin-bottom:0;">
+                    <div class="card-title" style="margin-bottom: 1rem;">Connected Wallet</div>
+                    <div class="wallet-info" style="margin-bottom: 0;">
                         <div class="wallet-address">${connectedWallet}</div>
                         <div class="wallet-balance">${walletBalance.toFixed(4)} SOL</div>
                     </div>
@@ -1144,21 +2291,19 @@
                 return;
             }
             
-            alert(`Evacuation prepared!\n\nFrom: ${connectedWallet.slice(0,8)}...\nTo: ${safeWallet.slice(0,8)}...\n\nIn a real scenario, this would generate transactions for you to sign.`);
-            addTerminalLine('EVACUATOR', `Evacuation plan ready to ${safeWallet.slice(0,8)}...`, 'success');
+            alert(`Evacuation prepared!\n\nFrom: ${connectedWallet.slice(0, 8)}...\nTo: ${safeWallet.slice(0, 8)}...\n\nIn a real scenario, this would generate transactions for you to sign.`);
+            addTerminalLine('EVACUATOR', `Evacuation plan ready to ${safeWallet.slice(0, 8)}...`, 'success');
         }
 
         // ===========================================
         // LIVE UPDATES
         // ===========================================
         async function updateDashboard() {
-            // SOL Price
             const solPrice = await getTokenPrice(SOL_MINT);
             if (solPrice) {
                 document.getElementById('sol-price').textContent = '$' + solPrice.toFixed(2);
             }
 
-            // Network stats
             const slot = await getSlotHeight();
             if (slot) {
                 document.getElementById('slot-height').textContent = slot.toLocaleString();
@@ -1189,11 +2334,10 @@
             }
         }
 
-        // Auto-update terminal with real activity
         async function terminalTick() {
             const messages = [
                 { agent: 'SENTINEL', msg: 'Scanning mempool...', type: '' },
-                { agent: 'NETWORK', msg: `Slot: ${await getSlotHeight() || '---'}`, type: '' },
+                { agent: 'NETWORK', msg: `Monitoring Solana network`, type: '' },
                 { agent: 'SCANNER', msg: 'Ready for analysis', type: 'success' },
             ];
             const m = messages[Math.floor(Math.random() * messages.length)];
@@ -1203,18 +2347,42 @@
         // ===========================================
         // INIT
         // ===========================================
-        async function init() {
+        function initApp() {
             addTerminalLine('GUARDIAN', 'System initialized', 'success');
             addTerminalLine('GUARDIAN', '16 agents online', 'success');
             
-            await updateDashboard();
+            updateDashboard();
             
-            // Update every 30 seconds
             setInterval(updateDashboard, 30000);
             setInterval(terminalTick, 5000);
         }
 
-        init();
+        // Scroll effect for nav
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('main-nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth reveal on scroll (landing page)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.problem-card, .agent-card-landing, .feature-row, .api-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
     </script>
 </body>
 </html>
