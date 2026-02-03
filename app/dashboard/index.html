@@ -1,353 +1,517 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUARDIAN - Solana Immune System</title>
+    <title>GUARDIAN | Solana Security Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        * { font-family: 'Space Grotesk', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
         :root {
-            --guardian-cyan: #00f0ff;
-            --guardian-red: #ff4757;
-            --guardian-green: #2ed573;
-            --guardian-yellow: #ffa502;
-            --guardian-purple: #a855f7;
-            --guardian-bg: #0a0a0f;
-            --guardian-card: #12121a;
-            --guardian-border: #1e1e2e;
+            --bg-primary: #05080f;
+            --bg-secondary: #0a1018;
+            --bg-card: #0d1520;
+            --border: #1a2535;
+            --accent: #00e5ff;
+            --accent-glow: rgba(0, 229, 255, 0.15);
+            --danger: #ff3b5c;
+            --warning: #ffaa00;
+            --success: #00ff88;
         }
         
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--guardian-bg);
+            background: var(--bg-primary);
             background-image: 
-                radial-gradient(ellipse at top, rgba(0, 240, 255, 0.05) 0%, transparent 50%),
-                radial-gradient(ellipse at bottom, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+                radial-gradient(ellipse at 0% 0%, rgba(0, 229, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(255, 59, 92, 0.03) 0%, transparent 50%);
             min-height: 100vh;
         }
         
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass {
+            background: rgba(13, 21, 32, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+        }
         
         .card {
-            background: var(--guardian-card);
-            border: 1px solid var(--guardian-border);
-            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: all 0.3s ease;
         }
         
-        .glow-cyan { box-shadow: 0 0 20px rgba(0, 240, 255, 0.2); }
-        .glow-red { box-shadow: 0 0 20px rgba(255, 71, 87, 0.2); }
-        .glow-green { box-shadow: 0 0 20px rgba(46, 213, 115, 0.2); }
-        
-        .stat-number {
-            background: linear-gradient(135deg, var(--guardian-cyan), var(--guardian-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .card:hover {
+            border-color: rgba(0, 229, 255, 0.3);
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.05);
         }
         
-        .threat-row { transition: all 0.2s ease; }
-        .threat-row:hover { background: rgba(255,255,255,0.02); }
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
         
-        .severity-critical { color: var(--guardian-red); }
-        .severity-high { color: var(--guardian-yellow); }
-        .severity-medium { color: #f59e0b; }
-        .severity-low { color: var(--guardian-green); }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
         
-        .pulse {
+        .stat-card:hover::before { opacity: 1; }
+        
+        .stat-card.danger::before { background: linear-gradient(90deg, transparent, var(--danger), transparent); }
+        .stat-card.success::before { background: linear-gradient(90deg, transparent, var(--success), transparent); }
+        .stat-card.warning::before { background: linear-gradient(90deg, transparent, var(--warning), transparent); }
+        
+        .glow-text {
+            text-shadow: 0 0 30px currentColor;
+        }
+        
+        .threat-critical { color: var(--danger); }
+        .threat-high { color: var(--warning); }
+        .threat-medium { color: #f59e0b; }
+        .threat-low { color: var(--success); }
+        
+        .pulse-dot {
             animation: pulse 2s infinite;
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
         }
         
-        .scroll-area {
-            max-height: 400px;
-            overflow-y: auto;
+        .threat-row {
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
         
-        .scroll-area::-webkit-scrollbar {
-            width: 6px;
+        .threat-row:hover {
+            background: rgba(0, 229, 255, 0.03);
+            transform: translateX(4px);
         }
         
-        .scroll-area::-webkit-scrollbar-track {
-            background: var(--guardian-bg);
+        .scroll-custom::-webkit-scrollbar { width: 4px; }
+        .scroll-custom::-webkit-scrollbar-track { background: var(--bg-primary); }
+        .scroll-custom::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .scroll-custom::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+        
+        .input-cyber {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
         }
         
-        .scroll-area::-webkit-scrollbar-thumb {
-            background: var(--guardian-border);
-            border-radius: 3px;
+        .input-cyber:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+            outline: none;
+        }
+        
+        .btn-cyber {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.05));
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .btn-cyber:hover {
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.1));
+            border-color: var(--accent);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+        }
+        
+        .severity-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border);
+            overflow: hidden;
+        }
+        
+        .severity-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-danger { background: rgba(255, 59, 92, 0.15); color: var(--danger); }
+        .badge-warning { background: rgba(255, 170, 0, 0.15); color: var(--warning); }
+        .badge-success { background: rgba(0, 255, 136, 0.15); color: var(--success); }
+        .badge-info { background: rgba(0, 229, 255, 0.15); color: var(--accent); }
+        
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: live-pulse 1.5s infinite;
+        }
+        
+        @keyframes live-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
+        }
+        
+        .modal-backdrop {
+            background: rgba(5, 8, 15, 0.9);
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
 <body class="text-gray-100" x-data="guardianApp()" x-init="init()">
     <!-- Header -->
-    <header class="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-50">
-        <div class="container mx-auto px-6 py-4">
+    <header class="glass sticky top-0 z-50 border-b border-gray-800/50">
+        <div class="max-w-[1600px] mx-auto px-6 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="text-3xl">🛡️</div>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-cyan-500/30">
+                        <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
                     <div>
-                        <h1 class="text-xl font-bold tracking-tight">GUARDIAN</h1>
-                        <p class="text-xs text-gray-500">Solana Immune System</p>
+                        <h1 class="text-lg font-bold tracking-tight text-white">GUARDIAN</h1>
+                        <p class="text-xs text-gray-500">Solana Security Intelligence</p>
                     </div>
                 </div>
                 
                 <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full" :class="connected ? 'bg-green-500 pulse' : 'bg-red-500'"></span>
-                        <span class="text-sm text-gray-400" x-text="connected ? 'Connected' : 'Disconnected'"></span>
+                    <!-- Live Status -->
+                    <div class="live-indicator" x-show="connected">
+                        <div class="live-dot"></div>
+                        <span class="text-xs text-gray-400">LIVE</span>
                     </div>
-                    <div class="text-sm font-mono text-gray-500" x-text="status.network || 'devnet'"></div>
+                    <div class="flex items-center gap-2" x-show="!connected">
+                        <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span class="text-xs text-gray-500">Connecting...</span>
+                    </div>
+                    
+                    <!-- Network Badge -->
+                    <div class="badge badge-info" x-text="status.network || 'devnet'"></div>
+                    
+                    <!-- Time -->
+                    <div class="text-xs text-gray-500 mono" x-text="currentTime"></div>
                 </div>
             </div>
         </div>
     </header>
-    
-    <!-- Main Content -->
-    <main class="container mx-auto px-6 py-8">
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+    <main class="max-w-[1600px] mx-auto px-6 py-8">
+        <!-- Stats Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <!-- Active Threats -->
-            <div class="card p-6 glow-red">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-400 text-sm">Active Threats</span>
-                    <span class="text-red-500">🚨</span>
+            <div class="card stat-card danger p-5">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Active Threats</p>
+                        <p class="text-3xl font-bold text-white glow-text" style="color: var(--danger)" x-text="status.threats?.active || 0"></p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
                 </div>
-                <div class="text-4xl font-bold stat-number" x-text="status.threats?.active || 0"></div>
-                <div class="text-xs text-gray-500 mt-2">
-                    <span x-text="status.threats?.last_24h || 0"></span> in last 24h
+                <div class="mt-3 flex items-center gap-2">
+                    <span class="text-xs text-gray-500"><span x-text="status.threats?.last_24h || 0"></span> in 24h</span>
+                    <span class="text-xs text-red-400" x-show="(status.threats?.last_24h || 0) > 10">↑ High activity</span>
                 </div>
             </div>
             
             <!-- Resolved -->
-            <div class="card p-6 glow-green">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-400 text-sm">Resolved</span>
-                    <span class="text-green-500">✅</span>
+            <div class="card stat-card success p-5">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Resolved</p>
+                        <p class="text-3xl font-bold" style="color: var(--success)" x-text="status.threats?.resolved || 0"></p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
                 </div>
-                <div class="text-4xl font-bold stat-number" x-text="status.threats?.resolved || 0"></div>
-                <div class="text-xs text-gray-500 mt-2">
-                    Avg severity: <span x-text="(status.threats?.avg_severity || 0).toFixed(1)"></span>
+                <div class="mt-3">
+                    <span class="text-xs text-gray-500">Avg severity: <span class="text-white" x-text="(status.threats?.avg_severity || 0).toFixed(1)"></span></span>
                 </div>
             </div>
             
-            <!-- Agents -->
-            <div class="card p-6 glow-cyan">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-400 text-sm">Active Agents</span>
-                    <span class="text-cyan-500">🤖</span>
+            <!-- Protection Score -->
+            <div class="card stat-card p-5">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Protection Score</p>
+                        <p class="text-3xl font-bold" style="color: var(--accent)" x-text="protectionScore + '%'"></p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
                 </div>
-                <div class="text-4xl font-bold stat-number" x-text="status.agents?.count || 0"></div>
-                <div class="text-xs text-gray-500 mt-2">
-                    <span x-text="status.agents?.total_scans || 0"></span> total scans
+                <div class="severity-bar mt-3">
+                    <div class="severity-fill" :style="`width: ${protectionScore}%; background: var(--accent);`"></div>
                 </div>
             </div>
             
             <!-- Intelligence -->
-            <div class="card p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <span class="text-gray-400 text-sm">Intelligence</span>
-                    <span class="text-purple-500">🧠</span>
+            <div class="card stat-card warning p-5">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Intelligence</p>
+                        <p class="text-3xl font-bold" style="color: var(--warning)" x-text="status.intelligence?.blacklisted || 0"></p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
                 </div>
-                <div class="text-4xl font-bold stat-number" x-text="status.intelligence?.patterns || 0"></div>
-                <div class="text-xs text-gray-500 mt-2">
-                    <span x-text="status.intelligence?.blacklisted || 0"></span> blacklisted
+                <div class="mt-3">
+                    <span class="text-xs text-gray-500">Blacklisted addresses</span>
                 </div>
             </div>
         </div>
         
         <!-- Main Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Threats List -->
+            <!-- Threats Panel -->
             <div class="lg:col-span-2 card">
-                <div class="p-4 border-b border-gray-800 flex items-center justify-between">
-                    <h2 class="font-semibold">Recent Threats</h2>
+                <div class="p-5 border-b border-gray-800/50 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <h2 class="font-semibold text-white">Threat Monitor</h2>
+                        <div class="badge badge-danger" x-show="threats.length > 0" x-text="threats.length + ' active'"></div>
+                    </div>
                     <div class="flex gap-2">
-                        <button @click="filterThreats('all')" 
-                                :class="threatFilter === 'all' ? 'bg-cyan-500/20 text-cyan-400' : 'text-gray-500'"
-                                class="px-3 py-1 rounded-lg text-sm transition">All</button>
-                        <button @click="filterThreats('active')" 
-                                :class="threatFilter === 'active' ? 'bg-red-500/20 text-red-400' : 'text-gray-500'"
-                                class="px-3 py-1 rounded-lg text-sm transition">Active</button>
+                        <button @click="loadThreats('all')" 
+                                :class="threatFilter === 'all' ? 'btn-cyber' : 'text-gray-500 hover:text-white'"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition">All</button>
+                        <button @click="loadThreats('active')" 
+                                :class="threatFilter === 'active' ? 'btn-cyber' : 'text-gray-500 hover:text-white'"
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium transition">Active</button>
+                        <button @click="loadThreats()" 
+                                class="text-gray-500 hover:text-cyan-400 p-1.5 transition"
+                                title="Refresh">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
                 
-                <div class="scroll-area">
-                    <table class="w-full">
-                        <thead class="text-xs text-gray-500 uppercase border-b border-gray-800">
-                            <tr>
-                                <th class="px-4 py-3 text-left">Type</th>
-                                <th class="px-4 py-3 text-left">Target</th>
-                                <th class="px-4 py-3 text-center">Severity</th>
-                                <th class="px-4 py-3 text-left">Status</th>
-                                <th class="px-4 py-3 text-left">Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="threat in threats" :key="threat.id">
-                                <tr class="threat-row border-b border-gray-800/50 cursor-pointer" 
-                                    @click="selectThreat(threat)">
-                                    <td class="px-4 py-3">
-                                        <span class="font-mono text-sm" x-text="threat.threat_type"></span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="font-mono text-xs text-gray-400" 
-                                              x-text="threat.target_address ? threat.target_address.slice(0,12) + '...' : '-'"></span>
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span class="font-bold" 
-                                              :class="getSeverityClass(threat.severity)"
-                                              x-text="threat.severity.toFixed(0)"></span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2 py-1 rounded text-xs"
-                                              :class="threat.status === 'active' ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'"
-                                              x-text="threat.status"></span>
-                                    </td>
-                                    <td class="px-4 py-3 text-xs text-gray-500" x-text="formatTime(threat.detected_at)"></td>
-                                </tr>
-                            </template>
-                            <tr x-show="threats.length === 0">
-                                <td colspan="5" class="px-4 py-8 text-center text-gray-500">
-                                    No threats detected
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="max-h-[500px] overflow-y-auto scroll-custom">
+                    <template x-for="threat in threats" :key="threat.id">
+                        <div class="threat-row p-4 border-b border-gray-800/30 flex items-center gap-4" @click="showThreatDetail(threat)">
+                            <!-- Severity Indicator -->
+                            <div class="w-1 h-12 rounded-full" 
+                                 :class="threat.severity >= 80 ? 'bg-red-500' : threat.severity >= 60 ? 'bg-yellow-500' : threat.severity >= 40 ? 'bg-orange-500' : 'bg-green-500'"></div>
+                            
+                            <!-- Content -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-medium text-white text-sm" x-text="threat.threat_type"></span>
+                                    <span class="badge" 
+                                          :class="threat.status === 'active' ? 'badge-danger' : 'badge-success'"
+                                          x-text="threat.status"></span>
+                                </div>
+                                <div class="flex items-center gap-4 text-xs text-gray-500">
+                                    <span class="mono" x-text="threat.target_address ? threat.target_address.slice(0,20) + '...' : 'No target'"></span>
+                                    <span x-text="formatTime(threat.detected_at)"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Severity Score -->
+                            <div class="text-right">
+                                <div class="text-2xl font-bold mono" 
+                                     :class="getSeverityClass(threat.severity)"
+                                     x-text="Math.round(threat.severity)"></div>
+                                <div class="text-[10px] text-gray-500 uppercase">Severity</div>
+                            </div>
+                            
+                            <!-- Arrow -->
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </div>
+                    </template>
+                    
+                    <!-- Empty State -->
+                    <div x-show="threats.length === 0" class="p-12 text-center">
+                        <div class="w-16 h-16 rounded-full bg-gray-800/50 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <p class="text-gray-500 text-sm">No threats detected</p>
+                        <p class="text-gray-600 text-xs mt-1">The network is secure</p>
+                    </div>
                 </div>
             </div>
             
-            <!-- Sidebar -->
+            <!-- Right Sidebar -->
             <div class="space-y-6">
-                <!-- Risk Scorer -->
-                <div class="card p-4">
-                    <h3 class="font-semibold mb-4">🎯 Risk Scorer</h3>
-                    <form @submit.prevent="scoreAddress()">
+                <!-- Quick Risk Check -->
+                <div class="card p-5">
+                    <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        Risk Scanner
+                    </h3>
+                    <form @submit.prevent="analyzeAddress()">
                         <input type="text" 
-                               x-model="scoreInput"
-                               placeholder="Enter Solana address..."
-                               class="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-2 text-sm font-mono focus:border-cyan-500 focus:outline-none mb-3">
+                               x-model="addressInput"
+                               placeholder="Paste Solana address..."
+                               class="input-cyber w-full px-4 py-3 rounded-lg text-sm mono placeholder-gray-600 mb-3">
                         <button type="submit" 
-                                class="w-full bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 rounded-lg px-4 py-2 text-sm transition">
-                            Analyze Risk
+                                class="btn-cyber w-full py-3 rounded-lg text-sm font-medium text-cyan-400 flex items-center justify-center gap-2"
+                                :disabled="analyzing">
+                            <svg x-show="!analyzing" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                            </svg>
+                            <svg x-show="analyzing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <span x-text="analyzing ? 'Analyzing...' : 'Analyze Risk'"></span>
                         </button>
                     </form>
                     
-                    <div x-show="scoreResult" class="mt-4 p-4 bg-black/30 rounded-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-400 text-sm">Risk Score</span>
-                            <span class="text-2xl font-bold" 
-                                  :class="getSeverityClass(scoreResult?.risk_score || 0)"
-                                  x-text="(scoreResult?.risk_score || 0).toFixed(1)"></span>
+                    <!-- Result -->
+                    <div x-show="analysisResult" class="mt-4 p-4 rounded-lg" style="background: rgba(0,0,0,0.3)">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs text-gray-500 uppercase">Risk Score</span>
+                            <span class="text-3xl font-bold mono" 
+                                  :class="getSeverityClass(analysisResult?.risk_score || 0)"
+                                  x-text="Math.round(analysisResult?.risk_score || 0)"></span>
                         </div>
-                        <div class="text-xs text-gray-500">
-                            Recommendation: <span class="text-cyan-400" x-text="scoreResult?.recommendation"></span>
+                        <div class="severity-bar mb-3">
+                            <div class="severity-fill" 
+                                 :style="`width: ${analysisResult?.risk_score || 0}%; background: ${(analysisResult?.risk_score || 0) >= 70 ? 'var(--danger)' : (analysisResult?.risk_score || 0) >= 40 ? 'var(--warning)' : 'var(--success)'}`"></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-500">Recommendation</span>
+                            <span class="badge" 
+                                  :class="analysisResult?.recommendation === 'BLOCK' ? 'badge-danger' : analysisResult?.recommendation === 'WARN' ? 'badge-warning' : 'badge-success'"
+                                  x-text="analysisResult?.recommendation"></span>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Agent Status -->
-                <div class="card p-4">
-                    <h3 class="font-semibold mb-4">🤖 Agents</h3>
-                    <div class="space-y-2 scroll-area" style="max-height: 200px;">
-                        <template x-for="agent in agents" :key="agent.agent_id">
-                            <div class="flex items-center justify-between p-2 bg-black/30 rounded-lg">
-                                <div>
-                                    <div class="text-sm font-medium" x-text="agent.agent_type"></div>
-                                    <div class="text-xs text-gray-500">
-                                        <span x-text="agent.threats_detected"></span> threats
-                                    </div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-sm font-mono" 
-                                         :class="agent.accuracy_score >= 80 ? 'text-green-400' : 'text-yellow-400'"
-                                         x-text="agent.accuracy_score + '%'"></div>
-                                </div>
+                <!-- Threat Distribution -->
+                <div class="card p-5">
+                    <h3 class="font-semibold text-white mb-4">Threat Distribution</h3>
+                    <div class="space-y-3">
+                        <template x-for="(count, type) in threatTypes" :key="type">
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                <span class="text-sm text-gray-400 flex-1" x-text="type"></span>
+                                <span class="text-sm font-medium text-white mono" x-text="count"></span>
                             </div>
                         </template>
                     </div>
                 </div>
                 
-                <!-- Blacklist Preview -->
-                <div class="card p-4">
-                    <h3 class="font-semibold mb-4">🚫 Blacklist</h3>
-                    <div class="space-y-2 scroll-area" style="max-height: 150px;">
-                        <template x-for="addr in blacklist.slice(0, 5)" :key="addr.address">
-                            <div class="flex items-center justify-between p-2 bg-black/30 rounded-lg">
-                                <span class="font-mono text-xs text-gray-400" x-text="addr.address.slice(0,16) + '...'"></span>
-                                <span class="text-xs text-red-400" x-text="addr.severity"></span>
+                <!-- Blacklist -->
+                <div class="card p-5">
+                    <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                        </svg>
+                        Blacklist
+                    </h3>
+                    <div class="space-y-2 max-h-[200px] overflow-y-auto scroll-custom">
+                        <template x-for="addr in blacklist.slice(0, 8)" :key="addr.address">
+                            <div class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-800/30 transition">
+                                <span class="mono text-xs text-gray-400" x-text="addr.address.slice(0,18) + '...'"></span>
+                                <span class="text-xs font-bold" :class="addr.severity >= 80 ? 'text-red-500' : 'text-yellow-500'" x-text="addr.severity"></span>
                             </div>
                         </template>
-                        <div x-show="blacklist.length === 0" class="text-center text-gray-500 text-sm py-4">
+                        <div x-show="blacklist.length === 0" class="text-center py-4 text-gray-500 text-sm">
                             No blacklisted addresses
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Threat Detail Modal -->
-        <div x-show="selectedThreat" 
-             x-transition
-             class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
-             @click.self="selectedThreat = null">
-            <div class="card max-w-2xl w-full max-h-[80vh] overflow-auto">
-                <div class="p-4 border-b border-gray-800 flex items-center justify-between">
-                    <h3 class="font-semibold">Threat Details</h3>
-                    <button @click="selectedThreat = null" class="text-gray-500 hover:text-white">✕</button>
+    </main>
+    
+    <!-- Threat Detail Modal -->
+    <div x-show="selectedThreat" 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop"
+         @click.self="selectedThreat = null">
+        <div class="card max-w-2xl w-full max-h-[80vh] overflow-hidden" @click.stop>
+            <div class="p-5 border-b border-gray-800/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full" :class="(selectedThreat?.severity || 0) >= 80 ? 'bg-red-500' : 'bg-yellow-500'"></div>
+                    <h3 class="font-semibold text-white" x-text="selectedThreat?.threat_type"></h3>
+                    <span class="badge" :class="selectedThreat?.status === 'active' ? 'badge-danger' : 'badge-success'" x-text="selectedThreat?.status"></span>
                 </div>
-                <div class="p-6" x-show="selectedThreat">
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label class="text-xs text-gray-500">Type</label>
-                            <div class="font-mono" x-text="selectedThreat?.threat_type"></div>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Severity</label>
-                            <div class="font-bold text-2xl" 
-                                 :class="getSeverityClass(selectedThreat?.severity || 0)"
-                                 x-text="selectedThreat?.severity?.toFixed(1)"></div>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Status</label>
-                            <div x-text="selectedThreat?.status"></div>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500">Detected By</label>
-                            <div x-text="selectedThreat?.detected_by"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="text-xs text-gray-500">Target Address</label>
-                        <div class="font-mono text-sm bg-black/30 p-2 rounded" x-text="selectedThreat?.target_address || 'N/A'"></div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="text-xs text-gray-500">Description</label>
-                        <div class="text-sm text-gray-300" x-text="selectedThreat?.description"></div>
-                    </div>
-                    
+                <button @click="selectedThreat = null" class="text-gray-500 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto max-h-[60vh] scroll-custom">
+                <div class="grid grid-cols-2 gap-6 mb-6">
                     <div>
-                        <label class="text-xs text-gray-500">Evidence</label>
-                        <pre class="font-mono text-xs bg-black/30 p-3 rounded overflow-auto max-h-40"
-                             x-text="JSON.stringify(selectedThreat?.evidence, null, 2)"></pre>
+                        <label class="text-xs text-gray-500 uppercase">Severity Score</label>
+                        <div class="text-4xl font-bold mt-1" :class="getSeverityClass(selectedThreat?.severity || 0)" x-text="Math.round(selectedThreat?.severity || 0)"></div>
                     </div>
+                    <div>
+                        <label class="text-xs text-gray-500 uppercase">Detected By</label>
+                        <div class="text-lg text-white mt-1" x-text="selectedThreat?.detected_by"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-xs text-gray-500 uppercase">Target Address</label>
+                    <div class="mono text-sm bg-black/30 p-3 rounded-lg mt-1 break-all" x-text="selectedThreat?.target_address || 'N/A'"></div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="text-xs text-gray-500 uppercase">Description</label>
+                    <div class="text-sm text-gray-300 mt-1" x-text="selectedThreat?.description"></div>
+                </div>
+                
+                <div>
+                    <label class="text-xs text-gray-500 uppercase">Evidence</label>
+                    <pre class="mono text-xs bg-black/30 p-3 rounded-lg mt-1 overflow-auto max-h-40 text-gray-400" x-text="JSON.stringify(selectedThreat?.evidence || {}, null, 2)"></pre>
                 </div>
             </div>
         </div>
-    </main>
-    
-    <!-- Footer -->
-    <footer class="border-t border-gray-800 mt-12 py-6">
-        <div class="container mx-auto px-6 text-center text-sm text-gray-500">
-            GUARDIAN - Solana Immune System | Protecting the ecosystem 24/7
-        </div>
-    </footer>
+    </div>
     
     <script>
         function guardianApp() {
@@ -356,122 +520,151 @@
                 ws: null,
                 status: {},
                 threats: [],
-                agents: [],
                 blacklist: [],
-                threatFilter: 'all',
+                threatFilter: 'active',
                 selectedThreat: null,
-                scoreInput: '',
-                scoreResult: null,
+                addressInput: '',
+                analysisResult: null,
+                analyzing: false,
+                currentTime: '',
+                threatTypes: {},
+                
+                get protectionScore() {
+                    const resolved = this.status.threats?.resolved || 0;
+                    const total = (this.status.threats?.active || 0) + resolved;
+                    if (total === 0) return 100;
+                    return Math.round((resolved / total) * 100);
+                },
                 
                 async init() {
-                    await this.fetchStatus();
-                    await this.fetchThreats();
-                    await this.fetchAgents();
-                    await this.fetchBlacklist();
+                    this.updateTime();
+                    setInterval(() => this.updateTime(), 1000);
+                    
+                    await this.loadStatus();
+                    await this.loadThreats('active');
+                    await this.loadBlacklist();
+                    
                     this.connectWebSocket();
                     
-                    // Refresh every 30s
-                    setInterval(() => this.fetchStatus(), 30000);
-                    setInterval(() => this.fetchThreats(), 15000);
+                    setInterval(() => this.loadStatus(), 10000);
+                    setInterval(() => this.loadThreats(), 15000);
+                },
+                
+                updateTime() {
+                    this.currentTime = new Date().toLocaleTimeString('en-US', { hour12: false });
                 },
                 
                 connectWebSocket() {
-                    const wsUrl = `ws://${window.location.hostname}:8000/ws`;
-                    this.ws = new WebSocket(wsUrl);
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const wsUrl = `${protocol}//${window.location.host}/ws`;
                     
-                    this.ws.onopen = () => {
-                        this.connected = true;
-                        console.log('WebSocket connected');
-                    };
-                    
-                    this.ws.onclose = () => {
+                    try {
+                        this.ws = new WebSocket(wsUrl);
+                        
+                        this.ws.onopen = () => {
+                            this.connected = true;
+                            console.log('WebSocket connected');
+                        };
+                        
+                        this.ws.onclose = () => {
+                            this.connected = false;
+                            setTimeout(() => this.connectWebSocket(), 3000);
+                        };
+                        
+                        this.ws.onerror = () => {
+                            this.connected = false;
+                        };
+                        
+                        this.ws.onmessage = (event) => {
+                            try {
+                                const msg = JSON.parse(event.data);
+                                if (msg.type === 'threat_created') {
+                                    this.threats.unshift(msg.data);
+                                    this.loadStatus();
+                                }
+                            } catch (e) {}
+                        };
+                    } catch (e) {
                         this.connected = false;
-                        console.log('WebSocket disconnected, reconnecting...');
-                        setTimeout(() => this.connectWebSocket(), 5000);
-                    };
-                    
-                    this.ws.onmessage = (event) => {
-                        const msg = JSON.parse(event.data);
-                        this.handleWebSocketMessage(msg);
-                    };
-                },
-                
-                handleWebSocketMessage(msg) {
-                    if (msg.type === 'threat_created') {
-                        this.threats.unshift(msg.data);
-                        this.fetchStatus();
                     }
                 },
                 
-                async fetchStatus() {
+                async loadStatus() {
                     try {
                         const res = await fetch('/api/status');
-                        this.status = await res.json();
+                        if (res.ok) {
+                            this.status = await res.json();
+                            this.connected = true;
+                        }
                     } catch (e) {
-                        console.error('Failed to fetch status:', e);
+                        console.error('Status fetch failed');
                     }
                 },
                 
-                async fetchThreats() {
+                async loadThreats(filter) {
+                    if (filter) this.threatFilter = filter;
                     try {
-                        const filter = this.threatFilter === 'active' ? '?status=active' : '';
-                        const res = await fetch(`/api/threats${filter}&limit=50`);
-                        const data = await res.json();
-                        this.threats = data.threats || [];
+                        const params = this.threatFilter === 'active' ? '?status=active&limit=50' : '?limit=50';
+                        const res = await fetch(`/api/threats${params}`);
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.threats = data.threats || [];
+                            this.updateThreatTypes();
+                        }
                     } catch (e) {
-                        console.error('Failed to fetch threats:', e);
+                        console.error('Threats fetch failed');
                     }
                 },
                 
-                async fetchAgents() {
-                    try {
-                        const res = await fetch('/api/agents');
-                        const data = await res.json();
-                        this.agents = data.agents || [];
-                    } catch (e) {
-                        console.error('Failed to fetch agents:', e);
-                    }
+                updateThreatTypes() {
+                    const types = {};
+                    this.threats.forEach(t => {
+                        types[t.threat_type] = (types[t.threat_type] || 0) + 1;
+                    });
+                    this.threatTypes = types;
                 },
                 
-                async fetchBlacklist() {
+                async loadBlacklist() {
                     try {
                         const res = await fetch('/api/blacklist');
-                        const data = await res.json();
-                        this.blacklist = data.addresses || [];
-                    } catch (e) {
-                        console.error('Failed to fetch blacklist:', e);
-                    }
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.blacklist = data.addresses || [];
+                        }
+                    } catch (e) {}
                 },
                 
-                filterThreats(filter) {
-                    this.threatFilter = filter;
-                    this.fetchThreats();
-                },
-                
-                selectThreat(threat) {
+                showThreatDetail(threat) {
                     this.selectedThreat = threat;
                 },
                 
-                async scoreAddress() {
-                    if (!this.scoreInput) return;
+                async analyzeAddress() {
+                    if (!this.addressInput.trim()) return;
+                    
+                    this.analyzing = true;
+                    this.analysisResult = null;
                     
                     try {
                         const res = await fetch('/api/score', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ address: this.scoreInput })
+                            body: JSON.stringify({ address: this.addressInput.trim() })
                         });
-                        this.scoreResult = await res.json();
+                        if (res.ok) {
+                            this.analysisResult = await res.json();
+                        }
                     } catch (e) {
-                        console.error('Failed to score address:', e);
+                        console.error('Analysis failed');
                     }
+                    
+                    this.analyzing = false;
                 },
                 
                 getSeverityClass(severity) {
-                    if (severity >= 80) return 'severity-critical';
-                    if (severity >= 60) return 'severity-high';
-                    if (severity >= 40) return 'severity-medium';
-                    return 'severity-low';
+                    if (severity >= 80) return 'threat-critical';
+                    if (severity >= 60) return 'threat-high';
+                    if (severity >= 40) return 'threat-medium';
+                    return 'threat-low';
                 },
                 
                 formatTime(timestamp) {

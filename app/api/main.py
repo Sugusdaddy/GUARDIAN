@@ -4,7 +4,12 @@ GUARDIAN API Server - FastAPI backend for dashboard and integrations
 import asyncio
 import json
 import sys
+import os
 from datetime import datetime
+
+# Fix Windows encoding
+if sys.platform == 'win32':
+    os.system('chcp 65001 >nul 2>&1')
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from contextlib import asynccontextmanager
@@ -157,13 +162,21 @@ async def list_threats(
         threats = db.get_threats_by_type(threat_type, limit=limit)
     else:
         rows = db.conn.execute(
-            "SELECT * FROM threats ORDER BY detected_at DESC LIMIT ?",
+            "SELECT * FROM threats ORDER BY severity DESC, detected_at DESC LIMIT ?",
             (limit,)
         ).fetchall()
         threats = [dict(r) for r in rows]
     
     if min_severity:
         threats = [t for t in threats if t.get("severity", 0) >= min_severity]
+    
+    # Parse JSON evidence if it's a string
+    for t in threats:
+        if isinstance(t.get("evidence"), str):
+            try:
+                t["evidence"] = json.loads(t["evidence"])
+            except:
+                pass
     
     return {"threats": threats, "count": len(threats)}
 
@@ -343,6 +356,54 @@ async def broadcast_event(event_type: str, data: Dict):
             await ws.send_text(message)
         except Exception:
             websocket_connections.remove(ws)
+
+
+# ============== Live Solana Analysis ==============
+
+@app.get("/api/analyze/token/{mint}")
+async def analyze_token(mint: str):
+    """Analyze a Solana token for risks"""
+    try:
+        from integrations.solana_scanner import get_scanner
+        scanner = get_scanner()
+        result = await scanner.analyze_token(mint)
+        return result
+    except ImportError:
+        return {"error": "Scanner not available", "mint": mint}
+    except Exception as e:
+        return {"error": str(e), "mint": mint}
+
+@app.get("/api/analyze/address/{address}")
+async def analyze_address(address: str):
+    """Analyze a Solana address for suspicious activity"""
+    try:
+        from integrations.solana_scanner import get_scanner
+        scanner = get_scanner()
+        result = await scanner.check_address(address)
+        return result
+    except ImportError:
+        # Fallback to database check
+        db = get_db()
+        is_blacklisted = db.is_blacklisted(address)
+        return {
+            "address": address,
+            "risk_score": 90 if is_blacklisted else 20,
+            "blacklisted": is_blacklisted,
+            "recommendation": "BLOCK" if is_blacklisted else "SAFE"
+        }
+    except Exception as e:
+        return {"error": str(e), "address": address}
+
+@app.get("/api/analyze/tx/{signature}")
+async def analyze_transaction(signature: str):
+    """Analyze a Solana transaction"""
+    try:
+        from integrations.solana_scanner import get_scanner
+        scanner = get_scanner()
+        result = await scanner.analyze_transaction(signature)
+        return result
+    except Exception as e:
+        return {"error": str(e), "signature": signature}
 
 
 # ============== Health ==============
