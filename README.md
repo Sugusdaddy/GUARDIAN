@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Solana](https://img.shields.io/badge/Solana-Mainnet-purple)](https://solana.com)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
-[![Agents](https://img.shields.io/badge/Agents-14-green.svg)](#-14-specialized-agents)
+[![Agents](https://img.shields.io/badge/Agents-15-green.svg)](#-15-specialized-agents)
 
 **Protecting the Solana ecosystem 24/7 with AI-powered threat detection and autonomous response.**
 
@@ -22,7 +22,7 @@
 
 ## 💡 The Solution
 
-GUARDIAN is a **14-agent autonomous swarm** that protects the Solana ecosystem in **real-time**:
+GUARDIAN is a **15-agent autonomous swarm** that protects the Solana ecosystem in **real-time**:
 
 - 🔭 **Continuous monitoring** of transactions and contracts
 - 🧠 **AI-powered analysis** using Claude Opus
@@ -38,7 +38,7 @@ GUARDIAN is a **14-agent autonomous swarm** that protects the Solana ecosystem i
 
 ## ✨ Features
 
-### 🤖 14 Specialized Agents
+### 🤖 15 Specialized Agents
 
 #### Core Defense Squad (10 Agents)
 
@@ -55,7 +55,7 @@ GUARDIAN is a **14-agent autonomous swarm** that protects the Solana ecosystem i
 | 🔎 **HUNTER** | Track | Malicious actor tracking, fund flow analysis, attribution |
 | 💚 **HEALER** | Recover | Fund recovery attempts, victim assistance, post-incident response |
 
-#### Elite Threat Squad (4 Advanced Agents) 🆕
+#### Elite Threat Squad (5 Advanced Agents) 🆕
 
 | Agent | Role | Description |
 |-------|------|-------------|
@@ -63,6 +63,7 @@ GUARDIAN is a **14-agent autonomous swarm** that protects the Solana ecosystem i
 | 🇰🇵 **LAZARUS** | Counter-Intel | **First on Solana** - Tracks DPRK/Lazarus Group operations, OFAC flagged addresses, UTC+9 patterns |
 | 🌐 **NETWORK** | Infrastructure | Monitors TPS, block time, DDoS indicators, MEV/sandwich attacks, validator concentration |
 | ⚛️ **QUANTUM** | Future-Proof | Post-quantum cryptography assessment, NIST 2035 deadline tracking, migration roadmap |
+| 🛡️ **SWAPGUARD** | Trading | **Risk-aware DEX trading** - Honeypot detection, rug pull warnings, intelligent slippage 🆕 |
 
 ---
 
@@ -97,6 +98,59 @@ Honeypot types:
 - **High Value** (10+ SOL) - Whale hunter traps
 - **Token Approval** - Fake approval exploits
 - **NFT Bait** - Valuable-looking NFT traps
+
+---
+
+### 🛡️ Risk-Aware Swaps (SwapGuard)
+
+**Your bodyguard for every trade on Solana.**
+
+SwapGuard intercepts swap requests and protects users from:
+- 🚨 **Honeypots** - Tokens you can buy but can't sell
+- 📉 **Rug Pulls** - Tokens with mint authority, freeze authority, or concentrated holdings
+- 💧 **Low Liquidity** - Tokens where your trade would cause massive slippage
+- 🚫 **Blacklisted** - Known scam tokens
+
+#### How It Works
+
+```
+1. INTERCEPT → Catch swap request before execution
+2. ANALYZE   → Check token for 10+ risk factors
+3. SCORE     → Calculate risk score (0-100)
+4. DECIDE    → Approve, Warn, Limit, or Block
+5. PROTECT   → Adjust slippage, limit position size
+```
+
+#### API Integration
+
+```python
+from GUARDIAN import evaluate_swap, SwapAction
+
+# Before any swap, check if it's safe
+decision = await evaluate_swap(
+    user_wallet="...",
+    input_mint="So111...",      # SOL
+    output_mint="ScamToken...",  # Token to buy
+    amount=1.0,                  # 1 SOL
+)
+
+if decision.action == SwapAction.APPROVE:
+    # Safe to execute with decision.safe_swap_params
+    pass
+elif decision.action == SwapAction.REJECT:
+    # BLOCKED - Show decision.warnings to user
+    print("🚨", decision.warnings)
+```
+
+#### Risk Levels & Position Limits
+
+| Risk Level | Max Position | Slippage | Action |
+|------------|--------------|----------|--------|
+| ✅ SAFE | 100 SOL | 0.5% | Approve |
+| 🟡 LOW | 10 SOL | 1% | Approve with info |
+| 🟠 MEDIUM | 2 SOL | 2% | Warn user |
+| 🔴 HIGH | 0.5 SOL | 5% | Require confirmation |
+| ⛔ CRITICAL | 0 | - | Block swap |
 
 ---
 
@@ -256,11 +310,12 @@ GUARDIAN/
 │   └── tests/                  # Test suite
 ├── GUARDIAN/                   # Elite agents module
 │   └── agents/
-│       └── specialized/        # 4 Advanced agents
+│       └── specialized/        # 5 Advanced agents
 │           ├── honeypot_agent.py
 │           ├── lazarus_agent.py
 │           ├── network_agent.py
-│           └── quantum_agent.py
+│           ├── quantum_agent.py
+│           └── swapguard_agent.py  # 🆕 Risk-aware trading
 ├── programs/                   # Anchor smart contracts
 │   ├── reasoning-registry/
 │   ├── threat-intelligence/
@@ -309,12 +364,22 @@ GET  /api/threats/{id}        # Threat details
 POST /api/threats             # Create threat
 GET  /api/blacklist           # Get blacklist
 POST /api/blacklist           # Add to blacklist
-GET  /api/agents              # Agent stats (all 14)
+GET  /api/agents              # Agent stats (all 15)
 GET  /api/network             # Network health
 GET  /api/honeypots           # Honeypot status
 POST /api/score               # Risk scoring
 POST /api/quantum/assess      # Quantum readiness
 WS   /ws                      # Real-time updates
+
+# SwapGuard - Risk-Aware Trading 🆕
+POST /api/swap/evaluate       # Evaluate swap risk before execution
+POST /api/swap/quick-check    # Quick honeypot/liquidity check
+POST /api/swap/execute        # Get protected swap transaction
+GET  /api/swap/analyze/{mint} # Full token risk analysis
+GET  /api/swap/stats          # SwapGuard statistics
+GET  /api/swap/honeypots      # Recently detected honeypots
+GET  /api/swap/quote          # Raw Jupiter quote
+GET  /api/swap/price/{mint}   # Token price
 ```
 
 ---
@@ -359,7 +424,7 @@ anchor deploy --provider.cluster devnet
 | Detection Time | < 30s | ✅ ~15s |
 | False Positive Rate | < 5% | ✅ ~3% |
 | Uptime | 99.9% | ✅ 99.9% |
-| Agents Active | 14 | ✅ 14 |
+| Agents Active | 15 | ✅ 15 |
 | Threats Tracked | ∞ | 📈 Growing |
 
 ---
@@ -442,12 +507,14 @@ Built for the **Solana AI Hackathon** by Colosseum.
 
 ### Why GUARDIAN?
 
-1. **14 specialized agents** - Most comprehensive security swarm
+1. **15 specialized agents** - Most comprehensive security swarm
 2. **Lazarus tracking** - First on Solana, critical for ecosystem safety
-3. **Active defense** - Honeypots turn attackers into intel sources
-4. **Future-proof** - Quantum readiness before it's too late
-5. **Fully autonomous** - 24/7 protection without human intervention
-6. **Transparent AI** - On-chain verifiable reasoning
+3. **Risk-aware trading** - SwapGuard protects every DEX transaction
+4. **Active defense** - Honeypots turn attackers into intel sources
+5. **Future-proof** - Quantum readiness before it's too late
+6. **Fully autonomous** - 24/7 protection without human intervention
+7. **Transparent AI** - On-chain verifiable reasoning
+8. **Full API** - Ready for dApp integration
 
 ---
 

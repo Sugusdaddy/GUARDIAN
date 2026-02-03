@@ -28,6 +28,13 @@ from core.database import get_db
 from core.config import config
 from core.embeddings import get_scorer
 
+# Import swap routes
+try:
+    from swap_routes import router as swap_router
+    HAS_SWAP_ROUTES = True
+except ImportError:
+    HAS_SWAP_ROUTES = False
+
 logger = structlog.get_logger()
 
 # WebSocket connections for real-time updates
@@ -57,6 +64,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include swap routes (SwapGuard - Risk-Aware Trading)
+if HAS_SWAP_ROUTES:
+    app.include_router(swap_router)
+    logger.info("🛡️ SwapGuard routes loaded")
 
 
 # ============== Pydantic Models ==============

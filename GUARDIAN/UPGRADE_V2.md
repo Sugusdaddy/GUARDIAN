@@ -25,7 +25,7 @@ After analyzing 167 projects in the Colosseum Agent Hackathon, we identified key
 | Risk-Aware Swaps | REKT Shield + Makora | 🔄 Planned |
 | Emergency Evacuate | REKT Shield | 🔄 Planned |
 
-## 🚀 New Agents Added (v2.0)
+## 🚀 New Agents Added (v2.0 + v2.1)
 
 ### 1. 🇰🇵 LAZARUS Agent - State-Actor Tracking
 **First on Solana to track DPRK/Lazarus Group operations.**
@@ -72,24 +72,43 @@ Features:
 - 5-level congestion assessment
 - Program upgrade tracking
 
+### 5. 🛡️ SWAPGUARD Agent - Risk-Aware Trading (v2.1) 🆕
+**Your bodyguard for every DEX trade.**
+
+Features:
+- Pre-swap risk analysis (honeypot, rug pull, liquidity)
+- Real-time honeypot detection (can buy but can't sell)
+- Intelligent slippage management based on risk
+- Position size limits by risk level
+- Jupiter aggregator integration
+- Blacklist/whitelist management
+- Full API for dApp integration
+
+API Endpoints:
+- `POST /api/swap/evaluate` - Evaluate swap risk
+- `POST /api/swap/quick-check` - Fast honeypot check
+- `POST /api/swap/execute` - Get protected swap transaction
+- `GET /api/swap/analyze/{mint}` - Full token analysis
+
 ## 📈 Agent Count Comparison
 
 | System | Agents | Unique Features |
 |--------|--------|-----------------|
-| **GUARDIAN v2.0** | **14** | Lazarus, Quantum, ML embeddings |
+| **GUARDIAN v2.1** | **15** | Lazarus, Quantum, SwapGuard, ML embeddings |
+| **GUARDIAN v2.0** | 14 | Lazarus, Quantum, Honeypot, Network |
 | REKT Shield | 11 | Cyberpunk dashboard |
 | Original GUARDIAN | 10 | On-chain verification |
 
 ## 🏗️ Architecture Update
 
 ```
-GUARDIAN v2.0 - 14 Agent Swarm
+GUARDIAN v2.1 - 15 Agent Swarm
 ═══════════════════════════════════════════════════════════════
 
 ┌─────────────────────────────────────────────────────────────┐
 │                    DETECTION TIER                           │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐                    │
-│  │ SENTINEL │ │ SCANNER  │ │ NETWORK  │ ← NEW              │
+│  │ SENTINEL │ │ SCANNER  │ │ NETWORK  │                    │
 │  │ Monitor  │ │ Analyze  │ │ Health   │                    │
 │  └──────────┘ └──────────┘ └──────────┘                    │
 └─────────────────────────────────────────────────────────────┘
@@ -97,17 +116,17 @@ GUARDIAN v2.0 - 14 Agent Swarm
 ┌─────────────────────────────────────────────────────────────┐
 │                   INTELLIGENCE TIER                         │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐                    │
-│  │  ORACLE  │ │  INTEL   │ │ LAZARUS  │ ← NEW (DPRK)       │
+│  │  ORACLE  │ │  INTEL   │ │ LAZARUS  │ (DPRK tracking)    │
 │  │ ML/AI    │ │ Threats  │ │ Counter  │                    │
 │  └──────────┘ └──────────┘ └──────────┘                    │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
 │                     DEFENSE TIER                            │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐                    │
-│  │ GUARDIAN │ │ HONEYPOT │ │  HUNTER  │                    │
-│  │ Defend   │ │ Trap     │ │ Track    │ ← NEW (traps)      │
-│  └──────────┘ └──────────┘ └──────────┘                    │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐       │
+│  │ GUARDIAN │ │ HONEYPOT │ │  HUNTER  │ │SWAPGUARD │ ← NEW │
+│  │ Defend   │ │ Trap     │ │ Track    │ │ Trading  │       │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
 └─────────────────────────────────────────────────────────────┘
                             │
 ┌─────────────────────────────────────────────────────────────┐
@@ -116,7 +135,7 @@ GUARDIAN v2.0 - 14 Agent Swarm
 │  │COORDINATR│ │ REPORTER │ │ AUDITOR  │ │ HEALER   │       │
 │  └──────────┘ └──────────┘ └──────────┘ └──────────┘       │
 │                           ┌──────────┐                      │
-│                           │ QUANTUM  │ ← NEW                │
+│                           │ QUANTUM  │                      │
 │                           │ Future   │                      │
 │                           └──────────┘                      │
 └─────────────────────────────────────────────────────────────┘
@@ -126,13 +145,14 @@ GUARDIAN v2.0 - 14 Agent Swarm
 
 ### What Sets GUARDIAN Apart:
 
-1. **Most Agents (14)** - Largest autonomous swarm in the hackathon
+1. **Most Agents (15)** - Largest autonomous swarm in the hackathon
 2. **Unique LAZARUS Tracking** - First tool on Solana for DPRK detection
-3. **Post-Quantum Ready** - Preparing for 2035 before others
-4. **ML-Powered** - Embeddings + clustering + anomaly detection
-5. **On-Chain Verification** - 3 Anchor programs deployed
-6. **Active Defense** - Honeypots catch attackers proactively
-7. **Problem-Focused** - $3.4B stolen from DeFi, we stop it
+3. **Risk-Aware Trading** - SwapGuard protects every DEX trade
+4. **Post-Quantum Ready** - Preparing for 2035 before others
+5. **ML-Powered** - Embeddings + clustering + anomaly detection
+6. **On-Chain Verification** - 3 Anchor programs deployed
+7. **Active Defense** - Honeypots catch attackers proactively
+8. **Full API** - Ready for dApp integration
 
 ### Judging Criteria Alignment:
 
@@ -143,11 +163,12 @@ GUARDIAN v2.0 - 14 Agent Swarm
 
 ## 📝 TODO Before Submission
 
-- [ ] Add Jupiter integration for risk-aware swaps
+- [x] Add Jupiter integration for risk-aware swaps ✅ (SwapGuard Agent)
 - [ ] Implement emergency wallet evacuate
 - [ ] Deploy updated agents to testnet
-- [ ] Create demo video showing all 14 agents
+- [ ] Create demo video showing all 15 agents
 - [x] Update README with v2.0 features ✅
+- [x] Update README with v2.1 features ✅ (SwapGuard)
 - [ ] Test swarm coordination with new agents
 - [ ] Deploy on mainnet for demo
 
