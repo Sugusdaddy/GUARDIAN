@@ -58,9 +58,76 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="GUARDIAN API",
-    description="Solana Immune System API",
-    version="2.0.0",
-    lifespan=lifespan
+    description="""
+# GUARDIAN - Solana Immune System API
+
+Autonomous multi-agent security infrastructure for Solana with 16 specialized AI agents
+providing 24/7 threat detection and autonomous response.
+
+## Features
+
+* 🔭 **Real-time Monitoring** - Continuous transaction and contract monitoring
+* 🧠 **AI-Powered Analysis** - Claude Opus integration for threat analysis
+* 🤖 **ML Risk Prediction** - Machine learning for risk scoring
+* 🛡️ **Risk-Aware Trading** - SwapGuard protects every DEX transaction
+* 🚨 **Emergency Evacuation** - One-click wallet protection
+* 🍯 **Active Defense** - Honeypot traps for attackers
+* 🇰🇵 **State-Actor Tracking** - First on Solana
+* 🌐 **Network Health** - Infrastructure monitoring
+
+## Authentication
+
+Currently open API. Authentication will be added in future versions.
+
+## Rate Limiting
+
+No rate limiting currently applied. Fair usage expected.
+    """,
+    version="0.1.0",
+    lifespan=lifespan,
+    contact={
+        "name": "GUARDIAN Team",
+        "url": "https://github.com/Sugusdaddy/GUARDIAN",
+        "email": "security@guardian.sol"
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+    },
+    openapi_tags=[
+        {
+            "name": "status",
+            "description": "System status and health checks"
+        },
+        {
+            "name": "threats",
+            "description": "Threat detection and management"
+        },
+        {
+            "name": "intelligence",
+            "description": "Blacklist, watchlist, and threat intelligence"
+        },
+        {
+            "name": "agents",
+            "description": "Agent statistics and management"
+        },
+        {
+            "name": "swap",
+            "description": "SwapGuard - Risk-aware trading protection"
+        },
+        {
+            "name": "evacuate",
+            "description": "Evacuator - Emergency wallet protection"
+        },
+        {
+            "name": "network",
+            "description": "Solana network health monitoring"
+        },
+        {
+            "name": "quantum",
+            "description": "Quantum readiness assessment"
+        }
+    ]
 )
 
 # CORS for frontend
@@ -130,9 +197,17 @@ async def dashboard():
 
 # ============== Status ==============
 
-@app.get("/api/status")
+@app.get("/api/status", tags=["status"])
 async def get_status():
-    """Get system status"""
+    """
+    Get system status and health information.
+
+    Returns current system status including:
+    - Active and resolved threats
+    - Agent statistics
+    - Network configuration
+    - Database health
+    """
     db = get_db()
     stats = db.get_threat_stats()
     agents = db.get_all_agent_stats()
