@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN API Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .code-block { background: #0f0f1a; font-family: 'JetBrains Mono', monospace; }
+        .sidebar { background: linear-gradient(180deg, #0f0f1a 0%, #0a0a0f 100%); }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 min-h-screen border-r border-slate-800/50 fixed left-0 top-0 overflow-y-auto">
+        <div class="p-4 border-b border-slate-800/50">
+            <a href="../" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-bold text-white">GUARDIAN</div>
+                    <div class="text-[10px] text-cyan-400">API DOCS</div>
+                </div>
+            </a>
+        </div>
+        
+        <nav class="p-4">
+            <div class="text-[10px] font-medium text-slate-600 uppercase tracking-wider mb-2">Getting Started</div>
+            <a href="#introduction" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">Introduction</a>
+            <a href="#authentication" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">Authentication</a>
+            
+            <div class="text-[10px] font-medium text-slate-600 uppercase tracking-wider mb-2 mt-6">Endpoints</div>
+            <a href="#scan-token" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">POST /scan</a>
+            <a href="#honeypot-check" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">POST /honeypot</a>
+            <a href="#threats" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">GET /threats</a>
+            <a href="#whales" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">GET /whales</a>
+            <a href="#blacklist" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">GET /blacklist</a>
+            <a href="#evacuate" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">POST /evacuate</a>
+            
+            <div class="text-[10px] font-medium text-slate-600 uppercase tracking-wider mb-2 mt-6">Resources</div>
+            <a href="#error-codes" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">Error Codes</a>
+            <a href="#rate-limits" class="block px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800/50">Rate Limits</a>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="flex-1 ml-64 p-8 max-w-4xl">
+        <h1 id="introduction" class="text-3xl font-bold mb-4">GUARDIAN API</h1>
+        <p class="text-slate-400 mb-8">Integrate security features into your application with the GUARDIAN API. All endpoints return JSON responses.</p>
+        
+        <div class="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30 mb-8">
+            <div class="flex items-center gap-2 text-yellow-400 font-medium mb-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Beta Notice
+            </div>
+            <p class="text-sm text-slate-400">The API is currently in beta. Endpoints may change. Currently frontend-only with mock data - full backend coming soon.</p>
+        </div>
+        
+        <h2 id="authentication" class="text-2xl font-bold mb-4 mt-12">Authentication</h2>
+        <p class="text-slate-400 mb-4">Include your API key in the request header:</p>
+        <div class="code-block p-4 rounded-xl text-sm mb-8 overflow-x-auto">
+            <code class="text-cyan-400">curl</code> <code class="text-slate-300">-H "Authorization: Bearer YOUR_API_KEY"</code> <code class="text-slate-300">\</code><br>
+            <code class="text-slate-300">     https://api.guardian.security/v1/scan</code>
+        </div>
+        
+        <h2 id="scan-token" class="text-2xl font-bold mb-4 mt-12">POST /scan</h2>
+        <p class="text-slate-400 mb-4">Perform a comprehensive security scan on a token.</p>
+        
+        <div class="mb-4">
+            <span class="px-2 py-1 rounded bg-green-500/10 text-green-400 text-xs font-medium">POST</span>
+            <span class="ml-2 text-slate-300 font-mono text-sm">/v1/scan</span>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-2 text-slate-300">Request Body</h3>
+        <div class="code-block p-4 rounded-xl text-sm mb-4 overflow-x-auto">
+<pre class="text-slate-300">{
+  <span class="text-cyan-400">"mint"</span>: <span class="text-green-400">"TokenMintAddress123..."</span>,
+  <span class="text-cyan-400">"checks"</span>: [<span class="text-green-400">"honeypot"</span>, <span class="text-green-400">"rugpull"</span>, <span class="text-green-400">"whale"</span>, <span class="text-green-400">"contract"</span>]
+}</pre>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-2 text-slate-300">Response</h3>
+        <div class="code-block p-4 rounded-xl text-sm mb-8 overflow-x-auto">
+<pre class="text-slate-300">{
+  <span class="text-cyan-400">"success"</span>: <span class="text-purple-400">true</span>,
+  <span class="text-cyan-400">"data"</span>: {
+    <span class="text-cyan-400">"mint"</span>: <span class="text-green-400">"TokenMintAddress123..."</span>,
+    <span class="text-cyan-400">"name"</span>: <span class="text-green-400">"Example Token"</span>,
+    <span class="text-cyan-400">"symbol"</span>: <span class="text-green-400">"EXT"</span>,
+    <span class="text-cyan-400">"risk_score"</span>: <span class="text-yellow-400">23</span>,
+    <span class="text-cyan-400">"recommendation"</span>: <span class="text-green-400">"SAFE"</span>,
+    <span class="text-cyan-400">"checks"</span>: {
+      <span class="text-cyan-400">"honeypot"</span>: { <span class="text-cyan-400">"passed"</span>: <span class="text-purple-400">true</span>, <span class="text-cyan-400">"buy_tax"</span>: <span class="text-yellow-400">0</span>, <span class="text-cyan-400">"sell_tax"</span>: <span class="text-yellow-400">0</span> },
+      <span class="text-cyan-400">"rugpull"</span>: { <span class="text-cyan-400">"passed"</span>: <span class="text-purple-400">true</span>, <span class="text-cyan-400">"liquidity_locked"</span>: <span class="text-purple-400">true</span> },
+      <span class="text-cyan-400">"whale"</span>: { <span class="text-cyan-400">"passed"</span>: <span class="text-purple-400">true</span>, <span class="text-cyan-400">"top_holder_pct"</span>: <span class="text-yellow-400">12.5</span> },
+      <span class="text-cyan-400">"contract"</span>: { <span class="text-cyan-400">"passed"</span>: <span class="text-purple-400">true</span>, <span class="text-cyan-400">"verified"</span>: <span class="text-purple-400">true</span> }
+    },
+    <span class="text-cyan-400">"risk_factors"</span>: [],
+    <span class="text-cyan-400">"market_data"</span>: {
+      <span class="text-cyan-400">"market_cap"</span>: <span class="text-yellow-400">1500000</span>,
+      <span class="text-cyan-400">"liquidity"</span>: <span class="text-yellow-400">250000</span>,
+      <span class="text-cyan-400">"holders"</span>: <span class="text-yellow-400">1234</span>,
+      <span class="text-cyan-400">"age_hours"</span>: <span class="text-yellow-400">168</span>
+    }
+  }
+}</pre>
+        </div>
+        
+        <h2 id="honeypot-check" class="text-2xl font-bold mb-4 mt-12">POST /honeypot</h2>
+        <p class="text-slate-400 mb-4">Quick honeypot detection - simulates buy/sell to check if token is tradeable.</p>
+        
+        <div class="mb-4">
+            <span class="px-2 py-1 rounded bg-green-500/10 text-green-400 text-xs font-medium">POST</span>
+            <span class="ml-2 text-slate-300 font-mono text-sm">/v1/honeypot</span>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-2 text-slate-300">Request Body</h3>
+        <div class="code-block p-4 rounded-xl text-sm mb-4 overflow-x-auto">
+<pre class="text-slate-300">{
+  <span class="text-cyan-400">"mint"</span>: <span class="text-green-400">"TokenMintAddress123..."</span>
+}</pre>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-2 text-slate-300">Response</h3>
+        <div class="code-block p-4 rounded-xl text-sm mb-8 overflow-x-auto">
+<pre class="text-slate-300">{
+  <span class="text-cyan-400">"is_honeypot"</span>: <span class="text-purple-400">false</span>,
+  <span class="text-cyan-400">"can_buy"</span>: <span class="text-purple-400">true</span>,
+  <span class="text-cyan-400">"can_sell"</span>: <span class="text-purple-400">true</span>,
+  <span class="text-cyan-400">"buy_tax"</span>: <span class="text-yellow-400">0</span>,
+  <span class="text-cyan-400">"sell_tax"</span>: <span class="text-yellow-400">0</span>,
+  <span class="text-cyan-400">"transfer_pausable"</span>: <span class="text-purple-400">false</span>,
+  <span class="text-cyan-400">"reason"</span>: <span class="text-purple-400">null</span>
+}</pre>
+        </div>
+        
+        <h2 id="threats" class="text-2xl font-bold mb-4 mt-12">GET /threats</h2>
+        <p class="text-slate-400 mb-4">Get active threats detected by the GUARDIAN swarm.</p>
+        
+        <div class="mb-4">
+            <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs font-medium">GET</span>
+            <span class="ml-2 text-slate-300 font-mono text-sm">/v1/threats?status=active&limit=50</span>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-2 text-slate-300">Response</h3>
+        <div class="code-block p-4 rounded-xl text-sm mb-8 overflow-x-auto">
+<pre class="text-slate-300">{
+  <span class="text-cyan-400">"threats"</span>: [
+    {
+      <span class="text-cyan-400">"id"</span>: <span class="text-green-400">"threat_123"</span>,
+      <span class="text-cyan-400">"type"</span>: <span class="text-green-400">"Honeypot"</span>,
+      <span class="text-cyan-400">"severity"</span>: <span class="text-yellow-400">85</span>,
+      <span class="text-cyan-400">"status"</span>: <span class="text-green-400">"active"</span>,
+      <span class="text-cyan-400">"target"</span>: <span class="text-green-400">"TokenAddress..."</span>,
+      <span class="text-cyan-400">"description"</span>: <span class="text-green-400">"Sell function reverts on transfer"</span>,
+      <span class="text-cyan-400">"detected_by"</span>: <span class="text-green-400">"Honeypot Agent"</span>,
+      <span class="text-cyan-400">"timestamp"</span>: <span class="text-green-400">"2024-02-04T12:00:00Z"</span>
+    }
+  ],
+  <span class="text-cyan-400">"total"</span>: <span class="text-yellow-400">156</span>
+}</pre>
+        </div>
+        
+        <h2 id="whales" class="text-2xl font-bold mb-4 mt-12">GET /whales</h2>
+        <p class="text-slate-400 mb-4">Get recent whale movements tracked by the Whale Tracker agent.</p>
+        
+        <div class="mb-4">
+            <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs font-medium">GET</span>
+            <span class="ml-2 text-slate-300 font-mono text-sm">/v1/whales?token=SOL&limit=20</span>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-2 text-slate-300">Response</h3>
+        <div class="code-block p-4 rounded-xl text-sm mb-8 overflow-x-auto">
+<pre class="text-slate-300">{
+  <span class="text-cyan-400">"movements"</span>: [
+    {
+      <span class="text-cyan-400">"address"</span>: <span class="text-green-400">"WhaleAddress123..."</span>,
+      <span class="text-cyan-400">"label"</span>: <span class="text-green-400">"Smart Money #42"</span>,
+      <span class="text-cyan-400">"action"</span>: <span class="text-green-400">"BUY"</span>,
+      <span class="text-cyan-400">"token"</span>: <span class="text-green-400">"SOL"</span>,
+      <span class="text-cyan-400">"amount"</span>: <span class="text-yellow-400">50000</span>,
+      <span class="text-cyan-400">"value_usd"</span>: <span class="text-yellow-400">5250000</span>,
+      <span class="text-cyan-400">"timestamp"</span>: <span class="text-green-400">"2024-02-04T12:00:00Z"</span>
+    }
+  ]
+}</pre>
+        </div>
+        
+        <h2 id="blacklist" class="text-2xl font-bold mb-4 mt-12">GET /blacklist</h2>
+        <p class="text-slate-400 mb-4">Get known malicious addresses from the Intel database.</p>
+        
+        <div class="mb-4">
+            <span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs font-medium">GET</span>
+            <span class="ml-2 text-slate-300 font-mono text-sm">/v1/blacklist?limit=100</span>
+        </div>
+        
+        <h2 id="evacuate" class="text-2xl font-bold mb-4 mt-12">POST /evacuate</h2>
+        <p class="text-slate-400 mb-4">Emergency evacuation - transfer all assets from a compromised wallet. Requires wallet signature.</p>
+        
+        <div class="mb-4">
+            <span class="px-2 py-1 rounded bg-green-500/10 text-green-400 text-xs font-medium">POST</span>
+            <span class="ml-2 text-slate-300 font-mono text-sm">/v1/evacuate</span>
+        </div>
+        
+        <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 mb-4">
+            <div class="flex items-center gap-2 text-red-400 font-medium mb-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                Warning
+            </div>
+            <p class="text-sm text-slate-400">This endpoint transfers ALL assets. Use only in emergencies. Requires signed transaction from source wallet.</p>
+        </div>
+        
+        <h3 class="text-lg font-semibold mb-2 text-slate-300">Request Body</h3>
+        <div class="code-block p-4 rounded-xl text-sm mb-8 overflow-x-auto">
+<pre class="text-slate-300">{
+  <span class="text-cyan-400">"source"</span>: <span class="text-green-400">"CompromisedWalletAddress..."</span>,
+  <span class="text-cyan-400">"destination"</span>: <span class="text-green-400">"SafeWalletAddress..."</span>,
+  <span class="text-cyan-400">"signature"</span>: <span class="text-green-400">"SignedTransactionBase64..."</span>
+}</pre>
+        </div>
+        
+        <h2 id="error-codes" class="text-2xl font-bold mb-4 mt-12">Error Codes</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-slate-800">
+                        <th class="text-left py-3 px-4 text-slate-400">Code</th>
+                        <th class="text-left py-3 px-4 text-slate-400">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 px-4 font-mono text-cyan-400">400</td>
+                        <td class="py-3 px-4 text-slate-300">Bad Request - Invalid parameters</td>
+                    </tr>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 px-4 font-mono text-cyan-400">401</td>
+                        <td class="py-3 px-4 text-slate-300">Unauthorized - Invalid or missing API key</td>
+                    </tr>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 px-4 font-mono text-cyan-400">404</td>
+                        <td class="py-3 px-4 text-slate-300">Not Found - Token/address not found</td>
+                    </tr>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 px-4 font-mono text-cyan-400">429</td>
+                        <td class="py-3 px-4 text-slate-300">Rate Limited - Too many requests</td>
+                    </tr>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 px-4 font-mono text-cyan-400">500</td>
+                        <td class="py-3 px-4 text-slate-300">Internal Error - Something went wrong</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h2 id="rate-limits" class="text-2xl font-bold mb-4 mt-12">Rate Limits</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-slate-800">
+                        <th class="text-left py-3 px-4 text-slate-400">Plan</th>
+                        <th class="text-left py-3 px-4 text-slate-400">Requests/min</th>
+                        <th class="text-left py-3 px-4 text-slate-400">Daily Limit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 px-4 text-white">Free</td>
+                        <td class="py-3 px-4 text-slate-300">10</td>
+                        <td class="py-3 px-4 text-slate-300">100</td>
+                    </tr>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 px-4 text-white">Pro</td>
+                        <td class="py-3 px-4 text-slate-300">60</td>
+                        <td class="py-3 px-4 text-slate-300">10,000</td>
+                    </tr>
+                    <tr class="border-b border-slate-800/50">
+                        <td class="py-3 px-4 text-white">Enterprise</td>
+                        <td class="py-3 px-4 text-slate-300">Unlimited</td>
+                        <td class="py-3 px-4 text-slate-300">Unlimited</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-16 p-6 rounded-xl bg-slate-900/50 border border-slate-800">
+            <h3 class="text-lg font-semibold mb-2">Need Help?</h3>
+            <p class="text-slate-400 mb-4">Join our community or open an issue on GitHub.</p>
+            <div class="flex gap-4">
+                <a href="https://github.com/Sugusdaddy/GUARDIAN" target="_blank" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-medium transition">GitHub</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
