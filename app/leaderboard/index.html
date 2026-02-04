@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN | Token Leaderboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+        .card:hover { border-color: rgba(34, 211, 238, 0.3); }
+        .scrollbar::-webkit-scrollbar { width: 4px; }
+        .scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="leaderboard()" x-init="init()">
+    <!-- Header -->
+    <header class="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-6">
+                <a href="../../" class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <span class="font-bold">GUARDIAN</span>
+                </a>
+                <nav class="hidden md:flex items-center gap-4">
+                    <a href="../dashboard/" class="text-slate-400 hover:text-white text-sm">Dashboard</a>
+                    <span class="text-cyan-400 text-sm font-medium">Leaderboard</span>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-xs text-slate-500">
+                    <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    <span x-text="tokens.length + ' tokens analyzed'"></span>
+                </div>
+                <button @click="refresh()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm text-white" :disabled="loading">
+                    <span x-text="loading ? 'Loading...' : 'Refresh'"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Title -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold mb-2">Token Safety Leaderboard</h1>
+            <p class="text-slate-400">Real-time risk analysis of trending Solana tokens</p>
+        </div>
+        
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="card p-4 rounded-xl text-center">
+                <div class="text-2xl font-bold text-green-400" x-text="safeCount"></div>
+                <div class="text-xs text-slate-500">Safe Tokens</div>
+            </div>
+            <div class="card p-4 rounded-xl text-center">
+                <div class="text-2xl font-bold text-yellow-400" x-text="cautionCount"></div>
+                <div class="text-xs text-slate-500">Caution</div>
+            </div>
+            <div class="card p-4 rounded-xl text-center">
+                <div class="text-2xl font-bold text-orange-400" x-text="highRiskCount"></div>
+                <div class="text-xs text-slate-500">High Risk</div>
+            </div>
+            <div class="card p-4 rounded-xl text-center">
+                <div class="text-2xl font-bold text-red-400" x-text="avoidCount"></div>
+                <div class="text-xs text-slate-500">Avoid</div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-4 mb-6">
+            <div class="flex gap-2">
+                <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-cyan-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium transition">All</button>
+                <button @click="filter = 'safe'" :class="filter === 'safe' ? 'bg-green-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium transition">Safe</button>
+                <button @click="filter = 'caution'" :class="filter === 'caution' ? 'bg-yellow-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium transition">Caution</button>
+                <button @click="filter = 'risky'" :class="filter === 'risky' ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium transition">Risky</button>
+            </div>
+            <div class="flex-1"></div>
+            <select x-model="sortBy" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm border border-slate-700">
+                <option value="risk">Sort by Risk</option>
+                <option value="mcap">Sort by Market Cap</option>
+                <option value="volume">Sort by Volume</option>
+                <option value="liquidity">Sort by Liquidity</option>
+            </select>
+        </div>
+        
+        <!-- Token List -->
+        <div class="space-y-3">
+            <template x-for="(token, index) in filteredTokens" :key="token.mint">
+                <div class="card rounded-xl p-4 hover:scale-[1.01] transition-all cursor-pointer" @click="selectedToken = token">
+                    <div class="flex items-center gap-4">
+                        <!-- Rank -->
+                        <div class="w-10 text-center">
+                            <span class="text-xl font-bold text-slate-600" x-text="index + 1"></span>
+                        </div>
+                        
+                        <!-- Token Info -->
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <img :src="token.image || 'https://via.placeholder.com/40/1e293b/64748b?text=?'" class="w-10 h-10 rounded-lg bg-slate-800" onerror="this.src='https://via.placeholder.com/40/1e293b/64748b?text=?'">
+                            <div class="min-w-0">
+                                <div class="font-medium text-white truncate" x-text="token.name || 'Unknown'"></div>
+                                <div class="text-xs text-slate-500" x-text="'$' + (token.symbol || '???')"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Market Data -->
+                        <div class="hidden md:flex items-center gap-8">
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-white" x-text="'$' + formatNum(token.market_cap || 0)"></div>
+                                <div class="text-xs text-slate-500">MCap</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-white" x-text="'$' + formatNum(token.liquidity || 0)"></div>
+                                <div class="text-xs text-slate-500">Liquidity</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm font-medium text-white" x-text="'$' + formatNum(token.volume_24h || 0)"></div>
+                                <div class="text-xs text-slate-500">24h Vol</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Risk Score -->
+                        <div class="w-24 text-right">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg" :class="getRiskBg(token.risk_score)">
+                                <span class="text-lg font-bold" :class="getRiskColor(token.risk_score)" x-text="token.risk_score || 0"></span>
+                            </div>
+                            <div class="text-xs mt-1" :class="getRiskColor(token.risk_score)" x-text="token.recommendation"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Risk Factors (collapsed) -->
+                    <div x-show="token.risk_factors?.length > 0" class="mt-3 pt-3 border-t border-slate-800/50 flex flex-wrap gap-1">
+                        <template x-for="f in (token.risk_factors || []).slice(0, 4)" :key="f">
+                            <span class="px-2 py-0.5 rounded bg-red-500/10 text-red-400 text-[10px]" x-text="f"></span>
+                        </template>
+                    </div>
+                </div>
+            </template>
+            
+            <div x-show="loading" class="card rounded-xl p-12 text-center">
+                <svg class="w-8 h-8 animate-spin mx-auto text-cyan-500 mb-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                <p class="text-slate-500">Analyzing tokens...</p>
+            </div>
+            
+            <div x-show="!loading && filteredTokens.length === 0" class="card rounded-xl p-12 text-center">
+                <p class="text-slate-500">No tokens found</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Token Detail Modal -->
+    <div x-show="selectedToken" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" @click.self="selectedToken = null">
+        <div class="card max-w-lg w-full rounded-2xl max-h-[90vh] overflow-hidden" @click.stop>
+            <div class="px-6 py-4 border-b border-slate-800/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img :src="selectedToken?.image" class="w-10 h-10 rounded-lg" onerror="this.src='https://via.placeholder.com/40'">
+                    <div>
+                        <div class="font-medium text-white" x-text="selectedToken?.name"></div>
+                        <div class="text-xs text-slate-500" x-text="'$' + selectedToken?.symbol"></div>
+                    </div>
+                </div>
+                <button @click="selectedToken = null" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto scrollbar">
+                <!-- Risk Score -->
+                <div class="text-center p-6 rounded-xl mb-6" :class="getRiskBg(selectedToken?.risk_score)">
+                    <div class="text-5xl font-bold mb-1" :class="getRiskColor(selectedToken?.risk_score)" x-text="selectedToken?.risk_score || 0"></div>
+                    <div class="text-sm text-slate-500">Risk Score</div>
+                    <div class="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full" :class="getRiskBg(selectedToken?.risk_score)">
+                        <span class="font-medium" :class="getRiskColor(selectedToken?.risk_score)" x-text="selectedToken?.recommendation"></span>
+                    </div>
+                </div>
+                
+                <!-- Market Data -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="p-4 rounded-lg bg-slate-900/50">
+                        <div class="text-xs text-slate-500">Market Cap</div>
+                        <div class="text-lg font-bold text-white" x-text="'$' + formatNum(selectedToken?.market_cap || 0)"></div>
+                    </div>
+                    <div class="p-4 rounded-lg bg-slate-900/50">
+                        <div class="text-xs text-slate-500">Liquidity</div>
+                        <div class="text-lg font-bold text-white" x-text="'$' + formatNum(selectedToken?.liquidity || 0)"></div>
+                    </div>
+                    <div class="p-4 rounded-lg bg-slate-900/50">
+                        <div class="text-xs text-slate-500">24h Volume</div>
+                        <div class="text-lg font-bold text-white" x-text="'$' + formatNum(selectedToken?.volume_24h || 0)"></div>
+                    </div>
+                    <div class="p-4 rounded-lg bg-slate-900/50">
+                        <div class="text-xs text-slate-500">Price</div>
+                        <div class="text-lg font-bold text-white" x-text="'$' + (selectedToken?.price?.toFixed(6) || 0)"></div>
+                    </div>
+                </div>
+                
+                <!-- Contract -->
+                <div class="mb-6">
+                    <div class="text-xs text-slate-500 mb-1">Contract Address</div>
+                    <div class="p-3 rounded-lg bg-slate-900 font-mono text-xs text-slate-300 break-all" x-text="selectedToken?.mint"></div>
+                </div>
+                
+                <!-- Risk Factors -->
+                <div x-show="selectedToken?.risk_factors?.length > 0" class="p-4 rounded-lg bg-red-500/5 border border-red-500/20">
+                    <div class="text-xs text-red-400 font-medium mb-2">⚠️ Risk Factors</div>
+                    <div class="space-y-1">
+                        <template x-for="f in selectedToken?.risk_factors || []" :key="f">
+                            <div class="px-3 py-2 rounded bg-red-500/10 text-red-400 text-sm" x-text="f"></div>
+                        </template>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="mt-6 flex gap-3">
+                    <a :href="'https://dexscreener.com/solana/' + selectedToken?.mint" target="_blank" class="flex-1 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-center text-sm font-medium text-white">
+                        View on DexScreener
+                    </a>
+                    <a :href="'../dashboard/?scan=' + selectedToken?.mint" class="flex-1 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-600 text-center text-sm font-medium text-white">
+                        Deep Scan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../dashboard/api.js"></script>
+    <script>
+        function leaderboard() {
+            return {
+                tokens: [],
+                loading: false,
+                filter: 'all',
+                sortBy: 'risk',
+                selectedToken: null,
+                
+                get safeCount() { return this.tokens.filter(t => t.risk_score < 30).length; },
+                get cautionCount() { return this.tokens.filter(t => t.risk_score >= 30 && t.risk_score < 50).length; },
+                get highRiskCount() { return this.tokens.filter(t => t.risk_score >= 50 && t.risk_score < 70).length; },
+                get avoidCount() { return this.tokens.filter(t => t.risk_score >= 70).length; },
+                
+                get filteredTokens() {
+                    let filtered = [...this.tokens];
+                    
+                    if (this.filter === 'safe') filtered = filtered.filter(t => t.risk_score < 30);
+                    else if (this.filter === 'caution') filtered = filtered.filter(t => t.risk_score >= 30 && t.risk_score < 50);
+                    else if (this.filter === 'risky') filtered = filtered.filter(t => t.risk_score >= 50);
+                    
+                    if (this.sortBy === 'risk') filtered.sort((a, b) => (a.risk_score || 0) - (b.risk_score || 0));
+                    else if (this.sortBy === 'mcap') filtered.sort((a, b) => (b.market_cap || 0) - (a.market_cap || 0));
+                    else if (this.sortBy === 'volume') filtered.sort((a, b) => (b.volume_24h || 0) - (a.volume_24h || 0));
+                    else if (this.sortBy === 'liquidity') filtered.sort((a, b) => (b.liquidity || 0) - (a.liquidity || 0));
+                    
+                    return filtered;
+                },
+                
+                async init() {
+                    await this.loadTokens();
+                },
+                
+                async refresh() {
+                    await this.loadTokens();
+                },
+                
+                async loadTokens() {
+                    this.loading = true;
+                    try {
+                        const pairs = await GuardianAPI.getNewPairs(30);
+                        this.tokens = [];
+                        
+                        for (const pair of pairs) {
+                            const analysis = GuardianAPI.analyzeToken(pair);
+                            this.tokens.push(analysis);
+                        }
+                    } catch (error) {
+                        console.error('Error loading tokens:', error);
+                    }
+                    this.loading = false;
+                },
+                
+                getRiskColor(score) {
+                    if (score >= 70) return 'text-red-500';
+                    if (score >= 50) return 'text-orange-500';
+                    if (score >= 30) return 'text-yellow-500';
+                    return 'text-green-500';
+                },
+                
+                getRiskBg(score) {
+                    if (score >= 70) return 'bg-red-500/10';
+                    if (score >= 50) return 'bg-orange-500/10';
+                    if (score >= 30) return 'bg-yellow-500/10';
+                    return 'bg-green-500/10';
+                },
+                
+                formatNum(n) {
+                    if (!n) return '0';
+                    if (n >= 1e9) return (n/1e9).toFixed(1)+'B';
+                    if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+                    if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+                    return n.toFixed(0);
+                }
+            };
+        }
+    </script>
+</body>
+</html>
