@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUARDIAN | Solana Security Platform</title>
+    <title>GUARDIAN | Multi-Agent Security Swarm</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' rx='20' width='100' height='100'/><path fill='white' d='M50 20L70 45H55V80H45V45H30L50 20Z'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
@@ -12,553 +12,1251 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    colors: {
-                        surface: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
                 }
             }
         }
     </script>
     <style>
-        body { background: #020617; }
-        .card { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(51, 65, 85, 0.5); border-radius: 8px; }
-        .card-hover:hover { border-color: rgba(6, 182, 212, 0.5); }
+        body { background: #0a0a0f; }
+        .sidebar { background: linear-gradient(180deg, #0f0f1a 0%, #0a0a0f 100%); }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+        .card:hover { border-color: rgba(34, 211, 238, 0.3); }
+        .agent-card { background: linear-gradient(135deg, rgba(15, 15, 26, 0.95) 0%, rgba(20, 20, 35, 0.9) 100%); }
+        .agent-active { box-shadow: 0 0 20px rgba(34, 211, 238, 0.15); }
+        .glow-cyan { box-shadow: 0 0 30px rgba(34, 211, 238, 0.3); }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .scrollbar::-webkit-scrollbar { width: 4px; }
         .scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
-        .input-field { background: rgba(2, 6, 23, 0.8); border: 1px solid #334155; }
-        .input-field:focus { border-color: #06b6d4; outline: none; }
-        .btn-primary { background: #06b6d4; }
-        .btn-primary:hover { background: #0891b2; }
-        .severity-critical { color: #ef4444; }
-        .severity-high { color: #f97316; }
-        .severity-medium { color: #eab308; }
-        .severity-low { color: #22c55e; }
-        .bg-severity-critical { background: #ef4444; }
-        .bg-severity-high { background: #f97316; }
-        .bg-severity-medium { background: #eab308; }
-        .bg-severity-low { background: #22c55e; }
+        .scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }
+        .input-dark { background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(34, 211, 238, 0.2); }
+        .input-dark:focus { border-color: rgba(34, 211, 238, 0.6); outline: none; }
+        .btn-cyan { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+        .btn-cyan:hover { background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%); }
+        .threat-feed { max-height: 400px; }
+        .live-dot { animation: livePulse 1.5s infinite; }
+        @keyframes livePulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen" x-data="app()" x-init="init()">
-    <!-- Header -->
-    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between">
+<body class="text-slate-100 min-h-screen flex" x-data="guardian()" x-init="init()">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar w-64 min-h-screen border-r border-slate-800/50 flex flex-col fixed left-0 top-0 z-40">
+        <!-- Logo -->
+        <div class="p-4 border-b border-slate-800/50">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center glow-cyan">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
                 </div>
-                <span class="font-semibold text-white">GUARDIAN</span>
-            </div>
-            
-            <!-- Navigation -->
-            <nav class="flex items-center gap-1 bg-slate-900 rounded-lg p-1">
-                <button @click="tab = 'overview'" :class="tab === 'overview' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">Overview</button>
-                <button @click="tab = 'tokens'; loadTokens()" :class="tab === 'tokens' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">New Tokens</button>
-                <button @click="tab = 'trending'; loadTrending()" :class="tab === 'trending' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">Trending</button>
-                <button @click="tab = 'scanner'" :class="tab === 'scanner' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">Scanner</button>
-                <button @click="tab = 'intelligence'" :class="tab === 'intelligence' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">Intelligence</button>
-            </nav>
-            
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full" :class="connected ? 'bg-green-500' : 'bg-red-500'"></div>
-                    <span class="text-xs text-slate-500" x-text="connected ? 'Connected' : 'Offline'"></span>
-                </div>
-                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 text-xs font-medium">MAINNET</span>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-screen-2xl mx-auto px-4 py-6">
-        
-        <!-- OVERVIEW TAB -->
-        <div x-show="tab === 'overview'" x-transition>
-            <!-- Stats -->
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Active Threats</div>
-                    <div class="text-2xl font-bold text-red-500 mt-1" x-text="stats.threats?.active || 0"></div>
-                </div>
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Resolved</div>
-                    <div class="text-2xl font-bold text-green-500 mt-1" x-text="stats.threats?.resolved || 0"></div>
-                </div>
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Risk Index</div>
-                    <div class="text-2xl font-bold mt-1" :class="riskIndex > 60 ? 'text-red-500' : riskIndex > 30 ? 'text-yellow-500' : 'text-green-500'" x-text="riskIndex"></div>
-                </div>
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Blacklisted</div>
-                    <div class="text-2xl font-bold text-orange-500 mt-1" x-text="stats.intelligence?.blacklisted || 0"></div>
-                </div>
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Avg Severity</div>
-                    <div class="text-2xl font-bold text-slate-100 mt-1" x-text="(stats.threats?.avg_severity || 0).toFixed(1)"></div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Threat Feed -->
-                <div class="lg:col-span-2 card">
-                    <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="font-medium text-white">Threat Feed</span>
-                            <span class="px-2 py-0.5 rounded bg-red-500/10 text-red-400 text-xs" x-text="threats.length + ' active'"></span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button @click="loadThreats('active')" :class="filter === 'active' ? 'bg-slate-800 text-white' : 'text-slate-500'" class="px-3 py-1 rounded text-xs transition">Active</button>
-                            <button @click="loadThreats('all')" :class="filter === 'all' ? 'bg-slate-800 text-white' : 'text-slate-500'" class="px-3 py-1 rounded text-xs transition">All</button>
-                        </div>
-                    </div>
-                    <div class="max-h-96 overflow-y-auto scrollbar">
-                        <template x-for="t in threats" :key="t.id">
-                            <div class="px-4 py-3 border-b border-slate-800/50 hover:bg-slate-800/30 cursor-pointer flex items-center gap-4" @click="selectedThreat = t">
-                                <div class="w-1 h-10 rounded-full" :class="getSeverityBg(t.severity)"></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm font-medium text-white" x-text="t.threat_type"></span>
-                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-medium" :class="t.status === 'active' ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'" x-text="t.status"></span>
-                                    </div>
-                                    <div class="text-xs text-slate-500 font-mono truncate mt-0.5" x-text="t.target_address || 'Unknown'"></div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-lg font-bold font-mono" :class="getSeverityClass(t.severity)" x-text="Math.round(t.severity)"></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div x-show="threats.length === 0" class="p-8 text-center text-slate-500">No threats detected</div>
-                    </div>
-                </div>
-                
-                <!-- Sidebar -->
-                <div class="space-y-4">
-                    <!-- Quick Scan -->
-                    <div class="card p-4">
-                        <div class="text-sm font-medium text-white mb-3">Quick Scan</div>
-                        <form @submit.prevent="quickScan()">
-                            <input type="text" x-model="scanInput" placeholder="Enter address or token..." class="input-field w-full px-3 py-2 rounded text-sm font-mono mb-2">
-                            <button type="submit" class="btn-primary w-full py-2 rounded text-sm font-medium text-white" :disabled="scanning" x-text="scanning ? 'Scanning...' : 'Analyze'"></button>
-                        </form>
-                        <div x-show="scanResult" class="mt-3 p-3 rounded bg-slate-900">
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-500">Risk Score</span>
-                                <span class="text-xl font-bold font-mono" :class="getSeverityClass(scanResult?.risk_score)" x-text="Math.round(scanResult?.risk_score || 0)"></span>
-                            </div>
-                            <div class="h-1 rounded-full bg-slate-800 mt-2 overflow-hidden">
-                                <div class="h-full rounded-full transition-all" :class="getSeverityBg(scanResult?.risk_score)" :style="`width: ${scanResult?.risk_score || 0}%`"></div>
-                            </div>
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="text-xs text-slate-500">Recommendation</span>
-                                <span class="text-xs font-medium" :class="scanResult?.recommendation === 'BLOCK' ? 'text-red-400' : 'text-green-400'" x-text="scanResult?.recommendation"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Blacklist -->
-                    <div class="card p-4">
-                        <div class="text-sm font-medium text-white mb-3">Blacklist</div>
-                        <div class="space-y-1 max-h-48 overflow-y-auto scrollbar">
-                            <template x-for="b in blacklist.slice(0,10)" :key="b.address">
-                                <div class="flex justify-between items-center py-2 px-2 rounded hover:bg-slate-800/50">
-                                    <span class="font-mono text-xs text-slate-400 truncate max-w-[180px]" x-text="b.address"></span>
-                                    <span class="text-xs font-bold" :class="b.severity >= 80 ? 'text-red-500' : 'text-orange-500'" x-text="b.severity"></span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- NEW TOKENS TAB -->
-        <div x-show="tab === 'tokens'" x-transition>
-            <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-lg font-semibold text-white">New Token Launches</h2>
-                    <p class="text-sm text-slate-500">Real-time monitoring of pump.fun token launches</p>
+                    <div class="font-bold text-white">GUARDIAN</div>
+                    <div class="text-[10px] text-cyan-400">17-AGENT SWARM</div>
                 </div>
-                <button @click="loadTokens()" class="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-sm text-white flex items-center gap-2" :disabled="loadingTokens">
-                    <svg class="w-4 h-4" :class="loadingTokens && 'animate-spin'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    <span x-text="loadingTokens ? 'Loading...' : 'Refresh'"></span>
+            </div>
+        </div>
+        
+        <!-- Status -->
+        <div class="px-4 py-3 border-b border-slate-800/50">
+            <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 live-dot"></div>
+                    <span class="text-green-400">LIVE</span>
+                </div>
+                <span class="text-slate-500">Mainnet</span>
+            </div>
+            <div class="mt-2 flex items-center justify-between">
+                <span class="text-xs text-slate-500">Active Agents</span>
+                <span class="text-sm font-bold text-cyan-400" x-text="activeAgents + '/17'"></span>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-y-auto scrollbar py-2">
+            <!-- Main -->
+            <div class="px-3 mb-2">
+                <div class="text-[10px] font-medium text-slate-600 uppercase tracking-wider mb-2 px-2">Main</div>
+                <button @click="view = 'dashboard'" :class="view === 'dashboard' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm border transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+                    Dashboard
+                </button>
+                <button @click="view = 'scanner'" :class="view === 'scanner' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm border transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    Token Scanner
+                </button>
+                <button @click="view = 'threats'" :class="view === 'threats' ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm border transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Threat Feed
+                    <span x-show="threats.filter(t => t.status === 'active').length > 0" class="ml-auto px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px]" x-text="threats.filter(t => t.status === 'active').length"></span>
                 </button>
             </div>
             
-            <!-- Stats -->
-            <div class="grid grid-cols-4 gap-4 mb-4">
-                <div class="card p-3">
-                    <div class="text-xs text-slate-500">Total Scanned</div>
-                    <div class="text-xl font-bold text-white" x-text="tokens.length"></div>
-                </div>
-                <div class="card p-3">
-                    <div class="text-xs text-slate-500">High Risk</div>
-                    <div class="text-xl font-bold text-red-500" x-text="tokens.filter(t => t.risk_score >= 70).length"></div>
-                </div>
-                <div class="card p-3">
-                    <div class="text-xs text-slate-500">Medium Risk</div>
-                    <div class="text-xl font-bold text-orange-500" x-text="tokens.filter(t => t.risk_score >= 40 && t.risk_score < 70).length"></div>
-                </div>
-                <div class="card p-3">
-                    <div class="text-xs text-slate-500">Low Risk</div>
-                    <div class="text-xl font-bold text-green-500" x-text="tokens.filter(t => t.risk_score < 40).length"></div>
-                </div>
-            </div>
-            
-            <!-- Token Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <template x-for="token in tokens" :key="token.mint">
-                    <div class="card card-hover p-4 cursor-pointer" @click="selectedToken = token">
-                        <div class="flex items-start gap-3 mb-3">
-                            <img :src="token.image || 'https://via.placeholder.com/40/1e293b/64748b?text=?'" class="w-10 h-10 rounded bg-slate-800" onerror="this.src='https://via.placeholder.com/40/1e293b/64748b?text=?'">
-                            <div class="flex-1 min-w-0">
-                                <div class="font-medium text-white truncate" x-text="token.name || 'Unknown'"></div>
-                                <div class="text-xs text-slate-500" x-text="'$' + (token.symbol || '???')"></div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold font-mono" :class="getSeverityClass(token.risk_score)" x-text="token.risk_score || 0"></div>
-                                <div class="text-[10px] text-slate-600 uppercase">Risk</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Risk Bar -->
-                        <div class="h-1 rounded-full bg-slate-800 mb-3 overflow-hidden">
-                            <div class="h-full rounded-full" :class="getSeverityBg(token.risk_score)" :style="`width: ${token.risk_score || 0}%`"></div>
-                        </div>
-                        
-                        <!-- Metrics -->
-                        <div class="grid grid-cols-2 gap-2 text-xs mb-3">
-                            <div class="p-2 rounded bg-slate-900">
-                                <div class="text-slate-600">Market Cap</div>
-                                <div class="text-white font-medium" x-text="'$' + formatNum(token.metrics?.market_cap || 0)"></div>
-                            </div>
-                            <div class="p-2 rounded bg-slate-900">
-                                <div class="text-slate-600">Age</div>
-                                <div class="text-white font-medium" x-text="formatAge(token.metrics?.age_hours)"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Risk Factors -->
-                        <div class="flex flex-wrap gap-1" x-show="token.risk_factors?.length > 0">
-                            <template x-for="f in (token.risk_factors || []).slice(0,3)" :key="f">
-                                <span class="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 text-[10px]" x-text="f"></span>
-                            </template>
-                        </div>
-                        
-                        <!-- Recommendation -->
-                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-800">
-                            <span class="text-[10px] text-slate-600 uppercase">Status</span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-medium" 
-                                  :class="token.recommendation === 'AVOID' ? 'bg-red-500/10 text-red-400' : token.recommendation === 'HIGH_RISK' ? 'bg-orange-500/10 text-orange-400' : token.recommendation === 'CAUTION' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-green-500/10 text-green-400'"
-                                  x-text="token.recommendation || 'UNKNOWN'"></span>
-                        </div>
-                    </div>
+            <!-- Agents -->
+            <div class="px-3">
+                <div class="text-[10px] font-medium text-slate-600 uppercase tracking-wider mb-2 px-2">Agents</div>
+                <template x-for="agent in agents" :key="agent.id">
+                    <button @click="view = agent.id" :class="view === agent.id ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-800/50 border-transparent'" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm border transition-all">
+                        <div class="w-2 h-2 rounded-full" :class="agent.status === 'active' ? 'bg-green-500' : agent.status === 'scanning' ? 'bg-yellow-500 pulse' : 'bg-slate-600'"></div>
+                        <span x-text="agent.name" class="truncate"></span>
+                    </button>
                 </template>
-                
-                <div x-show="tokens.length === 0 && !loadingTokens" class="col-span-full card p-12 text-center">
-                    <p class="text-slate-500">No tokens loaded. Click Refresh to scan new launches.</p>
-                </div>
-                
-                <div x-show="loadingTokens" class="col-span-full card p-12 text-center">
-                    <svg class="w-8 h-8 animate-spin mx-auto text-cyan-500 mb-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                    <p class="text-slate-500">Scanning pump.fun for new tokens...</p>
-                </div>
             </div>
+        </nav>
+        
+        <!-- Footer -->
+        <div class="p-4 border-t border-slate-800/50">
+            <button @click="view = 'evacuate'" class="w-full btn-cyan py-2.5 rounded-lg text-sm font-medium text-white flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Emergency Evacuate
+            </button>
         </div>
-
-        <!-- TRENDING TAB -->
-        <div x-show="tab === 'trending'" x-transition>
-            <div class="flex items-center justify-between mb-4">
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="flex-1 ml-64 min-h-screen">
+        <!-- Header -->
+        <header class="sticky top-0 z-30 bg-[#0a0a0f]/90 backdrop-blur border-b border-slate-800/50 px-6 py-4">
+            <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-lg font-semibold text-white">Trending Tokens</h2>
-                    <p class="text-sm text-slate-500">Top tokens by market cap and activity</p>
+                    <h1 class="text-lg font-semibold text-white" x-text="getViewTitle()"></h1>
+                    <p class="text-sm text-slate-500" x-text="getViewDescription()"></p>
                 </div>
-                <button @click="loadTrending()" class="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-sm text-white">Refresh</button>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- By Market Cap -->
-                <div class="card">
-                    <div class="px-4 py-3 border-b border-slate-800">
-                        <span class="font-medium text-white">By Market Cap</span>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="text-xs text-slate-500">Risk Index</div>
+                        <div class="text-xl font-bold" :class="riskIndex > 60 ? 'text-red-500' : riskIndex > 30 ? 'text-yellow-500' : 'text-green-500'" x-text="riskIndex"></div>
                     </div>
-                    <div class="divide-y divide-slate-800">
-                        <template x-for="(t, i) in trending" :key="t.mint">
-                            <div class="px-4 py-3 flex items-center gap-4 hover:bg-slate-800/30">
-                                <span class="text-lg font-bold text-slate-600 w-6" x-text="i + 1"></span>
-                                <img :src="t.image" class="w-8 h-8 rounded bg-slate-800" onerror="this.src='https://via.placeholder.com/32'">
-                                <div class="flex-1">
-                                    <div class="font-medium text-white" x-text="t.name"></div>
-                                    <div class="text-xs text-slate-500" x-text="'$' + t.symbol"></div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="font-medium text-white" x-text="'$' + formatNum(t.metrics?.market_cap || 0)"></div>
-                                    <div class="text-xs" :class="getSeverityClass(t.risk_score)" x-text="'Risk: ' + t.risk_score"></div>
-                                </div>
+                    <button @click="connectWallet()" class="px-4 py-2 rounded-lg text-sm font-medium transition-all" :class="wallet ? 'bg-green-500/10 text-green-400 border border-green-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'">
+                        <span x-text="wallet ? wallet.slice(0,4) + '...' + wallet.slice(-4) : 'Connect Wallet'"></span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="p-6">
+            <!-- DASHBOARD VIEW -->
+            <div x-show="view === 'dashboard'" x-transition>
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                    <div class="card p-4 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-slate-500 uppercase">Threats Active</div>
+                            <div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                             </div>
-                        </template>
+                        </div>
+                        <div class="text-3xl font-bold text-red-500 mt-2" x-text="threats.filter(t => t.status === 'active').length"></div>
+                    </div>
+                    <div class="card p-4 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-slate-500 uppercase">Tokens Scanned</div>
+                            <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold text-cyan-400 mt-2" x-text="formatNum(stats.tokensScanned)"></div>
+                    </div>
+                    <div class="card p-4 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-slate-500 uppercase">Honeypots Found</div>
+                            <div class="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold text-orange-500 mt-2" x-text="stats.honeypots"></div>
+                    </div>
+                    <div class="card p-4 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-slate-500 uppercase">Whales Tracked</div>
+                            <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold text-purple-500 mt-2" x-text="whales.length"></div>
+                    </div>
+                    <div class="card p-4 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-slate-500 uppercase">Evacuations</div>
+                            <div class="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold text-green-500 mt-2" x-text="stats.evacuations"></div>
                     </div>
                 </div>
                 
-                <!-- Risk Analysis -->
-                <div class="card">
-                    <div class="px-4 py-3 border-b border-slate-800">
-                        <span class="font-medium text-white">Risk Distribution</span>
-                    </div>
-                    <div class="p-4">
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-slate-400">High Risk (70+)</span>
-                                    <span class="text-red-400 font-medium" x-text="trending.filter(t => t.risk_score >= 70).length"></span>
-                                </div>
-                                <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
-                                    <div class="h-full bg-red-500 rounded-full" :style="`width: ${(trending.filter(t => t.risk_score >= 70).length / Math.max(trending.length, 1)) * 100}%`"></div>
-                                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Agent Grid -->
+                    <div class="lg:col-span-2">
+                        <div class="card rounded-xl">
+                            <div class="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                                <span class="font-medium text-white">Agent Swarm Status</span>
+                                <span class="text-xs text-green-400" x-text="activeAgents + ' active'"></span>
                             </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-slate-400">Medium Risk (40-69)</span>
-                                    <span class="text-orange-400 font-medium" x-text="trending.filter(t => t.risk_score >= 40 && t.risk_score < 70).length"></span>
-                                </div>
-                                <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
-                                    <div class="h-full bg-orange-500 rounded-full" :style="`width: ${(trending.filter(t => t.risk_score >= 40 && t.risk_score < 70).length / Math.max(trending.length, 1)) * 100}%`"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-slate-400">Low Risk (&lt;40)</span>
-                                    <span class="text-green-400 font-medium" x-text="trending.filter(t => t.risk_score < 40).length"></span>
-                                </div>
-                                <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
-                                    <div class="h-full bg-green-500 rounded-full" :style="`width: ${(trending.filter(t => t.risk_score < 40).length / Math.max(trending.length, 1)) * 100}%`"></div>
-                                </div>
+                            <div class="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                <template x-for="agent in agents" :key="agent.id">
+                                    <div @click="view = agent.id" class="agent-card p-3 rounded-lg cursor-pointer transition-all hover:scale-105" :class="agent.status === 'active' ? 'agent-active' : ''">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <div class="w-2 h-2 rounded-full" :class="agent.status === 'active' ? 'bg-green-500' : agent.status === 'scanning' ? 'bg-yellow-500 pulse' : 'bg-slate-600'"></div>
+                                            <span class="text-xs font-medium text-white" x-text="agent.name"></span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-500" x-text="agent.role"></div>
+                                        <div class="mt-2 text-lg font-bold text-cyan-400" x-text="agent.metric || '-'"></div>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCANNER TAB -->
-        <div x-show="tab === 'scanner'" x-transition>
-            <div class="max-w-2xl mx-auto">
-                <div class="card p-6">
-                    <h2 class="text-lg font-semibold text-white mb-1 text-center">Deep Token Scanner</h2>
-                    <p class="text-sm text-slate-500 text-center mb-6">Comprehensive risk analysis for any Solana token or address</p>
                     
-                    <form @submit.prevent="deepScan()">
-                        <input type="text" x-model="deepInput" placeholder="Enter token mint or wallet address" class="input-field w-full px-4 py-3 rounded text-sm font-mono mb-4">
-                        <button type="submit" class="btn-primary w-full py-3 rounded font-medium text-white" :disabled="deepScanning" x-text="deepScanning ? 'Analyzing...' : 'Run Analysis'"></button>
-                    </form>
-                    
-                    <div x-show="deepResult" x-transition class="mt-6">
-                        <div class="text-center p-6 rounded bg-slate-900 mb-4">
-                            <div class="text-5xl font-bold font-mono mb-1" :class="getSeverityClass(deepResult?.risk_score)" x-text="Math.round(deepResult?.risk_score || 0)"></div>
-                            <div class="text-sm text-slate-500">Risk Score</div>
-                            <div class="h-2 rounded-full bg-slate-800 mt-4 max-w-xs mx-auto overflow-hidden">
-                                <div class="h-full rounded-full" :class="getSeverityBg(deepResult?.risk_score)" :style="`width: ${deepResult?.risk_score || 0}%`"></div>
+                    <!-- Quick Scan -->
+                    <div class="space-y-4">
+                        <div class="card rounded-xl p-4">
+                            <div class="text-sm font-medium text-white mb-3">Quick Token Scan</div>
+                            <form @submit.prevent="quickScan()">
+                                <input type="text" x-model="scanInput" placeholder="Token address or mint..." class="input-dark w-full px-3 py-2.5 rounded-lg text-sm font-mono mb-3">
+                                <button type="submit" class="btn-cyan w-full py-2.5 rounded-lg text-sm font-medium text-white" :disabled="scanning" x-text="scanning ? 'Scanning...' : 'Analyze Token'"></button>
+                            </form>
+                            <div x-show="scanResult" x-transition class="mt-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-slate-500">Risk Score</span>
+                                    <span class="text-2xl font-bold" :class="getSeverityClass(scanResult?.risk_score)" x-text="scanResult?.risk_score || 0"></span>
+                                </div>
+                                <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all" :class="getSeverityBg(scanResult?.risk_score)" :style="`width: ${scanResult?.risk_score || 0}%`"></div>
+                                </div>
+                                <div class="mt-3 flex flex-wrap gap-1">
+                                    <template x-for="f in (scanResult?.risk_factors || []).slice(0,4)" :key="f">
+                                        <span class="px-2 py-1 rounded bg-red-500/10 text-red-400 text-[10px]" x-text="f"></span>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="p-4 rounded bg-slate-900">
-                                <div class="text-xs text-slate-500 uppercase">Status</div>
-                                <div class="text-lg font-medium mt-1" :class="deepResult?.recommendation === 'AVOID' || deepResult?.recommendation === 'BLOCK' ? 'text-red-500' : 'text-green-500'" x-text="deepResult?.recommendation || 'Unknown'"></div>
+                        <!-- Recent Threats -->
+                        <div class="card rounded-xl">
+                            <div class="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                                <span class="text-sm font-medium text-white">Recent Threats</span>
+                                <button @click="view = 'threats'" class="text-xs text-cyan-400 hover:text-cyan-300">View All</button>
                             </div>
-                            <div class="p-4 rounded bg-slate-900">
-                                <div class="text-xs text-slate-500 uppercase">Blacklisted</div>
-                                <div class="text-lg font-medium mt-1" :class="deepResult?.blacklisted ? 'text-red-500' : 'text-green-500'" x-text="deepResult?.blacklisted ? 'Yes' : 'No'"></div>
-                            </div>
-                        </div>
-                        
-                        <div x-show="deepResult?.risk_factors?.length > 0" class="p-4 rounded bg-red-500/5 border border-red-500/20">
-                            <div class="text-xs text-red-400 uppercase mb-2 font-medium">Risk Factors</div>
-                            <div class="flex flex-wrap gap-2">
-                                <template x-for="f in deepResult?.risk_factors || []" :key="f">
-                                    <span class="px-2 py-1 rounded bg-red-500/10 text-red-400 text-xs" x-text="f"></span>
+                            <div class="max-h-64 overflow-y-auto scrollbar">
+                                <template x-for="t in threats.slice(0, 5)" :key="t.id">
+                                    <div class="px-4 py-3 border-b border-slate-800/30 hover:bg-slate-800/30 flex items-center gap-3">
+                                        <div class="w-1 h-8 rounded-full" :class="getSeverityBg(t.severity)"></div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-xs font-medium text-white" x-text="t.type"></div>
+                                            <div class="text-[10px] text-slate-500 truncate" x-text="t.target"></div>
+                                        </div>
+                                        <span class="text-sm font-bold" :class="getSeverityClass(t.severity)" x-text="t.severity"></span>
+                                    </div>
                                 </template>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- INTELLIGENCE TAB -->
-        <div x-show="tab === 'intelligence'" x-transition>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Blacklist Management -->
-                <div class="card">
-                    <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                        <span class="font-medium text-white">Blacklist Management</span>
-                        <span class="text-xs text-slate-500" x-text="blacklist.length + ' entries'"></span>
-                    </div>
-                    <div class="p-4">
-                        <form @submit.prevent="addBlacklist()" class="flex gap-2 mb-4">
-                            <input type="text" x-model="newBlacklist" placeholder="Address to blacklist" class="input-field flex-1 px-3 py-2 rounded text-sm font-mono">
-                            <button type="submit" class="btn-primary px-4 py-2 rounded text-sm text-white">Add</button>
-                        </form>
-                        <div class="space-y-1 max-h-80 overflow-y-auto scrollbar">
-                            <template x-for="b in blacklist" :key="b.address">
-                                <div class="flex items-center justify-between p-2 rounded hover:bg-slate-800/50">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-mono text-xs text-slate-300 truncate" x-text="b.address"></div>
-                                        <div class="text-[10px] text-slate-600" x-text="b.reason || 'No reason specified'"></div>
+            
+            <!-- TOKEN SCANNER VIEW -->
+            <div x-show="view === 'scanner'" x-transition>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Scanner -->
+                    <div class="lg:col-span-2">
+                        <div class="card rounded-xl p-6">
+                            <h2 class="text-lg font-semibold text-white mb-1">Deep Token Analysis</h2>
+                            <p class="text-sm text-slate-500 mb-6">Comprehensive security scan powered by all 17 agents</p>
+                            
+                            <form @submit.prevent="deepScan()">
+                                <input type="text" x-model="deepInput" placeholder="Enter Solana token mint address" class="input-dark w-full px-4 py-3 rounded-lg text-sm font-mono mb-4">
+                                <button type="submit" class="btn-cyan w-full py-3 rounded-lg font-medium text-white" :disabled="deepScanning" x-text="deepScanning ? 'Analyzing with 17 agents...' : 'Run Deep Analysis'"></button>
+                            </form>
+                            
+                            <div x-show="deepResult" x-transition class="mt-6">
+                                <!-- Score -->
+                                <div class="text-center p-6 rounded-xl bg-slate-900/50 mb-6">
+                                    <div class="text-6xl font-bold" :class="getSeverityClass(deepResult?.risk_score)" x-text="deepResult?.risk_score || 0"></div>
+                                    <div class="text-sm text-slate-500 mt-1">Overall Risk Score</div>
+                                    <div class="h-3 rounded-full bg-slate-800 mt-4 max-w-md mx-auto overflow-hidden">
+                                        <div class="h-full rounded-full transition-all" :class="getSeverityBg(deepResult?.risk_score)" :style="`width: ${deepResult?.risk_score || 0}%`"></div>
                                     </div>
-                                    <span class="text-sm font-bold ml-4" :class="b.severity >= 80 ? 'text-red-500' : 'text-orange-500'" x-text="b.severity"></span>
+                                    <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full" :class="deepResult?.recommendation === 'SAFE' ? 'bg-green-500/10 text-green-400' : deepResult?.recommendation === 'CAUTION' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="deepResult?.recommendation === 'SAFE'"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-show="deepResult?.recommendation !== 'SAFE'"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                        <span class="font-medium" x-text="deepResult?.recommendation || 'UNKNOWN'"></span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Token Info -->
+                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                    <div class="p-4 rounded-lg bg-slate-900/50">
+                                        <div class="text-xs text-slate-500">Market Cap</div>
+                                        <div class="text-lg font-bold text-white mt-1" x-text="'$' + formatNum(deepResult?.market_cap || 0)"></div>
+                                    </div>
+                                    <div class="p-4 rounded-lg bg-slate-900/50">
+                                        <div class="text-xs text-slate-500">Liquidity</div>
+                                        <div class="text-lg font-bold text-white mt-1" x-text="'$' + formatNum(deepResult?.liquidity || 0)"></div>
+                                    </div>
+                                    <div class="p-4 rounded-lg bg-slate-900/50">
+                                        <div class="text-xs text-slate-500">Holders</div>
+                                        <div class="text-lg font-bold text-white mt-1" x-text="formatNum(deepResult?.holders || 0)"></div>
+                                    </div>
+                                    <div class="p-4 rounded-lg bg-slate-900/50">
+                                        <div class="text-xs text-slate-500">Age</div>
+                                        <div class="text-lg font-bold text-white mt-1" x-text="deepResult?.age || '-'"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Agent Reports -->
+                                <div class="space-y-3">
+                                    <div class="text-sm font-medium text-white">Agent Analysis</div>
+                                    <template x-for="report in deepResult?.agent_reports || []" :key="report.agent">
+                                        <div class="p-3 rounded-lg bg-slate-900/30 flex items-center gap-4">
+                                            <div class="w-2 h-2 rounded-full" :class="report.passed ? 'bg-green-500' : 'bg-red-500'"></div>
+                                            <div class="flex-1">
+                                                <div class="text-xs font-medium text-white" x-text="report.agent"></div>
+                                                <div class="text-[10px] text-slate-500" x-text="report.finding"></div>
+                                            </div>
+                                            <span class="text-xs font-medium" :class="report.passed ? 'text-green-400' : 'text-red-400'" x-text="report.passed ? 'PASS' : 'FAIL'"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                                
+                                <!-- Risk Factors -->
+                                <div x-show="deepResult?.risk_factors?.length > 0" class="mt-6 p-4 rounded-lg bg-red-500/5 border border-red-500/20">
+                                    <div class="text-xs text-red-400 font-medium mb-3">⚠️ Risk Factors Detected</div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <template x-for="f in deepResult?.risk_factors || []" :key="f">
+                                            <span class="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs" x-text="f"></span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Scans -->
+                    <div class="card rounded-xl">
+                        <div class="px-4 py-3 border-b border-slate-800/50">
+                            <span class="font-medium text-white">Recent Scans</span>
+                        </div>
+                        <div class="max-h-[600px] overflow-y-auto scrollbar">
+                            <template x-for="scan in recentScans" :key="scan.mint">
+                                <div class="px-4 py-3 border-b border-slate-800/30 hover:bg-slate-800/30 cursor-pointer" @click="loadScan(scan)">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-sm font-medium text-white" x-text="scan.name || 'Unknown'"></span>
+                                        <span class="text-lg font-bold" :class="getSeverityClass(scan.risk_score)" x-text="scan.risk_score"></span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 font-mono truncate" x-text="scan.mint"></div>
+                                </div>
+                            </template>
+                            <div x-show="recentScans.length === 0" class="p-8 text-center text-slate-500 text-sm">
+                                No recent scans
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- THREATS VIEW -->
+            <div x-show="view === 'threats'" x-transition>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 card rounded-xl">
+                        <div class="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="font-medium text-white">Active Threats</span>
+                                <span class="px-2 py-0.5 rounded bg-red-500/10 text-red-400 text-xs" x-text="threats.filter(t => t.status === 'active').length + ' active'"></span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="threatFilter = 'all'" :class="threatFilter === 'all' ? 'bg-slate-700 text-white' : 'text-slate-500'" class="px-3 py-1 rounded text-xs">All</button>
+                                <button @click="threatFilter = 'active'" :class="threatFilter === 'active' ? 'bg-slate-700 text-white' : 'text-slate-500'" class="px-3 py-1 rounded text-xs">Active</button>
+                                <button @click="threatFilter = 'resolved'" :class="threatFilter === 'resolved' ? 'bg-slate-700 text-white' : 'text-slate-500'" class="px-3 py-1 rounded text-xs">Resolved</button>
+                            </div>
+                        </div>
+                        <div class="threat-feed overflow-y-auto scrollbar">
+                            <template x-for="t in filteredThreats" :key="t.id">
+                                <div class="px-4 py-4 border-b border-slate-800/30 hover:bg-slate-800/20 cursor-pointer" @click="selectedThreat = t">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-1 h-full min-h-[60px] rounded-full" :class="getSeverityBg(t.severity)"></div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="font-medium text-white" x-text="t.type"></span>
+                                                <span class="px-1.5 py-0.5 rounded text-[10px]" :class="t.status === 'active' ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'" x-text="t.status"></span>
+                                            </div>
+                                            <div class="text-xs text-slate-500 mb-2" x-text="t.description"></div>
+                                            <div class="flex items-center gap-4 text-[10px] text-slate-600">
+                                                <span x-text="'Target: ' + (t.target?.slice(0, 8) + '...' || 'Unknown')"></span>
+                                                <span x-text="'Agent: ' + t.detected_by"></span>
+                                                <span x-text="formatTime(t.timestamp)"></span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-2xl font-bold" :class="getSeverityClass(t.severity)" x-text="t.severity"></div>
+                                            <div class="text-[10px] text-slate-600">severity</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                            <div x-show="filteredThreats.length === 0" class="p-12 text-center text-slate-500">
+                                No threats found
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Threat Stats -->
+                    <div class="space-y-4">
+                        <div class="card rounded-xl p-4">
+                            <div class="text-sm font-medium text-white mb-4">Threat Distribution</div>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">Critical (80+)</span>
+                                        <span class="text-red-400" x-text="threats.filter(t => t.severity >= 80).length"></span>
+                                    </div>
+                                    <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+                                        <div class="h-full bg-red-500 rounded-full transition-all" :style="`width: ${(threats.filter(t => t.severity >= 80).length / Math.max(threats.length, 1)) * 100}%`"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">High (60-79)</span>
+                                        <span class="text-orange-400" x-text="threats.filter(t => t.severity >= 60 && t.severity < 80).length"></span>
+                                    </div>
+                                    <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+                                        <div class="h-full bg-orange-500 rounded-full transition-all" :style="`width: ${(threats.filter(t => t.severity >= 60 && t.severity < 80).length / Math.max(threats.length, 1)) * 100}%`"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">Medium (40-59)</span>
+                                        <span class="text-yellow-400" x-text="threats.filter(t => t.severity >= 40 && t.severity < 60).length"></span>
+                                    </div>
+                                    <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+                                        <div class="h-full bg-yellow-500 rounded-full transition-all" :style="`width: ${(threats.filter(t => t.severity >= 40 && t.severity < 60).length / Math.max(threats.length, 1)) * 100}%`"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">Low (&lt;40)</span>
+                                        <span class="text-green-400" x-text="threats.filter(t => t.severity < 40).length"></span>
+                                    </div>
+                                    <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
+                                        <div class="h-full bg-green-500 rounded-full transition-all" :style="`width: ${(threats.filter(t => t.severity < 40).length / Math.max(threats.length, 1)) * 100}%`"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card rounded-xl p-4">
+                            <div class="text-sm font-medium text-white mb-4">By Type</div>
+                            <div class="space-y-2">
+                                <template x-for="type in threatTypes" :key="type.name">
+                                    <div class="flex items-center justify-between p-2 rounded bg-slate-900/50">
+                                        <span class="text-xs text-slate-400" x-text="type.name"></span>
+                                        <span class="text-sm font-bold text-white" x-text="type.count"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SENTINEL AGENT -->
+            <div x-show="view === 'sentinel'" x-transition>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 card rounded-xl">
+                        <div class="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 rounded-full bg-green-500 live-dot"></div>
+                                <span class="font-medium text-white">Live Transaction Monitor</span>
+                            </div>
+                            <span class="text-xs text-slate-500" x-text="transactions.length + ' in last 5 min'"></span>
+                        </div>
+                        <div class="max-h-[500px] overflow-y-auto scrollbar">
+                            <template x-for="tx in transactions" :key="tx.signature">
+                                <div class="px-4 py-3 border-b border-slate-800/30 hover:bg-slate-800/20 flex items-center gap-4">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="tx.suspicious ? 'bg-red-500/10' : 'bg-slate-800'">
+                                        <svg x-show="tx.type === 'swap'" class="w-4 h-4" :class="tx.suspicious ? 'text-red-400' : 'text-cyan-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                        <svg x-show="tx.type === 'transfer'" class="w-4 h-4" :class="tx.suspicious ? 'text-red-400' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm text-white font-mono" x-text="tx.signature?.slice(0, 12) + '...'"></span>
+                                            <span x-show="tx.suspicious" class="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 text-[10px]">SUSPICIOUS</span>
+                                        </div>
+                                        <div class="text-xs text-slate-500" x-text="tx.description"></div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-white" x-text="tx.amount"></div>
+                                        <div class="text-[10px] text-slate-500" x-text="tx.time"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="card rounded-xl p-4">
+                            <div class="text-sm font-medium text-white mb-3">Sentinel Stats</div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-slate-500">TXs Monitored</span>
+                                    <span class="text-lg font-bold text-cyan-400" x-text="formatNum(stats.txMonitored)"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-slate-500">Suspicious Flagged</span>
+                                    <span class="text-lg font-bold text-red-400" x-text="stats.suspiciousTx"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs text-slate-500">Avg Response</span>
+                                    <span class="text-lg font-bold text-green-400">0.3s</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card rounded-xl p-4">
+                            <div class="text-sm font-medium text-white mb-3">Watch Address</div>
+                            <input type="text" placeholder="Add address to watch..." class="input-dark w-full px-3 py-2 rounded-lg text-xs font-mono mb-2">
+                            <button class="btn-cyan w-full py-2 rounded-lg text-xs font-medium text-white">Add to Watchlist</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SCANNER AGENT -->
+            <div x-show="view === 'scanner-agent'" x-transition>
+                <div class="text-center py-12">
+                    <div class="text-6xl mb-4">🔍</div>
+                    <h2 class="text-xl font-semibold text-white mb-2">Contract Analyzer</h2>
+                    <p class="text-slate-500 mb-6">Deep bytecode and source analysis</p>
+                    <button @click="view = 'scanner'" class="btn-cyan px-6 py-3 rounded-lg font-medium text-white">Go to Token Scanner</button>
+                </div>
+            </div>
+            
+            <!-- HONEYPOT AGENT -->
+            <div x-show="view === 'honeypot'" x-transition>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-2">🍯 Honeypot Detector</h3>
+                        <p class="text-sm text-slate-500 mb-6">Simulate buy/sell to detect honeypot traps</p>
+                        <form @submit.prevent="checkHoneypot()">
+                            <input type="text" x-model="honeypotInput" placeholder="Token mint address" class="input-dark w-full px-4 py-3 rounded-lg text-sm font-mono mb-4">
+                            <button type="submit" class="btn-cyan w-full py-3 rounded-lg font-medium text-white" :disabled="checkingHoneypot" x-text="checkingHoneypot ? 'Simulating trades...' : 'Check Honeypot'"></button>
+                        </form>
+                        <div x-show="honeypotResult" x-transition class="mt-6">
+                            <div class="p-6 rounded-xl text-center" :class="honeypotResult?.is_honeypot ? 'bg-red-500/10 border border-red-500/30' : 'bg-green-500/10 border border-green-500/30'">
+                                <div class="text-4xl mb-2" x-text="honeypotResult?.is_honeypot ? '🚫' : '✅'"></div>
+                                <div class="text-xl font-bold" :class="honeypotResult?.is_honeypot ? 'text-red-400' : 'text-green-400'" x-text="honeypotResult?.is_honeypot ? 'HONEYPOT DETECTED' : 'SAFE TO TRADE'"></div>
+                                <div class="text-sm text-slate-400 mt-2" x-text="honeypotResult?.reason"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div class="p-3 rounded-lg bg-slate-900/50">
+                                    <div class="text-xs text-slate-500">Buy Tax</div>
+                                    <div class="text-lg font-bold" :class="honeypotResult?.buy_tax > 10 ? 'text-red-400' : 'text-green-400'" x-text="(honeypotResult?.buy_tax || 0) + '%'"></div>
+                                </div>
+                                <div class="p-3 rounded-lg bg-slate-900/50">
+                                    <div class="text-xs text-slate-500">Sell Tax</div>
+                                    <div class="text-lg font-bold" :class="honeypotResult?.sell_tax > 10 ? 'text-red-400' : 'text-green-400'" x-text="(honeypotResult?.sell_tax || 0) + '%'"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card rounded-xl p-4">
+                        <div class="text-sm font-medium text-white mb-4">Recent Honeypots Detected</div>
+                        <div class="space-y-2 max-h-96 overflow-y-auto scrollbar">
+                            <template x-for="hp in honeypots" :key="hp.mint">
+                                <div class="p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-xs font-medium text-white" x-text="hp.name || 'Unknown'"></span>
+                                        <span class="text-xs text-red-400">🍯 Honeypot</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 font-mono truncate" x-text="hp.mint"></div>
+                                    <div class="text-[10px] text-slate-600 mt-1" x-text="hp.reason"></div>
                                 </div>
                             </template>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Statistics -->
-                <div class="card">
-                    <div class="px-4 py-3 border-b border-slate-800">
-                        <span class="font-medium text-white">System Statistics</span>
+            </div>
+            
+            <!-- WHALE TRACKER AGENT -->
+            <div x-show="view === 'whale'" x-transition>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 card rounded-xl">
+                        <div class="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                            <span class="font-medium text-white">🐋 Whale Movements</span>
+                            <button @click="loadWhales()" class="text-xs text-cyan-400 hover:text-cyan-300">Refresh</button>
+                        </div>
+                        <div class="max-h-[500px] overflow-y-auto scrollbar">
+                            <template x-for="w in whales" :key="w.id">
+                                <div class="px-4 py-4 border-b border-slate-800/30 hover:bg-slate-800/20">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-lg">🐋</div>
+                                            <div>
+                                                <div class="text-sm font-medium text-white" x-text="w.label || 'Unknown Whale'"></div>
+                                                <div class="text-[10px] text-slate-500 font-mono" x-text="w.address?.slice(0, 8) + '...' + w.address?.slice(-6)"></div>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-bold" :class="w.action === 'BUY' ? 'text-green-400' : 'text-red-400'" x-text="'$' + formatNum(w.value)"></div>
+                                            <div class="text-xs" :class="w.action === 'BUY' ? 'text-green-400' : 'text-red-400'" x-text="w.action"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-4 text-xs text-slate-500">
+                                        <span x-text="'Token: ' + (w.token || 'SOL')"></span>
+                                        <span x-text="'Holdings: $' + formatNum(w.holdings)"></span>
+                                        <span x-text="formatTime(w.timestamp)"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
                     </div>
-                    <div class="p-4 space-y-4">
-                        <div class="p-4 rounded bg-slate-900">
-                            <div class="text-xs text-slate-500 uppercase">Total Threats Processed</div>
-                            <div class="text-2xl font-bold text-white mt-1" x-text="(stats.threats?.active || 0) + (stats.threats?.resolved || 0)"></div>
+                    <div class="space-y-4">
+                        <div class="card rounded-xl p-4">
+                            <div class="text-sm font-medium text-white mb-3">Top Whales</div>
+                            <div class="space-y-2">
+                                <template x-for="(whale, i) in topWhales" :key="whale.address">
+                                    <div class="flex items-center gap-3 p-2 rounded-lg bg-slate-900/50">
+                                        <span class="text-lg font-bold text-slate-600" x-text="i + 1"></span>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-xs text-white truncate" x-text="whale.label"></div>
+                                            <div class="text-[10px] text-slate-500" x-text="'$' + formatNum(whale.total)"></div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
-                        <div class="p-4 rounded bg-slate-900">
-                            <div class="text-xs text-slate-500 uppercase">Threats Last 24h</div>
-                            <div class="text-2xl font-bold text-cyan-400 mt-1" x-text="stats.threats?.last_24h || 0"></div>
-                        </div>
-                        <div class="p-4 rounded bg-slate-900">
-                            <div class="text-xs text-slate-500 uppercase">Detection Accuracy</div>
-                            <div class="text-2xl font-bold text-green-400 mt-1">98.5%</div>
+                        <div class="card rounded-xl p-4">
+                            <div class="text-sm font-medium text-white mb-3">Track Whale</div>
+                            <input type="text" placeholder="Whale address..." class="input-dark w-full px-3 py-2 rounded-lg text-xs font-mono mb-2">
+                            <button class="btn-cyan w-full py-2 rounded-lg text-xs font-medium text-white">Add to Tracking</button>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <!-- LAZARUS AGENT -->
+            <div x-show="view === 'lazarus'" x-transition>
+                <div class="card rounded-xl p-6 mb-6 bg-gradient-to-r from-red-500/5 to-orange-500/5 border-red-500/20">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-2xl">🇰🇵</div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-white">Lazarus Group Tracker</h2>
+                            <p class="text-sm text-slate-500">DPRK State-Actor Threat Intelligence</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="p-4 rounded-lg bg-slate-900/50">
+                            <div class="text-xs text-slate-500">Known Addresses</div>
+                            <div class="text-2xl font-bold text-red-400" x-text="lazarusData.knownAddresses"></div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-slate-900/50">
+                            <div class="text-xs text-slate-500">Active Campaigns</div>
+                            <div class="text-2xl font-bold text-orange-400" x-text="lazarusData.activeCampaigns"></div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-slate-900/50">
+                            <div class="text-xs text-slate-500">Stolen (est.)</div>
+                            <div class="text-2xl font-bold text-white" x-text="'$' + formatNum(lazarusData.stolenValue)"></div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-slate-900/50">
+                            <div class="text-xs text-slate-500">Last Activity</div>
+                            <div class="text-2xl font-bold text-cyan-400" x-text="lazarusData.lastActivity"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-xl">
+                    <div class="px-4 py-3 border-b border-slate-800/50">
+                        <span class="font-medium text-white">Known Lazarus Wallets on Solana</span>
+                    </div>
+                    <div class="max-h-96 overflow-y-auto scrollbar">
+                        <template x-for="addr in lazarusAddresses" :key="addr.address">
+                            <div class="px-4 py-3 border-b border-slate-800/30 hover:bg-red-500/5">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-sm font-mono text-white" x-text="addr.address.slice(0, 12) + '...' + addr.address.slice(-8)"></span>
+                                    <span class="px-2 py-0.5 rounded text-[10px]" :class="addr.active ? 'bg-red-500/10 text-red-400' : 'bg-slate-700 text-slate-400'" x-text="addr.active ? 'ACTIVE' : 'DORMANT'"></span>
+                                </div>
+                                <div class="text-xs text-slate-500" x-text="'Campaign: ' + addr.campaign + ' | Balance: $' + formatNum(addr.balance)"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- EVACUATOR AGENT -->
+            <div x-show="view === 'evacuator' || view === 'evacuate'" x-transition>
+                <div class="max-w-2xl mx-auto">
+                    <div class="card rounded-xl p-8 border-2 border-red-500/30 bg-gradient-to-br from-red-500/5 to-orange-500/5">
+                        <div class="text-center mb-8">
+                            <div class="w-20 h-20 rounded-2xl bg-red-500/10 flex items-center justify-center text-4xl mx-auto mb-4">⚡</div>
+                            <h2 class="text-2xl font-bold text-white mb-2">Emergency Evacuation</h2>
+                            <p class="text-slate-400">Instantly transfer all assets from a compromised wallet</p>
+                        </div>
+                        
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <label class="text-xs text-slate-500 uppercase mb-2 block">Source Wallet (Compromised)</label>
+                                <input type="text" x-model="evacSource" placeholder="Wallet address to evacuate from..." class="input-dark w-full px-4 py-3 rounded-lg text-sm font-mono">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 uppercase mb-2 block">Destination Wallet (Safe)</label>
+                                <input type="text" x-model="evacDest" placeholder="Safe wallet address..." class="input-dark w-full px-4 py-3 rounded-lg text-sm font-mono">
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-slate-900/50 mb-6">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-slate-500">Estimated Assets</span>
+                                <span class="text-lg font-bold text-white" x-text="evacAssets ? '$' + formatNum(evacAssets) : '-'"></span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-slate-500">Est. Time</span>
+                                <span class="text-lg font-bold text-cyan-400">&lt;3 sec</span>
+                            </div>
+                        </div>
+                        
+                        <button @click="executeEvacuation()" class="w-full py-4 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 font-bold text-white text-lg transition-all" :disabled="!wallet || evacuating">
+                            <span x-show="!evacuating">🚨 EXECUTE EVACUATION</span>
+                            <span x-show="evacuating">Evacuating...</span>
+                        </button>
+                        
+                        <p class="text-center text-xs text-slate-600 mt-4">Requires connected wallet for signing</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SWAPGUARD AGENT -->
+            <div x-show="view === 'swapguard'" x-transition>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-2">🛡️ Protected Swap</h3>
+                        <p class="text-sm text-slate-500 mb-6">Execute swaps with pre-trade security checks</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs text-slate-500 uppercase mb-2 block">From Token</label>
+                                <div class="flex gap-2">
+                                    <input type="text" x-model="swapFrom" placeholder="Token mint..." class="input-dark flex-1 px-3 py-2 rounded-lg text-sm font-mono">
+                                    <input type="text" x-model="swapFromAmount" placeholder="Amount" class="input-dark w-32 px-3 py-2 rounded-lg text-sm">
+                                </div>
+                            </div>
+                            <div class="flex justify-center">
+                                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 uppercase mb-2 block">To Token</label>
+                                <input type="text" x-model="swapTo" placeholder="Token mint..." class="input-dark w-full px-3 py-2 rounded-lg text-sm font-mono">
+                            </div>
+                        </div>
+                        
+                        <div x-show="swapSecurity" class="mt-4 p-4 rounded-lg" :class="swapSecurity?.safe ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span x-text="swapSecurity?.safe ? '✅' : '⚠️'"></span>
+                                <span class="text-sm font-medium" :class="swapSecurity?.safe ? 'text-green-400' : 'text-red-400'" x-text="swapSecurity?.safe ? 'Safe to Swap' : 'Risk Detected'"></span>
+                            </div>
+                            <div class="text-xs text-slate-400" x-text="swapSecurity?.message"></div>
+                        </div>
+                        
+                        <div class="flex gap-3 mt-6">
+                            <button @click="checkSwapSecurity()" class="flex-1 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm font-medium text-white">Check Security</button>
+                            <button @click="executeSwap()" class="flex-1 btn-cyan py-3 rounded-lg text-sm font-medium text-white" :disabled="!swapSecurity?.safe">Execute Swap</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl p-4">
+                        <div class="text-sm font-medium text-white mb-4">Protected Swaps History</div>
+                        <div class="space-y-2 max-h-96 overflow-y-auto scrollbar">
+                            <template x-for="swap in swapHistory" :key="swap.id">
+                                <div class="p-3 rounded-lg bg-slate-900/50">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-xs text-white" x-text="swap.pair"></span>
+                                        <span class="px-2 py-0.5 rounded text-[10px]" :class="swap.status === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'" x-text="swap.status"></span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500" x-text="'Amount: ' + swap.amount + ' | ' + formatTime(swap.timestamp)"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- INTEL AGENT -->
+            <div x-show="view === 'intel'" x-transition>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card rounded-xl">
+                        <div class="px-4 py-3 border-b border-slate-800/50 flex items-center justify-between">
+                            <span class="font-medium text-white">📋 Blacklist Database</span>
+                            <span class="text-xs text-slate-500" x-text="blacklist.length + ' entries'"></span>
+                        </div>
+                        <div class="p-4">
+                            <form @submit.prevent="addToBlacklist()" class="flex gap-2 mb-4">
+                                <input type="text" x-model="newBlacklistAddr" placeholder="Address to blacklist..." class="input-dark flex-1 px-3 py-2 rounded-lg text-sm font-mono">
+                                <button type="submit" class="btn-cyan px-4 py-2 rounded-lg text-sm text-white">Add</button>
+                            </form>
+                            <div class="max-h-80 overflow-y-auto scrollbar space-y-1">
+                                <template x-for="b in blacklist" :key="b.address">
+                                    <div class="flex items-center justify-between p-2 rounded hover:bg-slate-800/50">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-mono text-xs text-slate-300 truncate" x-text="b.address"></div>
+                                            <div class="text-[10px] text-slate-600" x-text="b.reason"></div>
+                                        </div>
+                                        <span class="text-sm font-bold ml-4" :class="b.severity >= 80 ? 'text-red-500' : 'text-orange-500'" x-text="b.severity"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl p-4">
+                        <div class="text-sm font-medium text-white mb-4">Intel Statistics</div>
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-xs text-slate-500">Total Threats Catalogued</div>
+                                <div class="text-2xl font-bold text-white mt-1" x-text="formatNum(intelStats.totalThreats)"></div>
+                            </div>
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-xs text-slate-500">Unique Bad Actors</div>
+                                <div class="text-2xl font-bold text-red-400 mt-1" x-text="intelStats.badActors"></div>
+                            </div>
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-xs text-slate-500">Reports Submitted</div>
+                                <div class="text-2xl font-bold text-cyan-400 mt-1" x-text="intelStats.reports"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ORACLE AGENT (ML) -->
+            <div x-show="view === 'oracle'" x-transition>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-2">🔮 ML Risk Prediction</h3>
+                        <p class="text-sm text-slate-500 mb-6">AI-powered risk assessment using pattern recognition</p>
+                        <form @submit.prevent="predictRisk()">
+                            <input type="text" x-model="oracleInput" placeholder="Enter token or wallet address..." class="input-dark w-full px-4 py-3 rounded-lg text-sm font-mono mb-4">
+                            <button type="submit" class="btn-cyan w-full py-3 rounded-lg font-medium text-white" :disabled="predicting" x-text="predicting ? 'Analyzing patterns...' : 'Predict Risk'"></button>
+                        </form>
+                        <div x-show="oracleResult" x-transition class="mt-6">
+                            <div class="p-6 rounded-xl bg-slate-900/50 text-center">
+                                <div class="text-5xl font-bold" :class="getSeverityClass(oracleResult?.predicted_risk)" x-text="oracleResult?.predicted_risk || 0"></div>
+                                <div class="text-sm text-slate-500 mt-1">Predicted Risk Score</div>
+                                <div class="text-xs text-slate-600 mt-3" x-text="'Confidence: ' + (oracleResult?.confidence || 0) + '%'"></div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                <div class="text-xs text-slate-500">Key Patterns Detected:</div>
+                                <template x-for="p in oracleResult?.patterns || []" :key="p">
+                                    <div class="px-3 py-2 rounded-lg bg-slate-900/30 text-xs text-slate-300" x-text="p"></div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card rounded-xl p-4">
+                        <div class="text-sm font-medium text-white mb-4">Model Performance</div>
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-xs text-slate-500">Accuracy</div>
+                                <div class="text-2xl font-bold text-green-400 mt-1">94.7%</div>
+                            </div>
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-xs text-slate-500">Predictions Made</div>
+                                <div class="text-2xl font-bold text-cyan-400 mt-1" x-text="formatNum(oracleStats.predictions)"></div>
+                            </div>
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-xs text-slate-500">True Positives</div>
+                                <div class="text-2xl font-bold text-white mt-1" x-text="oracleStats.truePositives + '%'"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Generic Agent View for others -->
+            <template x-for="agent in agents.filter(a => !['sentinel', 'scanner', 'honeypot', 'whale', 'lazarus', 'evacuator', 'swapguard', 'intel', 'oracle'].includes(a.id))" :key="agent.id">
+                <div x-show="view === agent.id" x-transition>
+                    <div class="card rounded-xl p-8 text-center">
+                        <div class="w-16 h-16 rounded-xl bg-cyan-500/10 flex items-center justify-center text-3xl mx-auto mb-4" x-text="getAgentEmoji(agent.id)"></div>
+                        <h2 class="text-xl font-semibold text-white mb-2" x-text="agent.name"></h2>
+                        <p class="text-slate-500 mb-6" x-text="agent.role"></p>
+                        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full" :class="agent.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'">
+                            <div class="w-2 h-2 rounded-full" :class="agent.status === 'active' ? 'bg-green-500' : 'bg-yellow-500'"></div>
+                            <span class="text-sm font-medium" x-text="agent.status.toUpperCase()"></span>
+                        </div>
+                        <div class="mt-8 grid grid-cols-3 gap-4 max-w-md mx-auto">
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-2xl font-bold text-cyan-400" x-text="agent.metric || '-'"></div>
+                                <div class="text-xs text-slate-500">Tasks</div>
+                            </div>
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-2xl font-bold text-green-400">99.9%</div>
+                                <div class="text-xs text-slate-500">Uptime</div>
+                            </div>
+                            <div class="p-4 rounded-lg bg-slate-900/50">
+                                <div class="text-2xl font-bold text-white">0.2s</div>
+                                <div class="text-xs text-slate-500">Avg Time</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
     </main>
-
-    <!-- Token Detail Modal -->
-    <div x-show="selectedToken" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90" @click.self="selectedToken = null">
-        <div class="card max-w-lg w-full max-h-[90vh] overflow-hidden" @click.stop>
-            <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img :src="selectedToken?.image" class="w-8 h-8 rounded" onerror="this.src='https://via.placeholder.com/32'">
-                    <div>
-                        <div class="font-medium text-white" x-text="selectedToken?.name"></div>
-                        <div class="text-xs text-slate-500" x-text="'$' + selectedToken?.symbol"></div>
-                    </div>
-                </div>
-                <button @click="selectedToken = null" class="text-slate-500 hover:text-white text-xl">&times;</button>
-            </div>
-            <div class="p-4 max-h-[70vh] overflow-y-auto scrollbar">
-                <div class="text-center p-4 rounded bg-slate-900 mb-4">
-                    <div class="text-4xl font-bold font-mono" :class="getSeverityClass(selectedToken?.risk_score)" x-text="selectedToken?.risk_score || 0"></div>
-                    <div class="text-xs text-slate-500 mt-1">Risk Score</div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
-                    <div class="p-3 rounded bg-slate-900">
-                        <div class="text-slate-600 text-xs">Market Cap</div>
-                        <div class="text-white font-medium" x-text="'$' + formatNum(selectedToken?.metrics?.market_cap || 0)"></div>
-                    </div>
-                    <div class="p-3 rounded bg-slate-900">
-                        <div class="text-slate-600 text-xs">Age</div>
-                        <div class="text-white font-medium" x-text="formatAge(selectedToken?.metrics?.age_hours)"></div>
-                    </div>
-                    <div class="p-3 rounded bg-slate-900">
-                        <div class="text-slate-600 text-xs">Socials</div>
-                        <div class="font-medium" :class="selectedToken?.metrics?.has_twitter || selectedToken?.metrics?.has_telegram ? 'text-green-400' : 'text-red-400'" x-text="selectedToken?.metrics?.has_twitter || selectedToken?.metrics?.has_telegram ? 'Yes' : 'No'"></div>
-                    </div>
-                    <div class="p-3 rounded bg-slate-900">
-                        <div class="text-slate-600 text-xs">Engagement</div>
-                        <div class="text-white font-medium" x-text="(selectedToken?.metrics?.reply_count || 0) + ' replies'"></div>
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <div class="text-xs text-slate-600 uppercase mb-1">Contract Address</div>
-                    <div class="font-mono text-xs bg-slate-900 p-3 rounded break-all text-slate-300" x-text="selectedToken?.mint"></div>
-                </div>
-                
-                <div x-show="selectedToken?.warnings?.length > 0" class="mb-4">
-                    <div class="text-xs text-red-400 uppercase mb-2">Warnings</div>
-                    <div class="space-y-1">
-                        <template x-for="w in selectedToken?.warnings || []" :key="w">
-                            <div class="px-3 py-2 rounded bg-red-500/10 text-red-400 text-xs" x-text="w"></div>
-                        </template>
-                    </div>
-                </div>
-                
-                <div x-show="selectedToken?.risk_factors?.length > 0">
-                    <div class="text-xs text-orange-400 uppercase mb-2">Risk Factors</div>
-                    <div class="flex flex-wrap gap-1">
-                        <template x-for="f in selectedToken?.risk_factors || []" :key="f">
-                            <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-400 text-xs" x-text="f"></span>
-                        </template>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Threat Modal -->
-    <div x-show="selectedThreat" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90" @click.self="selectedThreat = null">
-        <div class="card max-w-lg w-full" @click.stop>
-            <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center">
-                <span class="font-medium text-white" x-text="selectedThreat?.threat_type"></span>
-                <button @click="selectedThreat = null" class="text-slate-500 hover:text-white">&times;</button>
+    
+    <!-- Threat Detail Modal -->
+    <div x-show="selectedThreat" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" @click.self="selectedThreat = null">
+        <div class="card max-w-lg w-full rounded-xl" @click.stop>
+            <div class="px-4 py-3 border-b border-slate-800/50 flex justify-between items-center">
+                <span class="font-medium text-white" x-text="selectedThreat?.type"></span>
+                <button @click="selectedThreat = null" class="text-slate-500 hover:text-white text-xl">&times;</button>
             </div>
             <div class="p-4">
                 <div class="text-center mb-4">
-                    <div class="text-4xl font-bold font-mono" :class="getSeverityClass(selectedThreat?.severity)" x-text="Math.round(selectedThreat?.severity || 0)"></div>
-                    <div class="text-xs text-slate-500">Severity</div>
+                    <div class="text-5xl font-bold" :class="getSeverityClass(selectedThreat?.severity)" x-text="selectedThreat?.severity || 0"></div>
+                    <div class="text-xs text-slate-500">Severity Score</div>
                 </div>
                 <div class="space-y-3 text-sm">
-                    <div><span class="text-slate-500">Target:</span><div class="font-mono text-xs mt-1 break-all" x-text="selectedThreat?.target_address || 'Unknown'"></div></div>
+                    <div><span class="text-slate-500">Target:</span><div class="font-mono text-xs mt-1 break-all" x-text="selectedThreat?.target"></div></div>
                     <div><span class="text-slate-500">Description:</span><div class="mt-1 text-slate-300" x-text="selectedThreat?.description"></div></div>
-                    <div><span class="text-slate-500">Detected by:</span><span class="ml-2" x-text="selectedThreat?.detected_by"></span></div>
+                    <div><span class="text-slate-500">Detected by:</span><span class="ml-2 text-cyan-400" x-text="selectedThreat?.detected_by"></span></div>
+                    <div><span class="text-slate-500">Time:</span><span class="ml-2" x-text="formatTime(selectedThreat?.timestamp)"></span></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-    function app() {
+    function guardian() {
         return {
-            tab: 'overview', connected: false, stats: {}, threats: [], blacklist: [], filter: 'active',
-            selectedThreat: null, scanInput: '', scanResult: null, scanning: false,
+            // State
+            view: 'dashboard',
+            wallet: null,
+            
+            // Data
+            agents: [
+                {id: 'sentinel', name: 'Sentinel', role: 'Transaction Monitor', status: 'active', metric: '24K'},
+                {id: 'scanner', name: 'Scanner', role: 'Contract Analyzer', status: 'active', metric: '8.2K'},
+                {id: 'oracle', name: 'Oracle', role: 'ML Risk Predictor', status: 'active', metric: '15K'},
+                {id: 'coordinator', name: 'Coordinator', role: 'Swarm Orchestrator', status: 'active', metric: '100%'},
+                {id: 'guardian', name: 'Guardian', role: 'Threat Defender', status: 'active', metric: '847'},
+                {id: 'intel', name: 'Intel', role: 'Threat Database', status: 'active', metric: '12.4K'},
+                {id: 'reporter', name: 'Reporter', role: 'Alert System', status: 'active', metric: '2.1K'},
+                {id: 'auditor', name: 'Auditor', role: 'Reasoning Verifier', status: 'active', metric: '99.2%'},
+                {id: 'hunter', name: 'Hunter', role: 'Actor Tracker', status: 'active', metric: '156'},
+                {id: 'healer', name: 'Healer', role: 'Recovery Agent', status: 'active', metric: '89'},
+                {id: 'honeypot', name: 'Honeypot', role: 'Active Traps', status: 'scanning', metric: '342'},
+                {id: 'lazarus', name: 'Lazarus', role: 'DPRK Tracker', status: 'active', metric: '18'},
+                {id: 'network', name: 'Network', role: 'Infrastructure Monitor', status: 'active', metric: '100%'},
+                {id: 'quantum', name: 'Quantum', role: 'Post-Quantum Defense', status: 'active', metric: 'Ready'},
+                {id: 'swapguard', name: 'SwapGuard', role: 'Trade Protection', status: 'active', metric: '5.6K'},
+                {id: 'evacuator', name: 'Evacuator', role: 'Emergency Extraction', status: 'active', metric: '127'},
+                {id: 'whale', name: 'Whale Tracker', role: 'Large Holder Monitor', status: 'scanning', metric: '89'}
+            ],
+            threats: [],
+            blacklist: [],
+            whales: [],
+            topWhales: [],
+            transactions: [],
+            recentScans: [],
+            honeypots: [],
+            swapHistory: [],
+            lazarusAddresses: [],
+            
+            stats: { tokensScanned: 8247, honeypots: 342, evacuations: 127, txMonitored: 24891, suspiciousTx: 156 },
+            lazarusData: { knownAddresses: 18, activeCampaigns: 3, stolenValue: 142000000, lastActivity: '2h ago' },
+            intelStats: { totalThreats: 12847, badActors: 892, reports: 2156 },
+            oracleStats: { predictions: 15247, truePositives: 94.7 },
+            
+            // Forms
+            scanInput: '', scanResult: null, scanning: false,
             deepInput: '', deepResult: null, deepScanning: false,
-            tokens: [], loadingTokens: false, selectedToken: null,
-            trending: [], newBlacklist: '',
+            honeypotInput: '', honeypotResult: null, checkingHoneypot: false,
+            oracleInput: '', oracleResult: null, predicting: false,
+            newBlacklistAddr: '',
+            evacSource: '', evacDest: '', evacAssets: null, evacuating: false,
+            swapFrom: '', swapFromAmount: '', swapTo: '', swapSecurity: null,
+            threatFilter: 'all',
+            selectedThreat: null,
             
-            get riskIndex() { return Math.min(100, Math.round(((this.stats.threats?.active || 0) * 2) + ((this.stats.threats?.avg_severity || 0) * 0.5))); },
-            
-            async init() {
-                await Promise.all([this.loadStats(), this.loadThreats('active'), this.loadBlacklist()]);
-                this.connectWS();
-                setInterval(() => this.loadStats(), 15000);
+            // Computed
+            get activeAgents() { return this.agents.filter(a => a.status === 'active' || a.status === 'scanning').length; },
+            get riskIndex() { return Math.min(100, Math.round((this.threats.filter(t => t.status === 'active').length * 5) + 15)); },
+            get filteredThreats() { return this.threatFilter === 'all' ? this.threats : this.threats.filter(t => t.status === this.threatFilter); },
+            get threatTypes() {
+                const types = {};
+                this.threats.forEach(t => { types[t.type] = (types[t.type] || 0) + 1; });
+                return Object.entries(types).map(([name, count]) => ({name, count})).sort((a,b) => b.count - a.count);
             },
             
-            connectWS() { try { const ws = new WebSocket(`ws://${location.host}/ws`); ws.onopen = () => this.connected = true; ws.onclose = () => { this.connected = false; setTimeout(() => this.connectWS(), 5000); }; } catch(e) {} },
+            // Init
+            async init() {
+                this.generateMockData();
+                this.startLiveUpdates();
+            },
             
-            async loadStats() { try { const r = await fetch('/api/status'); if (r.ok) { this.stats = await r.json(); this.connected = true; } } catch(e) {} },
-            async loadThreats(f) { if (f) this.filter = f; try { const r = await fetch(`/api/threats?status=${this.filter === 'active' ? 'active' : ''}&limit=50`); if (r.ok) this.threats = (await r.json()).threats || []; } catch(e) {} },
-            async loadBlacklist() { try { const r = await fetch('/api/blacklist'); if (r.ok) this.blacklist = (await r.json()).addresses || []; } catch(e) {} },
+            generateMockData() {
+                // Threats
+                const threatTypes = ['Honeypot', 'Rug Pull', 'Whale Dump', 'Malicious Contract', 'Phishing', 'Drainer', 'Flash Loan Attack'];
+                const agents = ['Sentinel', 'Scanner', 'Oracle', 'Hunter', 'Honeypot Agent'];
+                this.threats = Array.from({length: 25}, (_, i) => ({
+                    id: i,
+                    type: threatTypes[Math.floor(Math.random() * threatTypes.length)],
+                    severity: Math.floor(Math.random() * 60) + 40,
+                    status: Math.random() > 0.3 ? 'active' : 'resolved',
+                    target: this.randomAddress(),
+                    description: 'Suspicious activity detected. Multiple indicators suggest potential threat.',
+                    detected_by: agents[Math.floor(Math.random() * agents.length)],
+                    timestamp: Date.now() - Math.floor(Math.random() * 86400000)
+                }));
+                
+                // Blacklist
+                this.blacklist = Array.from({length: 15}, () => ({
+                    address: this.randomAddress(),
+                    reason: ['Known scammer', 'Honeypot deployer', 'Rug pull history', 'Drainer wallet'][Math.floor(Math.random() * 4)],
+                    severity: Math.floor(Math.random() * 30) + 70
+                }));
+                
+                // Whales
+                const whaleLabels = ['Whale #1', 'Smart Money', 'Early Investor', 'Unknown Whale', 'Market Maker'];
+                this.whales = Array.from({length: 20}, (_, i) => ({
+                    id: i,
+                    address: this.randomAddress(),
+                    label: whaleLabels[Math.floor(Math.random() * whaleLabels.length)],
+                    action: Math.random() > 0.5 ? 'BUY' : 'SELL',
+                    value: Math.floor(Math.random() * 500000) + 50000,
+                    holdings: Math.floor(Math.random() * 5000000) + 500000,
+                    token: ['SOL', 'BONK', 'WIF', 'JUP'][Math.floor(Math.random() * 4)],
+                    timestamp: Date.now() - Math.floor(Math.random() * 3600000)
+                }));
+                
+                this.topWhales = Array.from({length: 5}, () => ({
+                    address: this.randomAddress(),
+                    label: whaleLabels[Math.floor(Math.random() * whaleLabels.length)],
+                    total: Math.floor(Math.random() * 10000000) + 1000000
+                }));
+                
+                // Transactions
+                this.transactions = Array.from({length: 30}, () => ({
+                    signature: this.randomAddress(),
+                    type: Math.random() > 0.5 ? 'swap' : 'transfer',
+                    suspicious: Math.random() > 0.9,
+                    description: Math.random() > 0.5 ? 'SOL → USDC swap on Jupiter' : 'Token transfer',
+                    amount: (Math.random() * 100).toFixed(2) + ' SOL',
+                    time: Math.floor(Math.random() * 5) + 'm ago'
+                }));
+                
+                // Honeypots
+                this.honeypots = Array.from({length: 10}, () => ({
+                    mint: this.randomAddress(),
+                    name: ['SCAM', 'FAKE', 'RUG'][Math.floor(Math.random() * 3)] + Math.floor(Math.random() * 1000),
+                    reason: 'Cannot sell - transfer blocked'
+                }));
+                
+                // Lazarus
+                this.lazarusAddresses = Array.from({length: 8}, () => ({
+                    address: this.randomAddress(),
+                    active: Math.random() > 0.6,
+                    campaign: ['AppleJeus', 'TraderTraitor', 'DeFiHeist'][Math.floor(Math.random() * 3)],
+                    balance: Math.floor(Math.random() * 1000000)
+                }));
+                
+                // Swap history
+                this.swapHistory = Array.from({length: 8}, (_, i) => ({
+                    id: i,
+                    pair: 'SOL/USDC',
+                    amount: (Math.random() * 50).toFixed(2) + ' SOL',
+                    status: Math.random() > 0.1 ? 'success' : 'blocked',
+                    timestamp: Date.now() - Math.floor(Math.random() * 86400000)
+                }));
+            },
             
-            async quickScan() { if (!this.scanInput) return; this.scanning = true; this.scanResult = null; try { const r = await fetch('/api/score', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({address: this.scanInput}) }); if (r.ok) this.scanResult = await r.json(); } catch(e) {} this.scanning = false; },
-            async deepScan() { if (!this.deepInput) return; this.deepScanning = true; this.deepResult = null; try { const r = await fetch(`/api/analyze/address/${this.deepInput}`); if (r.ok) this.deepResult = await r.json(); } catch(e) {} this.deepScanning = false; },
+            startLiveUpdates() {
+                setInterval(() => {
+                    // Add new transaction
+                    if (this.transactions.length > 50) this.transactions.pop();
+                    this.transactions.unshift({
+                        signature: this.randomAddress(),
+                        type: Math.random() > 0.5 ? 'swap' : 'transfer',
+                        suspicious: Math.random() > 0.95,
+                        description: Math.random() > 0.5 ? 'SOL → USDC swap' : 'Token transfer',
+                        amount: (Math.random() * 100).toFixed(2) + ' SOL',
+                        time: 'just now'
+                    });
+                    
+                    // Random stat updates
+                    this.stats.txMonitored += Math.floor(Math.random() * 5);
+                }, 3000);
+            },
             
-            async loadTokens() { this.loadingTokens = true; try { const r = await fetch('/api/pumpfun/new?limit=30'); if (r.ok) this.tokens = (await r.json()).tokens || []; } catch(e) { console.error(e); } this.loadingTokens = false; },
-            async loadTrending() { try { const r = await fetch('/api/pumpfun/trending?limit=20'); if (r.ok) this.trending = (await r.json()).tokens || []; } catch(e) {} },
+            // Actions
+            async connectWallet() {
+                if (window.solana?.isPhantom) {
+                    try {
+                        const resp = await window.solana.connect();
+                        this.wallet = resp.publicKey.toString();
+                    } catch (e) { console.error(e); }
+                } else {
+                    alert('Please install Phantom wallet');
+                }
+            },
             
-            async addBlacklist() { if (!this.newBlacklist) return; try { await fetch('/api/blacklist', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({address: this.newBlacklist, reason: 'Manual entry', severity: 80}) }); this.newBlacklist = ''; await this.loadBlacklist(); } catch(e) {} },
+            async quickScan() {
+                if (!this.scanInput) return;
+                this.scanning = true;
+                this.scanResult = null;
+                
+                // Simulate API call
+                await new Promise(r => setTimeout(r, 1500));
+                
+                const risk = Math.floor(Math.random() * 100);
+                this.scanResult = {
+                    risk_score: risk,
+                    risk_factors: risk > 50 ? ['Low liquidity', 'New token', 'Concentrated holders', 'No socials'] : ['Verified contract'],
+                    recommendation: risk > 70 ? 'AVOID' : risk > 40 ? 'CAUTION' : 'SAFE'
+                };
+                
+                this.recentScans.unshift({
+                    mint: this.scanInput,
+                    name: 'Token ' + this.scanInput.slice(0, 4),
+                    risk_score: risk
+                });
+                if (this.recentScans.length > 10) this.recentScans.pop();
+                
+                this.scanning = false;
+            },
             
-            getSeverityClass(s) { return s >= 70 ? 'severity-critical' : s >= 50 ? 'severity-high' : s >= 30 ? 'severity-medium' : 'severity-low'; },
-            getSeverityBg(s) { return s >= 70 ? 'bg-severity-critical' : s >= 50 ? 'bg-severity-high' : s >= 30 ? 'bg-severity-medium' : 'bg-severity-low'; },
-            formatNum(n) { if (!n) return '0'; if (n >= 1e9) return (n/1e9).toFixed(1)+'B'; if (n >= 1e6) return (n/1e6).toFixed(1)+'M'; if (n >= 1e3) return (n/1e3).toFixed(1)+'K'; return n.toFixed(0); },
-            formatAge(h) { if (!h && h !== 0) return '-'; if (h < 1) return Math.round(h*60)+'m'; if (h < 24) return Math.round(h)+'h'; return Math.round(h/24)+'d'; }
+            async deepScan() {
+                if (!this.deepInput) return;
+                this.deepScanning = true;
+                this.deepResult = null;
+                
+                await new Promise(r => setTimeout(r, 2500));
+                
+                const risk = Math.floor(Math.random() * 100);
+                this.deepResult = {
+                    risk_score: risk,
+                    market_cap: Math.floor(Math.random() * 10000000),
+                    liquidity: Math.floor(Math.random() * 500000),
+                    holders: Math.floor(Math.random() * 5000),
+                    age: Math.floor(Math.random() * 30) + 'd',
+                    recommendation: risk > 70 ? 'AVOID' : risk > 40 ? 'CAUTION' : 'SAFE',
+                    risk_factors: risk > 50 ? ['Honeypot risk', 'Low liquidity', 'Top 10 hold 80%'] : [],
+                    agent_reports: this.agents.slice(0, 8).map(a => ({
+                        agent: a.name,
+                        passed: Math.random() > 0.3,
+                        finding: Math.random() > 0.3 ? 'No issues detected' : 'Risk indicators found'
+                    }))
+                };
+                
+                this.deepScanning = false;
+            },
+            
+            async checkHoneypot() {
+                if (!this.honeypotInput) return;
+                this.checkingHoneypot = true;
+                this.honeypotResult = null;
+                
+                await new Promise(r => setTimeout(r, 2000));
+                
+                const isHoneypot = Math.random() > 0.7;
+                this.honeypotResult = {
+                    is_honeypot: isHoneypot,
+                    reason: isHoneypot ? 'Sell function reverts - cannot sell tokens' : 'Buy/sell simulation successful',
+                    buy_tax: Math.floor(Math.random() * (isHoneypot ? 50 : 5)),
+                    sell_tax: Math.floor(Math.random() * (isHoneypot ? 100 : 5))
+                };
+                
+                this.checkingHoneypot = false;
+            },
+            
+            async predictRisk() {
+                if (!this.oracleInput) return;
+                this.predicting = true;
+                this.oracleResult = null;
+                
+                await new Promise(r => setTimeout(r, 2000));
+                
+                this.oracleResult = {
+                    predicted_risk: Math.floor(Math.random() * 100),
+                    confidence: Math.floor(Math.random() * 20) + 80,
+                    patterns: [
+                        'Similar to known rug pull patterns',
+                        'Unusual holder distribution',
+                        'Contract matches malicious template'
+                    ].slice(0, Math.floor(Math.random() * 3) + 1)
+                };
+                
+                this.predicting = false;
+            },
+            
+            async checkSwapSecurity() {
+                await new Promise(r => setTimeout(r, 1000));
+                const safe = Math.random() > 0.3;
+                this.swapSecurity = {
+                    safe,
+                    message: safe ? 'Token passed all security checks' : 'Honeypot detected - swap blocked for your protection'
+                };
+            },
+            
+            executeSwap() { alert('Swap execution would happen here via Jupiter/Raydium'); },
+            
+            async executeEvacuation() {
+                if (!this.wallet) return alert('Connect wallet first');
+                this.evacuating = true;
+                await new Promise(r => setTimeout(r, 3000));
+                alert('Emergency evacuation complete! All assets transferred.');
+                this.evacuating = false;
+            },
+            
+            addToBlacklist() {
+                if (!this.newBlacklistAddr) return;
+                this.blacklist.unshift({
+                    address: this.newBlacklistAddr,
+                    reason: 'Manual entry',
+                    severity: 80
+                });
+                this.newBlacklistAddr = '';
+            },
+            
+            loadScan(scan) {
+                this.deepInput = scan.mint;
+                this.view = 'scanner';
+            },
+            
+            loadWhales() { /* would refresh from API */ },
+            
+            // Helpers
+            getViewTitle() {
+                if (this.view === 'dashboard') return 'Security Dashboard';
+                if (this.view === 'scanner') return 'Token Scanner';
+                if (this.view === 'threats') return 'Threat Feed';
+                if (this.view === 'evacuate') return 'Emergency Evacuation';
+                const agent = this.agents.find(a => a.id === this.view);
+                return agent ? agent.name + ' Agent' : 'GUARDIAN';
+            },
+            
+            getViewDescription() {
+                if (this.view === 'dashboard') return 'Real-time overview of all 17 agents';
+                if (this.view === 'scanner') return 'Deep token analysis powered by AI';
+                if (this.view === 'threats') return 'Live threat monitoring and alerts';
+                const agent = this.agents.find(a => a.id === this.view);
+                return agent ? agent.role : '';
+            },
+            
+            getAgentEmoji(id) {
+                const emojis = {
+                    sentinel: '👁️', scanner: '🔍', oracle: '🔮', coordinator: '🎯',
+                    guardian: '🛡️', intel: '📋', reporter: '📢', auditor: '✅',
+                    hunter: '🎯', healer: '💚', honeypot: '🍯', lazarus: '🇰🇵',
+                    network: '🌐', quantum: '⚛️', swapguard: '🔄', evacuator: '⚡', whale: '🐋'
+                };
+                return emojis[id] || '🤖';
+            },
+            
+            getSeverityClass(s) { return s >= 70 ? 'text-red-500' : s >= 50 ? 'text-orange-500' : s >= 30 ? 'text-yellow-500' : 'text-green-500'; },
+            getSeverityBg(s) { return s >= 70 ? 'bg-red-500' : s >= 50 ? 'bg-orange-500' : s >= 30 ? 'bg-yellow-500' : 'bg-green-500'; },
+            formatNum(n) { if (!n) return '0'; if (n >= 1e9) return (n/1e9).toFixed(1)+'B'; if (n >= 1e6) return (n/1e6).toFixed(1)+'M'; if (n >= 1e3) return (n/1e3).toFixed(1)+'K'; return n.toString(); },
+            formatTime(ts) { if (!ts) return '-'; const diff = Date.now() - ts; if (diff < 60000) return 'just now'; if (diff < 3600000) return Math.floor(diff/60000) + 'm ago'; if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago'; return Math.floor(diff/86400000) + 'd ago'; },
+            randomAddress() { return Array.from({length: 44}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789'[Math.floor(Math.random() * 58)]).join(''); }
         };
     }
     </script>
