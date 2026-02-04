@@ -3,11 +3,29 @@
 > Autonomous Multi-Agent Security Infrastructure for Solana
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Solana](https://img.shields.io/badge/Solana-Mainnet-purple)](https://solana.com)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
+[![Solana](https://img.shields.io/badge/Solana-Mainnet-purple)](https://solana.com)
 [![Agents](https://img.shields.io/badge/Agents-16-green.svg)](#-16-specialized-agents)
+[![CI](https://github.com/Sugusdaddy/GUARDIAN/workflows/CI/badge.svg)](https://github.com/Sugusdaddy/GUARDIAN/actions)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 **Protecting the Solana ecosystem 24/7 with AI-powered threat detection and autonomous response.**
+
+## 📋 Table of Contents
+
+- [The Problem](#-the-problem)
+- [The Solution](#-the-solution)
+- [Features](#-features)
+- [16 Specialized Agents](#-16-specialized-agents)
+- [Quick Start](#-quick-start)
+- [Documentation](#-documentation)
+- [Project Structure](#-project-structure)
+- [CLI Commands](#-cli-commands)
+- [API Endpoints](#-api-endpoints)
+- [Testing](#-testing)
+- [Roadmap](#️-roadmap)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
@@ -277,6 +295,19 @@ Preparing Solana for the post-quantum era:
 - **REST API** for integrations
 - **CLI** for interactive operations
 - **Telegram bot** for mobile alerts
+
+---
+
+## 📚 Documentation
+
+Comprehensive guides and references:
+
+- **[Installation Guide](docs/INSTALLATION.md)** - Complete setup instructions
+- **[Usage Guide](docs/USAGE.md)** - How to use GUARDIAN
+- **[API Documentation](docs/API.md)** - REST API reference
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and architecture
+- **[Contributing Guide](CONTRIBUTING.md)** - Development guidelines
+- **[Changelog](CHANGELOG.md)** - Version history
 
 ---
 
