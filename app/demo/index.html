@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN | Interactive Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+        .typing { animation: typing 0.5s steps(20) infinite; }
+        @keyframes typing { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="demoApp()" x-init="init()">
+    <header class="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="../../" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <span class="font-bold">GUARDIAN Demo</span>
+            </a>
+            <a href="../dashboard/" class="text-cyan-400 hover:text-cyan-300 text-sm">Go to Full Dashboard →</a>
+        </div>
+    </header>
+    
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">🎮 Interactive Demo</h1>
+            <p class="text-xl text-slate-400">Experience GUARDIAN's security features in action</p>
+        </div>
+        
+        <!-- Demo Scenarios -->
+        <div class="space-y-8">
+            <!-- Scenario 1: Honeypot Detection -->
+            <div class="card rounded-2xl p-8" x-show="currentDemo === 'honeypot' || currentDemo === null">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl">🍯</div>
+                    <div>
+                        <h2 class="text-xl font-semibold">Honeypot Detection Demo</h2>
+                        <p class="text-slate-500 text-sm">Watch GUARDIAN catch a scam token</p>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-900 rounded-xl p-6 mb-6 font-mono text-sm">
+                    <div class="text-slate-500 mb-2"># Simulating trade on suspicious token</div>
+                    <div class="space-y-2">
+                        <template x-for="(line, i) in honeypotDemo.lines" :key="i">
+                            <div x-show="honeypotDemo.step > i" x-transition :class="line.color" x-text="line.text"></div>
+                        </template>
+                        <span x-show="honeypotDemo.step < honeypotDemo.lines.length && honeypotDemo.running" class="typing">_</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button @click="runHoneypotDemo()" class="px-6 py-3 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 font-medium text-white" :disabled="honeypotDemo.running" x-text="honeypotDemo.running ? 'Running...' : honeypotDemo.step > 0 ? 'Run Again' : 'Start Demo'"></button>
+                    <button @click="resetHoneypotDemo()" class="px-6 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 font-medium" x-show="honeypotDemo.step > 0">Reset</button>
+                </div>
+            </div>
+            
+            <!-- Scenario 2: Whale Alert -->
+            <div class="card rounded-2xl p-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center text-2xl">🐋</div>
+                    <div>
+                        <h2 class="text-xl font-semibold">Whale Alert Demo</h2>
+                        <p class="text-slate-500 text-sm">See real-time whale movement detection</p>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-900 rounded-xl p-6 mb-6">
+                    <div class="space-y-3">
+                        <template x-for="(alert, i) in whaleDemo.alerts" :key="i">
+                            <div x-show="whaleDemo.step > i" x-transition class="flex items-center gap-4 p-3 rounded-lg" :class="alert.type === 'sell' ? 'bg-red-500/10 border border-red-500/20' : 'bg-green-500/10 border border-green-500/20'">
+                                <span class="text-2xl">🐋</span>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium" x-text="alert.label"></div>
+                                    <div class="text-xs text-slate-500" x-text="alert.details"></div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold" :class="alert.type === 'sell' ? 'text-red-400' : 'text-green-400'" x-text="alert.amount"></div>
+                                    <div class="text-xs" :class="alert.type === 'sell' ? 'text-red-400' : 'text-green-400'" x-text="alert.type.toUpperCase()"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                
+                <button @click="runWhaleDemo()" class="px-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 font-medium text-white" :disabled="whaleDemo.running" x-text="whaleDemo.running ? 'Detecting...' : 'Simulate Whale Activity'"></button>
+            </div>
+            
+            <!-- Scenario 3: Risk Score -->
+            <div class="card rounded-2xl p-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center text-2xl">🔮</div>
+                    <div>
+                        <h2 class="text-xl font-semibold">Risk Analysis Demo</h2>
+                        <p class="text-slate-500 text-sm">Watch all 17 agents analyze a token</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <template x-for="agent in riskDemo.agents" :key="agent.id">
+                        <div class="p-3 rounded-lg bg-slate-900 text-center transition-all" :class="agent.checked ? (agent.passed ? 'border border-green-500/30' : 'border border-red-500/30') : ''">
+                            <div class="text-lg mb-1" x-text="agent.emoji"></div>
+                            <div class="text-xs text-slate-400" x-text="agent.name"></div>
+                            <div x-show="agent.checked" class="mt-1">
+                                <span x-show="agent.passed" class="text-xs text-green-400">✓ Pass</span>
+                                <span x-show="!agent.passed" class="text-xs text-red-400">✗ Fail</span>
+                            </div>
+                            <div x-show="!agent.checked && riskDemo.running && riskDemo.currentAgent === agent.id" class="mt-1">
+                                <span class="text-xs text-cyan-400">Checking...</span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <div x-show="riskDemo.complete" class="text-center p-6 rounded-xl mb-6" :class="riskDemo.score > 50 ? 'bg-red-500/10' : 'bg-green-500/10'">
+                    <div class="text-5xl font-bold mb-2" :class="riskDemo.score > 50 ? 'text-red-400' : 'text-green-400'" x-text="riskDemo.score"></div>
+                    <div class="text-slate-400">Final Risk Score</div>
+                </div>
+                
+                <button @click="runRiskDemo()" class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 font-medium text-white" :disabled="riskDemo.running" x-text="riskDemo.running ? 'Analyzing...' : 'Run 17-Agent Analysis'"></button>
+            </div>
+            
+            <!-- Scenario 4: Emergency Evacuation -->
+            <div class="card rounded-2xl p-8">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-2xl">⚡</div>
+                    <div>
+                        <h2 class="text-xl font-semibold">Emergency Evacuation Demo</h2>
+                        <p class="text-slate-500 text-sm">See how fast we can save your assets</p>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-900 rounded-xl p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-slate-400">Evacuation Progress</span>
+                        <span class="font-mono text-cyan-400" x-text="evacDemo.time + 's'"></span>
+                    </div>
+                    <div class="h-4 rounded-full bg-slate-800 overflow-hidden mb-4">
+                        <div class="h-full bg-gradient-to-r from-red-500 to-orange-500 transition-all duration-300 rounded-full" :style="`width: ${evacDemo.progress}%`"></div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center text-sm">
+                        <div>
+                            <div class="text-2xl font-bold text-white" x-text="evacDemo.tokens"></div>
+                            <div class="text-slate-500">Tokens</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-white" x-text="evacDemo.nfts"></div>
+                            <div class="text-slate-500">NFTs</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-400">$<span x-text="evacDemo.value.toLocaleString()"></span></div>
+                            <div class="text-slate-500">Saved</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button @click="runEvacDemo()" class="px-6 py-3 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 font-medium text-white" :disabled="evacDemo.running" x-text="evacDemo.running ? 'Evacuating...' : evacDemo.complete ? 'Run Again' : 'Simulate Emergency'"></button>
+            </div>
+        </div>
+        
+        <!-- CTA -->
+        <div class="text-center mt-12">
+            <p class="text-slate-400 mb-6">Ready to protect your assets for real?</p>
+            <a href="../dashboard/" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 font-semibold text-white">
+                Launch Full Dashboard
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        function demoApp() {
+            return {
+                currentDemo: null,
+                
+                // Honeypot Demo
+                honeypotDemo: {
+                    running: false,
+                    step: 0,
+                    lines: [
+                        { text: '> Checking token: SCAM123...xyz', color: 'text-slate-300' },
+                        { text: '> Fetching contract data...', color: 'text-slate-300' },
+                        { text: '> Simulating BUY transaction...', color: 'text-cyan-400' },
+                        { text: '  ✓ Buy successful', color: 'text-green-400' },
+                        { text: '> Simulating SELL transaction...', color: 'text-cyan-400' },
+                        { text: '  ✗ SELL BLOCKED - Transfer function reverts', color: 'text-red-400' },
+                        { text: '', color: '' },
+                        { text: '🚨 HONEYPOT DETECTED!', color: 'text-red-500 font-bold text-lg' },
+                        { text: '> Token has been added to blacklist', color: 'text-orange-400' },
+                        { text: '> Trade blocked - your funds are SAFE', color: 'text-green-400' }
+                    ]
+                },
+                
+                // Whale Demo
+                whaleDemo: {
+                    running: false,
+                    step: 0,
+                    alerts: [
+                        { label: 'Whale #42 "Smart Money"', details: 'Sold 500,000 tokens', amount: '-$125K', type: 'sell' },
+                        { label: 'Whale #17 "Early Investor"', details: 'Bought 200,000 tokens', amount: '+$52K', type: 'buy' },
+                        { label: 'Whale #8 "Unknown"', details: 'Sold 1,200,000 tokens', amount: '-$340K', type: 'sell' },
+                        { label: 'Whale #3 "Market Maker"', details: 'Bought 800,000 tokens', amount: '+$198K', type: 'buy' }
+                    ]
+                },
+                
+                // Risk Demo
+                riskDemo: {
+                    running: false,
+                    complete: false,
+                    currentAgent: null,
+                    score: 0,
+                    agents: [
+                        { id: 1, name: 'Sentinel', emoji: '👁️', checked: false, passed: true },
+                        { id: 2, name: 'Scanner', emoji: '🔍', checked: false, passed: true },
+                        { id: 3, name: 'Oracle', emoji: '🔮', checked: false, passed: false },
+                        { id: 4, name: 'Honeypot', emoji: '🍯', checked: false, passed: true },
+                        { id: 5, name: 'Whale', emoji: '🐋', checked: false, passed: false },
+                        { id: 6, name: 'Intel', emoji: '📋', checked: false, passed: true },
+                        { id: 7, name: 'Auditor', emoji: '✅', checked: false, passed: true },
+                        { id: 8, name: 'Hunter', emoji: '🎯', checked: false, passed: true }
+                    ]
+                },
+                
+                // Evacuation Demo
+                evacDemo: {
+                    running: false,
+                    complete: false,
+                    progress: 0,
+                    time: 0,
+                    tokens: 0,
+                    nfts: 0,
+                    value: 0
+                },
+                
+                init() {},
+                
+                async runHoneypotDemo() {
+                    this.honeypotDemo.running = true;
+                    this.honeypotDemo.step = 0;
+                    
+                    for (let i = 0; i < this.honeypotDemo.lines.length; i++) {
+                        await new Promise(r => setTimeout(r, 600));
+                        this.honeypotDemo.step++;
+                    }
+                    
+                    this.honeypotDemo.running = false;
+                },
+                
+                resetHoneypotDemo() {
+                    this.honeypotDemo.step = 0;
+                },
+                
+                async runWhaleDemo() {
+                    this.whaleDemo.running = true;
+                    this.whaleDemo.step = 0;
+                    
+                    for (let i = 0; i < this.whaleDemo.alerts.length; i++) {
+                        await new Promise(r => setTimeout(r, 800));
+                        this.whaleDemo.step++;
+                    }
+                    
+                    this.whaleDemo.running = false;
+                },
+                
+                async runRiskDemo() {
+                    this.riskDemo.running = true;
+                    this.riskDemo.complete = false;
+                    this.riskDemo.agents.forEach(a => { a.checked = false; a.passed = Math.random() > 0.3; });
+                    
+                    for (const agent of this.riskDemo.agents) {
+                        this.riskDemo.currentAgent = agent.id;
+                        await new Promise(r => setTimeout(r, 400));
+                        agent.checked = true;
+                    }
+                    
+                    this.riskDemo.currentAgent = null;
+                    const failed = this.riskDemo.agents.filter(a => !a.passed).length;
+                    this.riskDemo.score = Math.round((failed / this.riskDemo.agents.length) * 100);
+                    this.riskDemo.complete = true;
+                    this.riskDemo.running = false;
+                },
+                
+                async runEvacDemo() {
+                    this.evacDemo.running = true;
+                    this.evacDemo.complete = false;
+                    this.evacDemo.progress = 0;
+                    this.evacDemo.time = 0;
+                    this.evacDemo.tokens = 0;
+                    this.evacDemo.nfts = 0;
+                    this.evacDemo.value = 0;
+                    
+                    const targetTokens = 12;
+                    const targetNfts = 3;
+                    const targetValue = 15420;
+                    const duration = 2.3;
+                    const steps = 23;
+                    
+                    for (let i = 0; i <= steps; i++) {
+                        await new Promise(r => setTimeout(r, 100));
+                        this.evacDemo.progress = (i / steps) * 100;
+                        this.evacDemo.time = ((i / steps) * duration).toFixed(1);
+                        this.evacDemo.tokens = Math.round((i / steps) * targetTokens);
+                        this.evacDemo.nfts = Math.round((i / steps) * targetNfts);
+                        this.evacDemo.value = Math.round((i / steps) * targetValue);
+                    }
+                    
+                    this.evacDemo.running = false;
+                    this.evacDemo.complete = true;
+                }
+            };
+        }
+    </script>
+</body>
+</html>
