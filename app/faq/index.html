@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN | FAQ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="{ openFaq: null }">
+    <header class="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="../../" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <span class="font-bold">GUARDIAN</span>
+            </a>
+        </div>
+    </header>
+    
+    <main class="max-w-3xl mx-auto px-6 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">❓ Frequently Asked Questions</h1>
+            <p class="text-xl text-slate-400">Everything you need to know about GUARDIAN</p>
+        </div>
+        
+        <!-- FAQ Categories -->
+        <div class="space-y-4">
+            <!-- General -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-cyan-400 mb-4">General</h2>
+                <div class="space-y-3">
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 1 ? null : 1" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">What is GUARDIAN?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 1 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 1" x-collapse class="px-6 pb-4 text-slate-400">
+                            GUARDIAN is an autonomous security swarm consisting of 17 AI agents that protect the Solana ecosystem 24/7. We provide honeypot detection, whale tracking, emergency evacuation, and threat intelligence services.
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 2 ? null : 2" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">Is GUARDIAN free to use?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 2 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 2" x-collapse class="px-6 pb-4 text-slate-400">
+                            Yes! The dashboard and basic scanning features are completely free. We plan to offer premium API access for high-volume users and developers who want to integrate our security features into their applications.
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 3 ? null : 3" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">What are the 17 agents?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 3 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 3" x-collapse class="px-6 pb-4 text-slate-400">
+                            Our swarm includes: Sentinel (TX monitor), Scanner (contract analyzer), Oracle (ML predictor), Coordinator, Guardian (defender), Intel (threat DB), Reporter (alerts), Auditor (verifier), Hunter (tracker), Healer (recovery), Honeypot, Lazarus (DPRK tracker), Network (infra), Quantum (post-Q defense), SwapGuard, Evacuator, and Whale Tracker.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-cyan-400 mb-4">Features</h2>
+                <div class="space-y-3">
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 4 ? null : 4" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">How does honeypot detection work?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 4 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 4" x-collapse class="px-6 pb-4 text-slate-400">
+                            We analyze token contracts and simulate buy/sell transactions to detect if a token blocks selling, has hidden taxes, or uses other honeypot techniques. We also check transaction history for suspicious patterns like no sells despite many buys.
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 5 ? null : 5" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">What is Emergency Evacuation?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 5 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 5" x-collapse class="px-6 pb-4 text-slate-400">
+                            If your wallet is compromised (leaked private key, phishing attack, etc.), Emergency Evacuation instantly transfers ALL your assets to a safe wallet in under 3 seconds. This can save your funds before an attacker drains them.
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 6 ? null : 6" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">What is the Lazarus Tracker?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 6 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 6" x-collapse class="px-6 pb-4 text-slate-400">
+                            We're the first to track DPRK (North Korean) state-sponsored hackers on Solana. The Lazarus Group has stolen billions in crypto. We monitor known wallets and campaign patterns to protect users from state-level threats.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Technical -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-cyan-400 mb-4">Technical</h2>
+                <div class="space-y-3">
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 7 ? null : 7" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">What data sources do you use?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 7 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 7" x-collapse class="px-6 pb-4 text-slate-400">
+                            We integrate with DexScreener for real-time token data, Solana RPC for blockchain data, and maintain our own threat intelligence database built from community reports and automated detection.
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 8 ? null : 8" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">Can I integrate GUARDIAN into my app?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 8 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 8" x-collapse class="px-6 pb-4 text-slate-400">
+                            Yes! We offer an embeddable widget and are developing a full API. Check our <a href="../../docs/api.html" class="text-cyan-400 hover:text-cyan-300">API documentation</a> for details. We're actively seeking integration partners.
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 9 ? null : 9" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">How accurate is the ML prediction?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 9 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 9" x-collapse class="px-6 pb-4 text-slate-400">
+                            Our Oracle agent achieves 94.7% accuracy in predicting rug pulls and scams based on historical patterns. However, no system is perfect - always do your own research (DYOR) before investing.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Safety -->
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-cyan-400 mb-4">Safety</h2>
+                <div class="space-y-3">
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 10 ? null : 10" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">Is it safe to connect my wallet?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 10 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 10" x-collapse class="px-6 pb-4 text-slate-400">
+                            Yes. We use standard Phantom wallet connection that only reads your public address. We never ask for your private key or seed phrase. For features like evacuation, you sign transactions yourself in your wallet.
+                        </div>
+                    </div>
+                    
+                    <div class="card rounded-xl overflow-hidden">
+                        <button @click="openFaq = openFaq === 11 ? null : 11" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-800/50 transition">
+                            <span class="font-medium">What if GUARDIAN marks a safe token as risky?</span>
+                            <svg class="w-5 h-5 transition-transform" :class="openFaq === 11 && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="openFaq === 11" x-collapse class="px-6 pb-4 text-slate-400">
+                            Our risk scores are based on heuristics and may flag legitimate new tokens due to low liquidity or lack of history. Always check the specific risk factors listed and use your own judgment. You can also <a href="../report/" class="text-cyan-400 hover:text-cyan-300">report false positives</a>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact -->
+        <div class="card rounded-xl p-8 text-center mt-12">
+            <h3 class="text-lg font-semibold mb-4">Still have questions?</h3>
+            <p class="text-slate-400 mb-6">Check our documentation or reach out to us</p>
+            <div class="flex gap-4 justify-center">
+                <a href="../../docs/" class="px-6 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 font-medium">Read Docs</a>
+                <a href="https://github.com/Sugusdaddy/GUARDIAN/issues" target="_blank" class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-600 font-medium text-white">Ask on GitHub</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
