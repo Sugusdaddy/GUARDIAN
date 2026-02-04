@@ -345,6 +345,30 @@ Comprehensive guides and references:
 
 ## 🚀 Quick Start
 
+### 🌐 Access Web Dashboard (Fastest Way)
+
+```bash
+# 1. Clone and install
+git clone https://github.com/Sugusdaddy/GUARDIAN.git
+cd GUARDIAN
+pip install -e .
+
+# 2. Start web server
+python app/api/main.py
+
+# 3. Open in browser
+# 🌐 http://localhost:8000
+```
+
+**Dashboard will be available at: http://localhost:8000**
+
+Or use the quick start script:
+```bash
+./start_web.sh
+```
+
+📖 **Detailed guide**: See [WEB_ACCESS.md](WEB_ACCESS.md) for complete instructions
+
 ### Prerequisites
 
 - Python 3.10+
@@ -352,7 +376,7 @@ Comprehensive guides and references:
 - Anchor 0.30+ (optional, for smart contracts)
 - Solana CLI (optional)
 
-### Installation
+### Full Installation
 
 ```bash
 # Clone the repo

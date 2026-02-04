@@ -1,5 +1,28 @@
 # GUARDIAN Quick Reference
 
+## 🌐 **ACCESS WEB DASHBOARD (START HERE!)**
+
+### Fastest Way to See GUARDIAN
+
+```bash
+# 1. Install
+git clone https://github.com/Sugusdaddy/GUARDIAN.git
+cd GUARDIAN
+pip install -e .
+
+# 2. Start Web Server
+python app/api/main.py
+
+# 3. Open Browser
+# 🌐 http://localhost:8000
+```
+
+**Your dashboard is now live at: http://localhost:8000** ✨
+
+📖 **Complete guide**: [WEB_ACCESS.md](WEB_ACCESS.md)
+
+---
+
 ## Installation
 
 ```bash
