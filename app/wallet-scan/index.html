@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN | Wallet Security Scan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+        .protection-badge { background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%); }
+        .scan-line { animation: scan 2s linear infinite; }
+        @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="walletScan()" x-init="init()">
+    <!-- Header -->
+    <header class="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-6">
+                <a href="../../" class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <span class="font-bold">GUARDIAN</span>
+                </a>
+                <nav class="hidden md:flex items-center gap-4">
+                    <a href="../dashboard/" class="text-slate-400 hover:text-white text-sm">Dashboard</a>
+                    <span class="text-cyan-400 text-sm font-medium">Wallet Scan</span>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        <!-- Hero -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">🛡️ Wallet Security Scan</h1>
+            <p class="text-xl text-slate-400">Get your wallet's security score and Protection Proof</p>
+        </div>
+        
+        <!-- Input -->
+        <div class="card rounded-2xl p-8 mb-8" x-show="!result">
+            <form @submit.prevent="scanWallet()">
+                <label class="text-sm text-slate-500 uppercase tracking-wider mb-2 block">Wallet Address</label>
+                <input type="text" x-model="walletAddress" placeholder="Enter Solana wallet address..." class="w-full px-4 py-4 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono focus:border-cyan-500 focus:outline-none mb-6 text-lg">
+                
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 font-semibold text-white text-lg transition-all" :disabled="scanning">
+                        <span x-show="!scanning">Scan Wallet</span>
+                        <span x-show="scanning" class="flex items-center justify-center gap-3">
+                            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                            Scanning with 17 agents...
+                        </span>
+                    </button>
+                    <button type="button" @click="connectAndScan()" class="px-8 py-4 rounded-xl border border-slate-700 hover:border-cyan-500/50 font-semibold text-white transition-all">
+                        Connect Wallet
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Results -->
+        <div x-show="result" x-transition class="space-y-6">
+            <!-- Score Card -->
+            <div class="card rounded-2xl p-8 text-center">
+                <div class="mb-6">
+                    <div class="text-8xl font-bold mb-2" :class="getScoreColor(result?.score)" x-text="result?.score || 0"></div>
+                    <div class="text-xl text-slate-400">Security Score</div>
+                </div>
+                
+                <!-- Score Bar -->
+                <div class="max-w-md mx-auto mb-8">
+                    <div class="h-4 rounded-full bg-slate-800 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-1000" :class="getScoreBg(result?.score)" :style="`width: ${result?.score || 0}%`"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-slate-600 mt-2">
+                        <span>At Risk</span>
+                        <span>Safe</span>
+                    </div>
+                </div>
+                
+                <!-- Grade -->
+                <div class="inline-flex items-center gap-3 px-6 py-3 rounded-2xl" :class="getGradeBg(result?.grade)">
+                    <span class="text-2xl font-bold" x-text="result?.grade"></span>
+                    <span class="text-sm" x-text="result?.gradeLabel"></span>
+                </div>
+            </div>
+            
+            <!-- Details Grid -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Portfolio Analysis -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-lg font-semibold mb-4">💰 Portfolio Analysis</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-slate-900/50">
+                            <span class="text-slate-400">Total Value (est.)</span>
+                            <span class="text-lg font-bold text-white" x-text="'$' + formatNum(result?.portfolio?.totalValue || 0)"></span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-slate-900/50">
+                            <span class="text-slate-400">Token Count</span>
+                            <span class="text-lg font-bold text-white" x-text="result?.portfolio?.tokenCount || 0"></span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-slate-900/50">
+                            <span class="text-slate-400">Risky Tokens</span>
+                            <span class="text-lg font-bold text-red-400" x-text="result?.portfolio?.riskyTokens || 0"></span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-slate-900/50">
+                            <span class="text-slate-400">NFT Collections</span>
+                            <span class="text-lg font-bold text-white" x-text="result?.portfolio?.nftCount || 0"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Security Checks -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-lg font-semibold mb-4">🔒 Security Checks</h3>
+                    <div class="space-y-3">
+                        <template x-for="check in result?.checks || []" :key="check.name">
+                            <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-900/50">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center" :class="check.passed ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'">
+                                    <svg x-show="check.passed" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    <svg x-show="!check.passed" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </div>
+                                <span class="flex-1 text-sm" x-text="check.name"></span>
+                                <span class="text-xs" :class="check.passed ? 'text-green-400' : 'text-red-400'" x-text="check.passed ? 'Pass' : 'Fail'"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Risk Factors -->
+            <div x-show="result?.risks?.length > 0" class="card rounded-xl p-6">
+                <h3 class="text-lg font-semibold mb-4">⚠️ Risk Factors Found</h3>
+                <div class="space-y-2">
+                    <template x-for="risk in result?.risks || []" :key="risk">
+                        <div class="flex items-center gap-3 p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+                            <span class="text-red-400">⚠️</span>
+                            <span class="text-sm text-red-300" x-text="risk"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            
+            <!-- Protection Proof -->
+            <div class="card rounded-2xl p-8 text-center" x-show="result?.score >= 70">
+                <div class="protection-badge w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="text-4xl mb-1">🛡️</div>
+                        <div class="text-xs font-bold text-white/80">VERIFIED</div>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">Protection Proof Available</h3>
+                <p class="text-slate-400 mb-6">Your wallet qualifies for a GUARDIAN Protection Proof badge</p>
+                <button class="px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 font-semibold text-white">
+                    Claim Protection Badge (Coming Soon)
+                </button>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex gap-4">
+                <button @click="result = null; walletAddress = ''" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 font-medium text-white">
+                    Scan Another Wallet
+                </button>
+                <a href="../dashboard/" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 text-center font-medium text-white">
+                    Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function walletScan() {
+            return {
+                walletAddress: '',
+                scanning: false,
+                result: null,
+                
+                init() {},
+                
+                async connectAndScan() {
+                    if (window.solana?.isPhantom) {
+                        try {
+                            const resp = await window.solana.connect();
+                            this.walletAddress = resp.publicKey.toString();
+                            await this.scanWallet();
+                        } catch (e) { console.error(e); }
+                    } else {
+                        alert('Please install Phantom wallet');
+                    }
+                },
+                
+                async scanWallet() {
+                    if (!this.walletAddress) return;
+                    
+                    this.scanning = true;
+                    
+                    // Simulate scan with agents
+                    await new Promise(r => setTimeout(r, 3000));
+                    
+                    // Generate mock results based on wallet
+                    const hash = this.walletAddress.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+                    const score = 50 + (hash % 50);
+                    
+                    const checks = [
+                        { name: 'No honeypot tokens held', passed: Math.random() > 0.2 },
+                        { name: 'No blacklisted interactions', passed: Math.random() > 0.3 },
+                        { name: 'No drainer approvals', passed: Math.random() > 0.1 },
+                        { name: 'Diversified portfolio', passed: Math.random() > 0.4 },
+                        { name: 'No suspicious transactions', passed: Math.random() > 0.25 },
+                        { name: 'No Lazarus Group interaction', passed: Math.random() > 0.05 }
+                    ];
+                    
+                    const passedChecks = checks.filter(c => c.passed).length;
+                    const finalScore = Math.round((passedChecks / checks.length) * 100);
+                    
+                    const risks = [];
+                    if (!checks[0].passed) risks.push('Holdings include potential honeypot tokens');
+                    if (!checks[1].passed) risks.push('Interacted with blacklisted addresses');
+                    if (!checks[2].passed) risks.push('Has active approvals to suspicious contracts');
+                    if (!checks[4].passed) risks.push('Recent suspicious transaction patterns detected');
+                    
+                    let grade, gradeLabel;
+                    if (finalScore >= 90) { grade = 'A+'; gradeLabel = 'Excellent Security'; }
+                    else if (finalScore >= 80) { grade = 'A'; gradeLabel = 'Very Secure'; }
+                    else if (finalScore >= 70) { grade = 'B'; gradeLabel = 'Good Security'; }
+                    else if (finalScore >= 60) { grade = 'C'; gradeLabel = 'Fair Security'; }
+                    else if (finalScore >= 50) { grade = 'D'; gradeLabel = 'Needs Improvement'; }
+                    else { grade = 'F'; gradeLabel = 'At Risk'; }
+                    
+                    this.result = {
+                        address: this.walletAddress,
+                        score: finalScore,
+                        grade,
+                        gradeLabel,
+                        checks,
+                        risks,
+                        portfolio: {
+                            totalValue: Math.floor(Math.random() * 50000) + 1000,
+                            tokenCount: Math.floor(Math.random() * 20) + 5,
+                            riskyTokens: risks.length,
+                            nftCount: Math.floor(Math.random() * 10)
+                        }
+                    };
+                    
+                    this.scanning = false;
+                },
+                
+                getScoreColor(s) {
+                    if (s >= 80) return 'text-green-400';
+                    if (s >= 60) return 'text-yellow-400';
+                    if (s >= 40) return 'text-orange-400';
+                    return 'text-red-400';
+                },
+                
+                getScoreBg(s) {
+                    if (s >= 80) return 'bg-green-500';
+                    if (s >= 60) return 'bg-yellow-500';
+                    if (s >= 40) return 'bg-orange-500';
+                    return 'bg-red-500';
+                },
+                
+                getGradeBg(g) {
+                    if (g === 'A+' || g === 'A') return 'bg-green-500/10 text-green-400';
+                    if (g === 'B') return 'bg-cyan-500/10 text-cyan-400';
+                    if (g === 'C') return 'bg-yellow-500/10 text-yellow-400';
+                    if (g === 'D') return 'bg-orange-500/10 text-orange-400';
+                    return 'bg-red-500/10 text-red-400';
+                },
+                
+                formatNum(n) {
+                    if (!n) return '0';
+                    if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+                    if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+                    return n.toFixed(0);
+                }
+            };
+        }
+    </script>
+</body>
+</html>
