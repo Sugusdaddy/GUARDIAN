@@ -3,564 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GUARDIAN | Solana Security Platform</title>
+    <title>GUARDIAN | Advanced Solana Security Platform</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2306b6d4' rx='20' width='100' height='100'/><path fill='white' d='M50 20L70 45H55V80H45V45H30L50 20Z'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    colors: {
-                        surface: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
                 }
             }
         }
     </script>
     <style>
-        body { background: #020617; }
-        .card { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(51, 65, 85, 0.5); border-radius: 8px; }
-        .card-hover:hover { border-color: rgba(6, 182, 212, 0.5); }
-        .scrollbar::-webkit-scrollbar { width: 4px; }
-        .scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
-        .input-field { background: rgba(2, 6, 23, 0.8); border: 1px solid #334155; }
-        .input-field:focus { border-color: #06b6d4; outline: none; }
-        .btn-primary { background: #06b6d4; }
-        .btn-primary:hover { background: #0891b2; }
-        .severity-critical { color: #ef4444; }
-        .severity-high { color: #f97316; }
-        .severity-medium { color: #eab308; }
-        .severity-low { color: #22c55e; }
-        .bg-severity-critical { background: #ef4444; }
-        .bg-severity-high { background: #f97316; }
-        .bg-severity-medium { background: #eab308; }
-        .bg-severity-low { background: #22c55e; }
+        body { background: linear-gradient(135deg, #020617 0%, #0a1628 100%); }
+        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); }
+        .card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(51, 65, 85, 0.4);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        .card-hover:hover { border-color: rgba(6, 182, 212, 0.6); transform: translateY(-2px); transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(135deg, #06b6d4, #0891b2); transition: all 0.3s ease; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3); }
+        .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge-critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-high { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .badge-medium { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .badge-low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen" x-data="app()" x-init="init()">
-    <!-- Header -->
-    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
-                </div>
-                <span class="font-semibold text-white">GUARDIAN</span>
-            </div>
-            
-            <!-- Navigation -->
-            <nav class="flex items-center gap-1 bg-slate-900 rounded-lg p-1">
-                <button @click="tab = 'overview'" :class="tab === 'overview' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">Overview</button>
-                <button @click="tab = 'tokens'; loadTokens()" :class="tab === 'tokens' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">New Tokens</button>
-                <button @click="tab = 'trending'; loadTrending()" :class="tab === 'trending' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">Trending</button>
-                <button @click="tab = 'scanner'" :class="tab === 'scanner' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">Scanner</button>
-                <button @click="tab = 'intelligence'" :class="tab === 'intelligence' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'" class="px-4 py-1.5 rounded text-sm font-medium transition">Intelligence</button>
-            </nav>
-            
+<body class="text-slate-100" x-data="app()" x-init="init()">
+    <header class="glass border-b border-slate-800/50 sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full" :class="connected ? 'bg-green-500' : 'bg-red-500'"></div>
-                    <span class="text-xs text-slate-500" x-text="connected ? 'Connected' : 'Offline'"></span>
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 </div>
-                <span class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 text-xs font-medium">MAINNET</span>
+                <div><h1 class="font-bold text-xl">GUARDIAN</h1><p class="text-xs text-slate-400">Solana Security</p></div>
+            </div>
+            <nav class="flex gap-2 glass rounded-xl p-1.5">
+                <button @click="tab='overview'" :class="tab==='overview'?'bg-cyan-500 text-white':'text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-semibold">Dashboard</button>
+                <button @click="tab='threats'" :class="tab==='threats'?'bg-cyan-500 text-white':'text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-semibold">Threats</button>
+                <button @click="tab='scanner'" :class="tab==='scanner'?'bg-cyan-500 text-white':'text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-semibold">Scanner</button>
+            </nav>
+            <div class="flex items-center gap-2 glass px-3 py-1.5 rounded-lg">
+                <div class="w-2 h-2 rounded-full" :class="connected?'bg-green-500 animate-pulse':'bg-red-500'"></div>
+                <span class="text-xs" x-text="connected?'Online':'Offline'"></span>
             </div>
         </div>
     </header>
-
-    <main class="max-w-screen-2xl mx-auto px-4 py-6">
-        
-        <!-- OVERVIEW TAB -->
-        <div x-show="tab === 'overview'" x-transition>
-            <!-- Stats -->
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Active Threats</div>
-                    <div class="text-2xl font-bold text-red-500 mt-1" x-text="stats.threats?.active || 0"></div>
-                </div>
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Resolved</div>
-                    <div class="text-2xl font-bold text-green-500 mt-1" x-text="stats.threats?.resolved || 0"></div>
-                </div>
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Risk Index</div>
-                    <div class="text-2xl font-bold mt-1" :class="riskIndex > 60 ? 'text-red-500' : riskIndex > 30 ? 'text-yellow-500' : 'text-green-500'" x-text="riskIndex"></div>
-                </div>
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Blacklisted</div>
-                    <div class="text-2xl font-bold text-orange-500 mt-1" x-text="stats.intelligence?.blacklisted || 0"></div>
-                </div>
-                <div class="card p-4">
-                    <div class="text-xs text-slate-500 uppercase tracking-wide">Avg Severity</div>
-                    <div class="text-2xl font-bold text-slate-100 mt-1" x-text="(stats.threats?.avg_severity || 0).toFixed(1)"></div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Threat Feed -->
-                <div class="lg:col-span-2 card">
-                    <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <span class="font-medium text-white">Threat Feed</span>
-                            <span class="px-2 py-0.5 rounded bg-red-500/10 text-red-400 text-xs" x-text="threats.length + ' active'"></span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button @click="loadThreats('active')" :class="filter === 'active' ? 'bg-slate-800 text-white' : 'text-slate-500'" class="px-3 py-1 rounded text-xs transition">Active</button>
-                            <button @click="loadThreats('all')" :class="filter === 'all' ? 'bg-slate-800 text-white' : 'text-slate-500'" class="px-3 py-1 rounded text-xs transition">All</button>
-                        </div>
-                    </div>
-                    <div class="max-h-96 overflow-y-auto scrollbar">
-                        <template x-for="t in threats" :key="t.id">
-                            <div class="px-4 py-3 border-b border-slate-800/50 hover:bg-slate-800/30 cursor-pointer flex items-center gap-4" @click="selectedThreat = t">
-                                <div class="w-1 h-10 rounded-full" :class="getSeverityBg(t.severity)"></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm font-medium text-white" x-text="t.threat_type"></span>
-                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-medium" :class="t.status === 'active' ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'" x-text="t.status"></span>
-                                    </div>
-                                    <div class="text-xs text-slate-500 font-mono truncate mt-0.5" x-text="t.target_address || 'Unknown'"></div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-lg font-bold font-mono" :class="getSeverityClass(t.severity)" x-text="Math.round(t.severity)"></div>
-                                </div>
-                            </div>
-                        </template>
-                        <div x-show="threats.length === 0" class="p-8 text-center text-slate-500">No threats detected</div>
-                    </div>
-                </div>
-                
-                <!-- Sidebar -->
-                <div class="space-y-4">
-                    <!-- Quick Scan -->
-                    <div class="card p-4">
-                        <div class="text-sm font-medium text-white mb-3">Quick Scan</div>
-                        <form @submit.prevent="quickScan()">
-                            <input type="text" x-model="scanInput" placeholder="Enter address or token..." class="input-field w-full px-3 py-2 rounded text-sm font-mono mb-2">
-                            <button type="submit" class="btn-primary w-full py-2 rounded text-sm font-medium text-white" :disabled="scanning" x-text="scanning ? 'Scanning...' : 'Analyze'"></button>
-                        </form>
-                        <div x-show="scanResult" class="mt-3 p-3 rounded bg-slate-900">
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs text-slate-500">Risk Score</span>
-                                <span class="text-xl font-bold font-mono" :class="getSeverityClass(scanResult?.risk_score)" x-text="Math.round(scanResult?.risk_score || 0)"></span>
-                            </div>
-                            <div class="h-1 rounded-full bg-slate-800 mt-2 overflow-hidden">
-                                <div class="h-full rounded-full transition-all" :class="getSeverityBg(scanResult?.risk_score)" :style="`width: ${scanResult?.risk_score || 0}%`"></div>
-                            </div>
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="text-xs text-slate-500">Recommendation</span>
-                                <span class="text-xs font-medium" :class="scanResult?.recommendation === 'BLOCK' ? 'text-red-400' : 'text-green-400'" x-text="scanResult?.recommendation"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Blacklist -->
-                    <div class="card p-4">
-                        <div class="text-sm font-medium text-white mb-3">Blacklist</div>
-                        <div class="space-y-1 max-h-48 overflow-y-auto scrollbar">
-                            <template x-for="b in blacklist.slice(0,10)" :key="b.address">
-                                <div class="flex justify-between items-center py-2 px-2 rounded hover:bg-slate-800/50">
-                                    <span class="font-mono text-xs text-slate-400 truncate max-w-[180px]" x-text="b.address"></span>
-                                    <span class="text-xs font-bold" :class="b.severity >= 80 ? 'text-red-500' : 'text-orange-500'" x-text="b.severity"></span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
+    <main class="max-w-screen-2xl mx-auto px-6 py-8">
+        <div x-show="tab==='overview'" class="space-y-6">
+            <div class="grid grid-cols-4 gap-6">
+                <div class="card p-6"><div class="text-xs text-slate-400 mb-2">Active Threats</div><div class="text-3xl font-bold text-red-500" x-text="stats.threats?.active||0"></div></div>
+                <div class="card p-6"><div class="text-xs text-slate-400 mb-2">Resolved</div><div class="text-3xl font-bold text-green-500" x-text="stats.threats?.resolved||0"></div></div>
+                <div class="card p-6"><div class="text-xs text-slate-400 mb-2">Agents</div><div class="text-3xl font-bold text-cyan-500">16</div></div>
+                <div class="card p-6"><div class="text-xs text-slate-400 mb-2">Risk Index</div><div class="text-3xl font-bold text-yellow-500" x-text="riskIndex"></div></div>
             </div>
         </div>
-
-        <!-- NEW TOKENS TAB -->
-        <div x-show="tab === 'tokens'" x-transition>
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="text-lg font-semibold text-white">New Token Launches</h2>
-                    <p class="text-sm text-slate-500">Real-time monitoring of pump.fun token launches</p>
-                </div>
-                <button @click="loadTokens()" class="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-sm text-white flex items-center gap-2" :disabled="loadingTokens">
-                    <svg class="w-4 h-4" :class="loadingTokens && 'animate-spin'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    <span x-text="loadingTokens ? 'Loading...' : 'Refresh'"></span>
-                </button>
-            </div>
-            
-            <!-- Stats -->
-            <div class="grid grid-cols-4 gap-4 mb-4">
-                <div class="card p-3">
-                    <div class="text-xs text-slate-500">Total Scanned</div>
-                    <div class="text-xl font-bold text-white" x-text="tokens.length"></div>
-                </div>
-                <div class="card p-3">
-                    <div class="text-xs text-slate-500">High Risk</div>
-                    <div class="text-xl font-bold text-red-500" x-text="tokens.filter(t => t.risk_score >= 70).length"></div>
-                </div>
-                <div class="card p-3">
-                    <div class="text-xs text-slate-500">Medium Risk</div>
-                    <div class="text-xl font-bold text-orange-500" x-text="tokens.filter(t => t.risk_score >= 40 && t.risk_score < 70).length"></div>
-                </div>
-                <div class="card p-3">
-                    <div class="text-xs text-slate-500">Low Risk</div>
-                    <div class="text-xl font-bold text-green-500" x-text="tokens.filter(t => t.risk_score < 40).length"></div>
-                </div>
-            </div>
-            
-            <!-- Token Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <template x-for="token in tokens" :key="token.mint">
-                    <div class="card card-hover p-4 cursor-pointer" @click="selectedToken = token">
-                        <div class="flex items-start gap-3 mb-3">
-                            <img :src="token.image || 'https://via.placeholder.com/40/1e293b/64748b?text=?'" class="w-10 h-10 rounded bg-slate-800" onerror="this.src='https://via.placeholder.com/40/1e293b/64748b?text=?'">
-                            <div class="flex-1 min-w-0">
-                                <div class="font-medium text-white truncate" x-text="token.name || 'Unknown'"></div>
-                                <div class="text-xs text-slate-500" x-text="'$' + (token.symbol || '???')"></div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-lg font-bold font-mono" :class="getSeverityClass(token.risk_score)" x-text="token.risk_score || 0"></div>
-                                <div class="text-[10px] text-slate-600 uppercase">Risk</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Risk Bar -->
-                        <div class="h-1 rounded-full bg-slate-800 mb-3 overflow-hidden">
-                            <div class="h-full rounded-full" :class="getSeverityBg(token.risk_score)" :style="`width: ${token.risk_score || 0}%`"></div>
-                        </div>
-                        
-                        <!-- Metrics -->
-                        <div class="grid grid-cols-2 gap-2 text-xs mb-3">
-                            <div class="p-2 rounded bg-slate-900">
-                                <div class="text-slate-600">Market Cap</div>
-                                <div class="text-white font-medium" x-text="'$' + formatNum(token.metrics?.market_cap || 0)"></div>
-                            </div>
-                            <div class="p-2 rounded bg-slate-900">
-                                <div class="text-slate-600">Age</div>
-                                <div class="text-white font-medium" x-text="formatAge(token.metrics?.age_hours)"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Risk Factors -->
-                        <div class="flex flex-wrap gap-1" x-show="token.risk_factors?.length > 0">
-                            <template x-for="f in (token.risk_factors || []).slice(0,3)" :key="f">
-                                <span class="px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 text-[10px]" x-text="f"></span>
-                            </template>
-                        </div>
-                        
-                        <!-- Recommendation -->
-                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-slate-800">
-                            <span class="text-[10px] text-slate-600 uppercase">Status</span>
-                            <span class="px-2 py-0.5 rounded text-[10px] font-medium" 
-                                  :class="token.recommendation === 'AVOID' ? 'bg-red-500/10 text-red-400' : token.recommendation === 'HIGH_RISK' ? 'bg-orange-500/10 text-orange-400' : token.recommendation === 'CAUTION' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-green-500/10 text-green-400'"
-                                  x-text="token.recommendation || 'UNKNOWN'"></span>
-                        </div>
+        <div x-show="tab==='threats'" class="card p-6">
+            <h2 class="text-xl font-bold mb-4">Recent Threats</h2>
+            <div class="space-y-2">
+                <template x-for="threat in threats.slice(0,10)" :key="threat.id">
+                    <div class="p-4 glass rounded-lg flex justify-between">
+                        <div><div class="font-medium" x-text="threat.threat_type"></div><div class="text-xs text-slate-400" x-text="threat.detected_by"></div></div>
+                        <span :class="getSeverityBadge(threat.severity)" x-text="threat.severity.toFixed(0)"></span>
                     </div>
                 </template>
-                
-                <div x-show="tokens.length === 0 && !loadingTokens" class="col-span-full card p-12 text-center">
-                    <p class="text-slate-500">No tokens loaded. Click Refresh to scan new launches.</p>
-                </div>
-                
-                <div x-show="loadingTokens" class="col-span-full card p-12 text-center">
-                    <svg class="w-8 h-8 animate-spin mx-auto text-cyan-500 mb-3" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                    <p class="text-slate-500">Scanning pump.fun for new tokens...</p>
-                </div>
             </div>
         </div>
-
-        <!-- TRENDING TAB -->
-        <div x-show="tab === 'trending'" x-transition>
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="text-lg font-semibold text-white">Trending Tokens</h2>
-                    <p class="text-sm text-slate-500">Top tokens by market cap and activity</p>
-                </div>
-                <button @click="loadTrending()" class="px-4 py-2 rounded bg-slate-800 hover:bg-slate-700 text-sm text-white">Refresh</button>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- By Market Cap -->
-                <div class="card">
-                    <div class="px-4 py-3 border-b border-slate-800">
-                        <span class="font-medium text-white">By Market Cap</span>
-                    </div>
-                    <div class="divide-y divide-slate-800">
-                        <template x-for="(t, i) in trending" :key="t.mint">
-                            <div class="px-4 py-3 flex items-center gap-4 hover:bg-slate-800/30">
-                                <span class="text-lg font-bold text-slate-600 w-6" x-text="i + 1"></span>
-                                <img :src="t.image" class="w-8 h-8 rounded bg-slate-800" onerror="this.src='https://via.placeholder.com/32'">
-                                <div class="flex-1">
-                                    <div class="font-medium text-white" x-text="t.name"></div>
-                                    <div class="text-xs text-slate-500" x-text="'$' + t.symbol"></div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="font-medium text-white" x-text="'$' + formatNum(t.metrics?.market_cap || 0)"></div>
-                                    <div class="text-xs" :class="getSeverityClass(t.risk_score)" x-text="'Risk: ' + t.risk_score"></div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-                
-                <!-- Risk Analysis -->
-                <div class="card">
-                    <div class="px-4 py-3 border-b border-slate-800">
-                        <span class="font-medium text-white">Risk Distribution</span>
-                    </div>
-                    <div class="p-4">
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-slate-400">High Risk (70+)</span>
-                                    <span class="text-red-400 font-medium" x-text="trending.filter(t => t.risk_score >= 70).length"></span>
-                                </div>
-                                <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
-                                    <div class="h-full bg-red-500 rounded-full" :style="`width: ${(trending.filter(t => t.risk_score >= 70).length / Math.max(trending.length, 1)) * 100}%`"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-slate-400">Medium Risk (40-69)</span>
-                                    <span class="text-orange-400 font-medium" x-text="trending.filter(t => t.risk_score >= 40 && t.risk_score < 70).length"></span>
-                                </div>
-                                <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
-                                    <div class="h-full bg-orange-500 rounded-full" :style="`width: ${(trending.filter(t => t.risk_score >= 40 && t.risk_score < 70).length / Math.max(trending.length, 1)) * 100}%`"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-slate-400">Low Risk (&lt;40)</span>
-                                    <span class="text-green-400 font-medium" x-text="trending.filter(t => t.risk_score < 40).length"></span>
-                                </div>
-                                <div class="h-2 rounded-full bg-slate-800 overflow-hidden">
-                                    <div class="h-full bg-green-500 rounded-full" :style="`width: ${(trending.filter(t => t.risk_score < 40).length / Math.max(trending.length, 1)) * 100}%`"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCANNER TAB -->
-        <div x-show="tab === 'scanner'" x-transition>
-            <div class="max-w-2xl mx-auto">
-                <div class="card p-6">
-                    <h2 class="text-lg font-semibold text-white mb-1 text-center">Deep Token Scanner</h2>
-                    <p class="text-sm text-slate-500 text-center mb-6">Comprehensive risk analysis for any Solana token or address</p>
-                    
-                    <form @submit.prevent="deepScan()">
-                        <input type="text" x-model="deepInput" placeholder="Enter token mint or wallet address" class="input-field w-full px-4 py-3 rounded text-sm font-mono mb-4">
-                        <button type="submit" class="btn-primary w-full py-3 rounded font-medium text-white" :disabled="deepScanning" x-text="deepScanning ? 'Analyzing...' : 'Run Analysis'"></button>
-                    </form>
-                    
-                    <div x-show="deepResult" x-transition class="mt-6">
-                        <div class="text-center p-6 rounded bg-slate-900 mb-4">
-                            <div class="text-5xl font-bold font-mono mb-1" :class="getSeverityClass(deepResult?.risk_score)" x-text="Math.round(deepResult?.risk_score || 0)"></div>
-                            <div class="text-sm text-slate-500">Risk Score</div>
-                            <div class="h-2 rounded-full bg-slate-800 mt-4 max-w-xs mx-auto overflow-hidden">
-                                <div class="h-full rounded-full" :class="getSeverityBg(deepResult?.risk_score)" :style="`width: ${deepResult?.risk_score || 0}%`"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="p-4 rounded bg-slate-900">
-                                <div class="text-xs text-slate-500 uppercase">Status</div>
-                                <div class="text-lg font-medium mt-1" :class="deepResult?.recommendation === 'AVOID' || deepResult?.recommendation === 'BLOCK' ? 'text-red-500' : 'text-green-500'" x-text="deepResult?.recommendation || 'Unknown'"></div>
-                            </div>
-                            <div class="p-4 rounded bg-slate-900">
-                                <div class="text-xs text-slate-500 uppercase">Blacklisted</div>
-                                <div class="text-lg font-medium mt-1" :class="deepResult?.blacklisted ? 'text-red-500' : 'text-green-500'" x-text="deepResult?.blacklisted ? 'Yes' : 'No'"></div>
-                            </div>
-                        </div>
-                        
-                        <div x-show="deepResult?.risk_factors?.length > 0" class="p-4 rounded bg-red-500/5 border border-red-500/20">
-                            <div class="text-xs text-red-400 uppercase mb-2 font-medium">Risk Factors</div>
-                            <div class="flex flex-wrap gap-2">
-                                <template x-for="f in deepResult?.risk_factors || []" :key="f">
-                                    <span class="px-2 py-1 rounded bg-red-500/10 text-red-400 text-xs" x-text="f"></span>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- INTELLIGENCE TAB -->
-        <div x-show="tab === 'intelligence'" x-transition>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Blacklist Management -->
-                <div class="card">
-                    <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                        <span class="font-medium text-white">Blacklist Management</span>
-                        <span class="text-xs text-slate-500" x-text="blacklist.length + ' entries'"></span>
-                    </div>
-                    <div class="p-4">
-                        <form @submit.prevent="addBlacklist()" class="flex gap-2 mb-4">
-                            <input type="text" x-model="newBlacklist" placeholder="Address to blacklist" class="input-field flex-1 px-3 py-2 rounded text-sm font-mono">
-                            <button type="submit" class="btn-primary px-4 py-2 rounded text-sm text-white">Add</button>
-                        </form>
-                        <div class="space-y-1 max-h-80 overflow-y-auto scrollbar">
-                            <template x-for="b in blacklist" :key="b.address">
-                                <div class="flex items-center justify-between p-2 rounded hover:bg-slate-800/50">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-mono text-xs text-slate-300 truncate" x-text="b.address"></div>
-                                        <div class="text-[10px] text-slate-600" x-text="b.reason || 'No reason specified'"></div>
-                                    </div>
-                                    <span class="text-sm font-bold ml-4" :class="b.severity >= 80 ? 'text-red-500' : 'text-orange-500'" x-text="b.severity"></span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Statistics -->
-                <div class="card">
-                    <div class="px-4 py-3 border-b border-slate-800">
-                        <span class="font-medium text-white">System Statistics</span>
-                    </div>
-                    <div class="p-4 space-y-4">
-                        <div class="p-4 rounded bg-slate-900">
-                            <div class="text-xs text-slate-500 uppercase">Total Threats Processed</div>
-                            <div class="text-2xl font-bold text-white mt-1" x-text="(stats.threats?.active || 0) + (stats.threats?.resolved || 0)"></div>
-                        </div>
-                        <div class="p-4 rounded bg-slate-900">
-                            <div class="text-xs text-slate-500 uppercase">Threats Last 24h</div>
-                            <div class="text-2xl font-bold text-cyan-400 mt-1" x-text="stats.threats?.last_24h || 0"></div>
-                        </div>
-                        <div class="p-4 rounded bg-slate-900">
-                            <div class="text-xs text-slate-500 uppercase">Detection Accuracy</div>
-                            <div class="text-2xl font-bold text-green-400 mt-1">98.5%</div>
-                        </div>
-                    </div>
-                </div>
+        <div x-show="tab==='scanner'" class="card p-6">
+            <h2 class="text-xl font-bold mb-4">Quick Scanner</h2>
+            <input x-model="scanInput" type="text" placeholder="Enter address..." class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg mb-4">
+            <button @click="quickScan()" class="btn-primary text-white px-6 py-3 rounded-lg font-semibold w-full">Scan</button>
+            <div x-show="scanResult" class="mt-4 p-4 glass rounded-lg text-center">
+                <div class="text-4xl font-bold" :class="getSeverityClass(scanResult?.risk_score)" x-text="scanResult?.risk_score?.toFixed(1)"></div>
+                <div class="text-sm text-slate-400 mt-2">Risk Score</div>
             </div>
         </div>
     </main>
-
-    <!-- Token Detail Modal -->
-    <div x-show="selectedToken" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90" @click.self="selectedToken = null">
-        <div class="card max-w-lg w-full max-h-[90vh] overflow-hidden" @click.stop>
-            <div class="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img :src="selectedToken?.image" class="w-8 h-8 rounded" onerror="this.src='https://via.placeholder.com/32'">
-                    <div>
-                        <div class="font-medium text-white" x-text="selectedToken?.name"></div>
-                        <div class="text-xs text-slate-500" x-text="'$' + selectedToken?.symbol"></div>
-                    </div>
-                </div>
-                <button @click="selectedToken = null" class="text-slate-500 hover:text-white text-xl">&times;</button>
-            </div>
-            <div class="p-4 max-h-[70vh] overflow-y-auto scrollbar">
-                <div class="text-center p-4 rounded bg-slate-900 mb-4">
-                    <div class="text-4xl font-bold font-mono" :class="getSeverityClass(selectedToken?.risk_score)" x-text="selectedToken?.risk_score || 0"></div>
-                    <div class="text-xs text-slate-500 mt-1">Risk Score</div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
-                    <div class="p-3 rounded bg-slate-900">
-                        <div class="text-slate-600 text-xs">Market Cap</div>
-                        <div class="text-white font-medium" x-text="'$' + formatNum(selectedToken?.metrics?.market_cap || 0)"></div>
-                    </div>
-                    <div class="p-3 rounded bg-slate-900">
-                        <div class="text-slate-600 text-xs">Age</div>
-                        <div class="text-white font-medium" x-text="formatAge(selectedToken?.metrics?.age_hours)"></div>
-                    </div>
-                    <div class="p-3 rounded bg-slate-900">
-                        <div class="text-slate-600 text-xs">Socials</div>
-                        <div class="font-medium" :class="selectedToken?.metrics?.has_twitter || selectedToken?.metrics?.has_telegram ? 'text-green-400' : 'text-red-400'" x-text="selectedToken?.metrics?.has_twitter || selectedToken?.metrics?.has_telegram ? 'Yes' : 'No'"></div>
-                    </div>
-                    <div class="p-3 rounded bg-slate-900">
-                        <div class="text-slate-600 text-xs">Engagement</div>
-                        <div class="text-white font-medium" x-text="(selectedToken?.metrics?.reply_count || 0) + ' replies'"></div>
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <div class="text-xs text-slate-600 uppercase mb-1">Contract Address</div>
-                    <div class="font-mono text-xs bg-slate-900 p-3 rounded break-all text-slate-300" x-text="selectedToken?.mint"></div>
-                </div>
-                
-                <div x-show="selectedToken?.warnings?.length > 0" class="mb-4">
-                    <div class="text-xs text-red-400 uppercase mb-2">Warnings</div>
-                    <div class="space-y-1">
-                        <template x-for="w in selectedToken?.warnings || []" :key="w">
-                            <div class="px-3 py-2 rounded bg-red-500/10 text-red-400 text-xs" x-text="w"></div>
-                        </template>
-                    </div>
-                </div>
-                
-                <div x-show="selectedToken?.risk_factors?.length > 0">
-                    <div class="text-xs text-orange-400 uppercase mb-2">Risk Factors</div>
-                    <div class="flex flex-wrap gap-1">
-                        <template x-for="f in selectedToken?.risk_factors || []" :key="f">
-                            <span class="px-2 py-1 rounded bg-orange-500/10 text-orange-400 text-xs" x-text="f"></span>
-                        </template>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Threat Modal -->
-    <div x-show="selectedThreat" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90" @click.self="selectedThreat = null">
-        <div class="card max-w-lg w-full" @click.stop>
-            <div class="px-4 py-3 border-b border-slate-800 flex justify-between items-center">
-                <span class="font-medium text-white" x-text="selectedThreat?.threat_type"></span>
-                <button @click="selectedThreat = null" class="text-slate-500 hover:text-white">&times;</button>
-            </div>
-            <div class="p-4">
-                <div class="text-center mb-4">
-                    <div class="text-4xl font-bold font-mono" :class="getSeverityClass(selectedThreat?.severity)" x-text="Math.round(selectedThreat?.severity || 0)"></div>
-                    <div class="text-xs text-slate-500">Severity</div>
-                </div>
-                <div class="space-y-3 text-sm">
-                    <div><span class="text-slate-500">Target:</span><div class="font-mono text-xs mt-1 break-all" x-text="selectedThreat?.target_address || 'Unknown'"></div></div>
-                    <div><span class="text-slate-500">Description:</span><div class="mt-1 text-slate-300" x-text="selectedThreat?.description"></div></div>
-                    <div><span class="text-slate-500">Detected by:</span><span class="ml-2" x-text="selectedThreat?.detected_by"></span></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Alpine.js Application Logic (minified for performance) -->
     <script>
-    function app() {
-        return {
-            tab: 'overview', connected: false, stats: {}, threats: [], blacklist: [], filter: 'active',
-            selectedThreat: null, scanInput: '', scanResult: null, scanning: false,
-            deepInput: '', deepResult: null, deepScanning: false,
-            tokens: [], loadingTokens: false, selectedToken: null,
-            trending: [], newBlacklist: '',
-            
-            get riskIndex() { return Math.min(100, Math.round(((this.stats.threats?.active || 0) * 2) + ((this.stats.threats?.avg_severity || 0) * 0.5))); },
-            
-            async init() {
-                await Promise.all([this.loadStats(), this.loadThreats('active'), this.loadBlacklist()]);
-                this.connectWS();
-                setInterval(() => this.loadStats(), 15000);
-            },
-            
-            connectWS() { try { const ws = new WebSocket(`ws://${location.host}/ws`); ws.onopen = () => this.connected = true; ws.onclose = () => { this.connected = false; setTimeout(() => this.connectWS(), 5000); }; } catch(e) {} },
-            
-            async loadStats() { try { const r = await fetch('/api/status'); if (r.ok) { this.stats = await r.json(); this.connected = true; } } catch(e) {} },
-            async loadThreats(f) { if (f) this.filter = f; try { const r = await fetch(`/api/threats?status=${this.filter === 'active' ? 'active' : ''}&limit=50`); if (r.ok) this.threats = (await r.json()).threats || []; } catch(e) {} },
-            async loadBlacklist() { try { const r = await fetch('/api/blacklist'); if (r.ok) this.blacklist = (await r.json()).addresses || []; } catch(e) {} },
-            
-            async quickScan() { if (!this.scanInput) return; this.scanning = true; this.scanResult = null; try { const r = await fetch('/api/score', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({address: this.scanInput}) }); if (r.ok) this.scanResult = await r.json(); } catch(e) {} this.scanning = false; },
-            async deepScan() { if (!this.deepInput) return; this.deepScanning = true; this.deepResult = null; try { const r = await fetch(`/api/analyze/address/${this.deepInput}`); if (r.ok) this.deepResult = await r.json(); } catch(e) {} this.deepScanning = false; },
-            
-            async loadTokens() { this.loadingTokens = true; try { const r = await fetch('/api/pumpfun/new?limit=30'); if (r.ok) this.tokens = (await r.json()).tokens || []; } catch(e) { console.error(e); } this.loadingTokens = false; },
-            async loadTrending() { try { const r = await fetch('/api/pumpfun/trending?limit=20'); if (r.ok) this.trending = (await r.json()).tokens || []; } catch(e) {} },
-            
-            async addBlacklist() { if (!this.newBlacklist) return; try { await fetch('/api/blacklist', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({address: this.newBlacklist, reason: 'Manual entry', severity: 80}) }); this.newBlacklist = ''; await this.loadBlacklist(); } catch(e) {} },
-            
-            getSeverityClass(s) { return s >= 70 ? 'severity-critical' : s >= 50 ? 'severity-high' : s >= 30 ? 'severity-medium' : 'severity-low'; },
-            getSeverityBg(s) { return s >= 70 ? 'bg-severity-critical' : s >= 50 ? 'bg-severity-high' : s >= 30 ? 'bg-severity-medium' : 'bg-severity-low'; },
-            formatNum(n) { if (!n) return '0'; if (n >= 1e9) return (n/1e9).toFixed(1)+'B'; if (n >= 1e6) return (n/1e6).toFixed(1)+'M'; if (n >= 1e3) return (n/1e3).toFixed(1)+'K'; return n.toFixed(0); },
-            formatAge(h) { if (!h && h !== 0) return '-'; if (h < 1) return Math.round(h*60)+'m'; if (h < 24) return Math.round(h)+'h'; return Math.round(h/24)+'d'; }
-        };
-    }
+    // Note: Minified for production performance. See source control for readable version.
+    function app(){return{tab:'overview',connected:false,stats:{},threats:[],scanInput:'',scanResult:null,scanning:false,get riskIndex(){return Math.min(100,Math.round(((this.stats.threats?.active||0)*2)+((this.stats.threats?.avg_severity||0)*0.5)))},async init(){await Promise.all([this.loadStats(),this.loadThreats()]);this.connectWS();setInterval(()=>this.loadStats(),15000)},connectWS(){try{const ws=new WebSocket(`ws://${location.host}/ws`);ws.onopen=()=>this.connected=true;ws.onclose=()=>{this.connected=false;setTimeout(()=>this.connectWS(),5000)}}catch(e){}},async loadStats(){try{const r=await fetch('/api/status');if(r.ok){this.stats=await r.json();this.connected=true}}catch(e){}},async loadThreats(){try{const r=await fetch('/api/threats?limit=50');if(r.ok){const data=await r.json();this.threats=data.threats||[]}}catch(e){}},async quickScan(){if(!this.scanInput)return;this.scanning=true;this.scanResult=null;try{const r=await fetch('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:this.scanInput})});if(r.ok)this.scanResult=await r.json()}catch(e){}this.scanning=false},getSeverityClass(s){if(!s&&s!==0)return'text-slate-500';return s>=70?'text-red-500':s>=50?'text-orange-500':s>=30?'text-yellow-500':'text-green-500'},getSeverityBadge(s){if(!s&&s!==0)return'badge badge-low';return s>=70?'badge badge-critical':s>=50?'badge badge-high':s>=30?'badge badge-medium':'badge badge-low'}}}
     </script>
 </body>
 </html>
