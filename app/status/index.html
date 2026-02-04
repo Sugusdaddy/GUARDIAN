@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN | System Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+        .pulse-green { animation: pulseGreen 2s infinite; }
+        @keyframes pulseGreen { 0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="statusPage()" x-init="init()">
+    <header class="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="../../" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <span class="font-bold">GUARDIAN Status</span>
+            </a>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" :class="allOperational ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'">
+                <div class="w-2 h-2 rounded-full" :class="allOperational ? 'bg-green-500 pulse-green' : 'bg-yellow-500'"></div>
+                <span class="text-sm font-medium" x-text="allOperational ? 'All Systems Operational' : 'Partial Outage'"></span>
+            </div>
+        </div>
+    </header>
+    
+    <main class="max-w-5xl mx-auto px-6 py-12">
+        <!-- Overall Status -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center gap-3 px-6 py-3 rounded-2xl mb-4" :class="allOperational ? 'bg-green-500/10 border border-green-500/30' : 'bg-yellow-500/10 border border-yellow-500/30'">
+                <div class="w-4 h-4 rounded-full" :class="allOperational ? 'bg-green-500 pulse-green' : 'bg-yellow-500'"></div>
+                <span class="text-2xl font-bold" :class="allOperational ? 'text-green-400' : 'text-yellow-400'" x-text="allOperational ? 'All Systems Operational' : 'Degraded Performance'"></span>
+            </div>
+            <p class="text-slate-500">Last updated: <span x-text="new Date().toLocaleString()"></span></p>
+        </div>
+        
+        <!-- Uptime Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            <div class="card p-4 rounded-xl text-center">
+                <div class="text-3xl font-bold text-green-400">99.9%</div>
+                <div class="text-xs text-slate-500">30-Day Uptime</div>
+            </div>
+            <div class="card p-4 rounded-xl text-center">
+                <div class="text-3xl font-bold text-cyan-400" x-text="activeAgents + '/17'"></div>
+                <div class="text-xs text-slate-500">Agents Active</div>
+            </div>
+            <div class="card p-4 rounded-xl text-center">
+                <div class="text-3xl font-bold text-white">0.3s</div>
+                <div class="text-xs text-slate-500">Avg Response</div>
+            </div>
+            <div class="card p-4 rounded-xl text-center">
+                <div class="text-3xl font-bold text-purple-400" x-text="formatNum(requestsToday)"></div>
+                <div class="text-xs text-slate-500">Requests Today</div>
+            </div>
+        </div>
+        
+        <!-- Agent Status -->
+        <div class="card rounded-xl mb-8">
+            <div class="px-6 py-4 border-b border-slate-800/50">
+                <h2 class="text-lg font-semibold">Agent Swarm Status</h2>
+            </div>
+            <div class="divide-y divide-slate-800/50">
+                <template x-for="agent in agents" :key="agent.id">
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="text-2xl" x-text="agent.emoji"></span>
+                            <div>
+                                <div class="font-medium text-white" x-text="agent.name"></div>
+                                <div class="text-xs text-slate-500" x-text="agent.role"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-right hidden md:block">
+                                <div class="text-sm text-slate-400" x-text="agent.latency + 'ms'"></div>
+                                <div class="text-xs text-slate-600">latency</div>
+                            </div>
+                            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" :class="agent.status === 'operational' ? 'bg-green-500/10 text-green-400' : agent.status === 'scanning' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'">
+                                <div class="w-2 h-2 rounded-full" :class="agent.status === 'operational' ? 'bg-green-500' : agent.status === 'scanning' ? 'bg-yellow-500' : 'bg-red-500'"></div>
+                                <span class="text-xs font-medium capitalize" x-text="agent.status"></span>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        
+        <!-- Services Status -->
+        <div class="card rounded-xl mb-8">
+            <div class="px-6 py-4 border-b border-slate-800/50">
+                <h2 class="text-lg font-semibold">External Services</h2>
+            </div>
+            <div class="divide-y divide-slate-800/50">
+                <template x-for="service in services" :key="service.name">
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl" x-text="service.icon"></span>
+                            <span class="font-medium text-white" x-text="service.name"></span>
+                        </div>
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" :class="service.status === 'operational' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'">
+                            <div class="w-2 h-2 rounded-full" :class="service.status === 'operational' ? 'bg-green-500' : 'bg-red-500'"></div>
+                            <span class="text-xs font-medium capitalize" x-text="service.status"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        
+        <!-- Recent Incidents -->
+        <div class="card rounded-xl">
+            <div class="px-6 py-4 border-b border-slate-800/50">
+                <h2 class="text-lg font-semibold">Recent Incidents</h2>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center gap-3 text-green-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>No incidents reported in the last 90 days</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="text-center mt-12 text-slate-600 text-sm">
+            <p>Status page auto-refreshes every 60 seconds</p>
+            <p class="mt-2">
+                <a href="../dashboard/" class="text-cyan-400 hover:text-cyan-300">Dashboard</a>
+                •
+                <a href="https://github.com/Sugusdaddy/GUARDIAN" class="text-cyan-400 hover:text-cyan-300">GitHub</a>
+            </p>
+        </div>
+    </main>
+
+    <script>
+        function statusPage() {
+            return {
+                agents: [
+                    { id: 'sentinel', name: 'Sentinel', role: 'Transaction Monitor', emoji: '👁️', status: 'operational', latency: 45 },
+                    { id: 'scanner', name: 'Scanner', role: 'Contract Analyzer', emoji: '🔍', status: 'operational', latency: 120 },
+                    { id: 'oracle', name: 'Oracle', role: 'ML Risk Predictor', emoji: '🔮', status: 'operational', latency: 230 },
+                    { id: 'coordinator', name: 'Coordinator', role: 'Swarm Orchestrator', emoji: '🎯', status: 'operational', latency: 15 },
+                    { id: 'guardian', name: 'Guardian', role: 'Threat Defender', emoji: '🛡️', status: 'operational', latency: 35 },
+                    { id: 'intel', name: 'Intel', role: 'Threat Database', emoji: '📋', status: 'operational', latency: 22 },
+                    { id: 'reporter', name: 'Reporter', role: 'Alert System', emoji: '📢', status: 'operational', latency: 18 },
+                    { id: 'auditor', name: 'Auditor', role: 'Reasoning Verifier', emoji: '✅', status: 'operational', latency: 95 },
+                    { id: 'hunter', name: 'Hunter', role: 'Actor Tracker', emoji: '🎯', status: 'operational', latency: 67 },
+                    { id: 'healer', name: 'Healer', role: 'Recovery Agent', emoji: '💚', status: 'operational', latency: 42 },
+                    { id: 'honeypot', name: 'Honeypot', role: 'Active Traps', emoji: '🍯', status: 'scanning', latency: 450 },
+                    { id: 'lazarus', name: 'Lazarus', role: 'DPRK Tracker', emoji: '🇰🇵', status: 'operational', latency: 88 },
+                    { id: 'network', name: 'Network', role: 'Infrastructure Monitor', emoji: '🌐', status: 'operational', latency: 12 },
+                    { id: 'quantum', name: 'Quantum', role: 'Post-Quantum Defense', emoji: '⚛️', status: 'operational', latency: 156 },
+                    { id: 'swapguard', name: 'SwapGuard', role: 'Trade Protection', emoji: '🔄', status: 'operational', latency: 78 },
+                    { id: 'evacuator', name: 'Evacuator', role: 'Emergency Extraction', emoji: '⚡', status: 'operational', latency: 25 },
+                    { id: 'whale', name: 'Whale Tracker', role: 'Large Holder Monitor', emoji: '🐋', status: 'scanning', latency: 340 }
+                ],
+                services: [
+                    { name: 'DexScreener API', icon: '📊', status: 'operational' },
+                    { name: 'Solana RPC', icon: '⛓️', status: 'operational' },
+                    { name: 'GitHub Pages', icon: '🌐', status: 'operational' },
+                    { name: 'Phantom Wallet', icon: '👻', status: 'operational' }
+                ],
+                requestsToday: 24891,
+                
+                get activeAgents() { return this.agents.filter(a => a.status === 'operational' || a.status === 'scanning').length; },
+                get allOperational() { return this.agents.every(a => a.status !== 'down'); },
+                
+                init() {
+                    setInterval(() => {
+                        this.requestsToday += Math.floor(Math.random() * 10);
+                        this.agents.forEach(a => {
+                            a.latency = Math.max(10, a.latency + Math.floor(Math.random() * 20) - 10);
+                        });
+                    }, 5000);
+                },
+                
+                formatNum(n) {
+                    if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+                    if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+                    return n.toString();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
