@@ -76,7 +76,8 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "guardian=cli:main",
+            # Note: cli.py is located at project root
+            "guardian-cli=cli:main",
         ],
     },
     include_package_data=True,

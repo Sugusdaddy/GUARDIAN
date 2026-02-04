@@ -72,7 +72,8 @@ Repository = "https://github.com/Sugusdaddy/GUARDIAN"
 Issues = "https://github.com/Sugusdaddy/GUARDIAN/issues"
 
 [project.scripts]
-guardian = "cli:main"
+# Note: cli.py is located at project root
+guardian-cli = "cli:main"
 
 [tool.setuptools]
 packages = ["agents", "GUARDIAN", "app"]
@@ -83,7 +84,7 @@ packages = ["agents", "GUARDIAN", "app"]
 [tool.black]
 line-length = 100
 target-version = ['py310', 'py311', 'py312']
-include = '\.pyi?$'
+include = r'\.pyi?$'
 extend-exclude = '''
 /(
   # directories

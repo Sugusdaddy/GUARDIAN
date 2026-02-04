@@ -16,10 +16,10 @@ jobs:
         python-version: ["3.10", "3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.1.1
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.0.0
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
@@ -48,7 +48,7 @@ jobs:
         pytest --cov=agents --cov=GUARDIAN --cov=app --cov-report=xml --cov-report=term
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v4.0.1
       with:
         file: ./coverage.xml
         fail_ci_if_error: false
@@ -58,10 +58,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.1.1
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.0.0
       with:
         python-version: "3.10"
 
@@ -79,7 +79,7 @@ jobs:
         bandit -r agents/ GUARDIAN/ app/ -ll -f json -o bandit-report.json || true
 
     - name: Upload Bandit report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.3.0
       with:
         name: bandit-security-report
         path: bandit-report.json
@@ -91,10 +91,10 @@ jobs:
     needs: [test]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v4.1.1
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5.0.0
       with:
         python-version: "3.10"
 
@@ -110,7 +110,7 @@ jobs:
       run: twine check dist/*
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.3.0
       with:
         name: dist
         path: dist/
