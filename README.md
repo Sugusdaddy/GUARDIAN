@@ -2,6 +2,8 @@
 
 > **The Most Advanced Autonomous Multi-Agent Security Infrastructure for Solana**
 
+🌐 **[VIEW LIVE WEBSITE](https://sugusdaddy.github.io/GUARDIAN/)** 🌐
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![Solana](https://img.shields.io/badge/Solana-Mainnet-purple)](https://solana.com)
@@ -9,6 +11,7 @@
 [![CI](https://github.com/Sugusdaddy/GUARDIAN/workflows/CI/badge.svg)](https://github.com/Sugusdaddy/GUARDIAN/actions)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Security: CodeQL](https://img.shields.io/badge/Security-CodeQL%20✓-success)](https://github.com/Sugusdaddy/GUARDIAN/security)
+[![Website](https://img.shields.io/badge/Website-Live-brightgreen)](https://sugusdaddy.github.io/GUARDIAN/)
 
 **16 autonomous AI agents protecting the Solana ecosystem 24/7 with industry-first features like state-actor tracking and emergency wallet evacuation.**
 

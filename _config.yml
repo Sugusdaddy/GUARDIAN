@@ -1,0 +1,51 @@
+# GitHub Pages Configuration
+# This file ensures proper routing for the GUARDIAN website
+
+# Enable Jekyll (GitHub's static site generator)
+theme: null
+
+# Include all files that start with underscore
+include:
+  - _config.yml
+
+# Exclude development files from the built site
+exclude:
+  - .git
+  - .github
+  - .gitignore
+  - .pre-commit-config.yaml
+  - .editorconfig
+  - .env.example
+  - requirements.txt
+  - requirements-dev.txt
+  - pyproject.toml
+  - setup.py
+  - pytest.ini
+  - Makefile
+  - Cargo.toml
+  - Cargo.lock
+  - Anchor.toml
+  - package.json
+  - tsconfig.json
+  - agents/
+  - GUARDIAN/
+  - programs/
+  - scripts/
+  - tests/
+  - data/
+  - app/
+  - cli.py
+  - start_web.sh
+  - "*.py"
+  - "*.toml"
+  - "*.lock"
+  - "*.bak"
+
+# Markdown rendering
+markdown: kramdown
+
+# Site settings
+title: GUARDIAN - Solana Immune System
+description: 16 autonomous AI agents protecting the Solana ecosystem 24/7
+url: https://sugusdaddy.github.io
+baseurl: /GUARDIAN
