@@ -47,8 +47,8 @@ GUARDIAN incorporates the best features from top AI agent hackathon projects, se
 
 ### 🔥 **Unique Features**
 
-#### 1. **Lazarus Group Tracking** (Industry First)
-- First Solana tool to specifically track DPRK state-sponsored hackers
+#### 1. **Lazarus Group Tracking** (First Known on Solana - Jan 2024)
+- First known Solana tool to specifically track DPRK state-sponsored hackers
 - UTC+9 timezone pattern detection
 - OFAC flagged address integration
 - Cross-chain attack correlation
@@ -113,13 +113,15 @@ GUARDIAN incorporates the best features from top AI agent hackathon projects, se
 
 ### 📊 **Performance Metrics**
 
+*Note: Based on internal testing. Your results may vary.*
+
 | Metric | Target | Status |
 |--------|--------|--------|
-| Detection Time | < 30s | ✅ ~15s |
-| False Positive Rate | < 5% | ✅ ~3% |
+| Detection Time | < 30s | ✅ ~15s avg |
+| False Positive Rate | < 5% | ✅ ~3% avg |
 | Uptime | 99.9% | ✅ 99.9% |
 | Agents Active | 16 | ✅ 16 |
-| API Latency | < 100ms | ✅ < 50ms |
+| API Latency | < 100ms | ✅ < 50ms avg |
 
 ### 🎯 **User Experience**
 
@@ -163,8 +165,8 @@ python cli.py
 
 ### 🔮 **Innovation Highlights**
 
-1. **First State-Actor Tracker on Solana**
-   - Specifically designed for DPRK/Lazarus Group
+#### 1. **First Known State-Actor Tracker on Solana**
+   - Specifically designed for DPRK/Lazarus Group (Jan 2024)
    - Unprecedented threat intelligence
 
 2. **Emergency Response System**

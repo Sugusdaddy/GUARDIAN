@@ -87,7 +87,9 @@
             </div>
         </div>
     </main>
+    <!-- Alpine.js Application Logic (minified for performance) -->
     <script>
+    // Note: Minified for production performance. See source control for readable version.
     function app(){return{tab:'overview',connected:false,stats:{},threats:[],scanInput:'',scanResult:null,scanning:false,get riskIndex(){return Math.min(100,Math.round(((this.stats.threats?.active||0)*2)+((this.stats.threats?.avg_severity||0)*0.5)))},async init(){await Promise.all([this.loadStats(),this.loadThreats()]);this.connectWS();setInterval(()=>this.loadStats(),15000)},connectWS(){try{const ws=new WebSocket(`ws://${location.host}/ws`);ws.onopen=()=>this.connected=true;ws.onclose=()=>{this.connected=false;setTimeout(()=>this.connectWS(),5000)}}catch(e){}},async loadStats(){try{const r=await fetch('/api/status');if(r.ok){this.stats=await r.json();this.connected=true}}catch(e){}},async loadThreats(){try{const r=await fetch('/api/threats?limit=50');if(r.ok){const data=await r.json();this.threats=data.threats||[]}}catch(e){}},async quickScan(){if(!this.scanInput)return;this.scanning=true;this.scanResult=null;try{const r=await fetch('/api/score',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:this.scanInput})});if(r.ok)this.scanResult=await r.json()}catch(e){}this.scanning=false},getSeverityClass(s){if(!s&&s!==0)return'text-slate-500';return s>=70?'text-red-500':s>=50?'text-orange-500':s>=30?'text-yellow-500':'text-green-500'},getSeverityBadge(s){if(!s&&s!==0)return'badge badge-low';return s>=70?'badge badge-critical':s>=50?'badge badge-high':s>=30?'badge badge-medium':'badge badge-low'}}}
     </script>
 </body>

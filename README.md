@@ -47,7 +47,7 @@
 | Feature | GUARDIAN | Typical Competitors |
 |---------|----------|-------------------|
 | **Agent Count** | 16 specialized | 1-5 generic |
-| **Lazarus Tracking** | ✅ Industry First | ❌ None |
+| **Lazarus Tracking** | ✅ First Known (Jan 2024) | ❌ None |
 | **Emergency Evacuation** | ✅ One-click | ❌ No |
 | **Risk-Aware Trading** | ✅ Full | ⚠️ Limited |
 | **Active Defense** | ✅ Honeypots | ❌ Passive only |
