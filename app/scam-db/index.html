@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN | Scam Database</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+        .scrollbar::-webkit-scrollbar { width: 4px; }
+        .scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="scamDB()" x-init="init()">
+    <header class="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="../../" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <span class="font-bold">GUARDIAN</span>
+            </a>
+            <nav class="flex items-center gap-4">
+                <a href="../dashboard/" class="text-slate-400 hover:text-white text-sm">Dashboard</a>
+                <a href="../report/" class="text-cyan-400 hover:text-cyan-300 text-sm">Report Scam</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">💀 Scam Database</h1>
+            <p class="text-xl text-slate-400">Known scams, rugs, and malicious actors on Solana</p>
+            <p class="text-sm text-slate-600 mt-2" x-text="scams.length + ' entries'"></p>
+        </div>
+        
+        <!-- Search & Filters -->
+        <div class="card rounded-xl p-4 mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text" x-model="search" placeholder="Search by name, address, or type..." class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-white focus:border-cyan-500 focus:outline-none">
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button @click="filter = 'all'" :class="filter === 'all' ? 'bg-cyan-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium">All</button>
+                    <button @click="filter = 'honeypot'" :class="filter === 'honeypot' ? 'bg-orange-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium">🍯 Honeypot</button>
+                    <button @click="filter = 'rugpull'" :class="filter === 'rugpull' ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium">🚨 Rug Pull</button>
+                    <button @click="filter = 'drainer'" :class="filter === 'drainer' ? 'bg-purple-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium">💀 Drainer</button>
+                    <button @click="filter = 'phishing'" :class="filter === 'phishing' ? 'bg-yellow-500 text-white' : 'bg-slate-800 text-slate-400'" class="px-4 py-2 rounded-lg text-sm font-medium">🎣 Phishing</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            <div class="card rounded-xl p-4 text-center">
+                <div class="text-2xl font-bold text-red-400" x-text="scams.filter(s => s.type === 'rugpull').length"></div>
+                <div class="text-xs text-slate-500">Rug Pulls</div>
+            </div>
+            <div class="card rounded-xl p-4 text-center">
+                <div class="text-2xl font-bold text-orange-400" x-text="scams.filter(s => s.type === 'honeypot').length"></div>
+                <div class="text-xs text-slate-500">Honeypots</div>
+            </div>
+            <div class="card rounded-xl p-4 text-center">
+                <div class="text-2xl font-bold text-purple-400" x-text="scams.filter(s => s.type === 'drainer').length"></div>
+                <div class="text-xs text-slate-500">Drainers</div>
+            </div>
+            <div class="card rounded-xl p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-400" x-text="scams.filter(s => s.type === 'phishing').length"></div>
+                <div class="text-xs text-slate-500">Phishing</div>
+            </div>
+            <div class="card rounded-xl p-4 text-center">
+                <div class="text-2xl font-bold text-white">$<span x-text="formatNum(totalDamage)"></span></div>
+                <div class="text-xs text-slate-500">Total Damage</div>
+            </div>
+        </div>
+        
+        <!-- Scam List -->
+        <div class="card rounded-xl">
+            <div class="px-6 py-4 border-b border-slate-800/50 flex items-center justify-between">
+                <span class="font-medium">Scam Registry</span>
+                <span class="text-xs text-slate-500" x-text="filteredScams.length + ' shown'"></span>
+            </div>
+            <div class="max-h-[600px] overflow-y-auto scrollbar">
+                <template x-for="scam in filteredScams" :key="scam.id">
+                    <div class="px-6 py-4 border-b border-slate-800/30 hover:bg-slate-800/20 cursor-pointer" @click="selectedScam = scam">
+                        <div class="flex items-center gap-4">
+                            <div class="text-2xl" x-text="getTypeEmoji(scam.type)"></div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-medium text-white" x-text="scam.name"></span>
+                                    <span class="px-2 py-0.5 rounded text-[10px]" :class="getTypeBg(scam.type)" x-text="scam.type"></span>
+                                </div>
+                                <div class="text-xs text-slate-500 font-mono truncate" x-text="scam.address"></div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-bold text-red-400" x-text="scam.severity"></div>
+                                <div class="text-xs text-slate-600">$<span x-text="formatNum(scam.damage)"></span> lost</div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                <div x-show="filteredScams.length === 0" class="p-12 text-center text-slate-500">
+                    No scams found matching your criteria
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Additions -->
+        <div class="mt-12">
+            <h2 class="text-xl font-semibold mb-6">🆕 Recently Added</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <template x-for="scam in scams.slice(0, 3)" :key="scam.id">
+                    <div class="card rounded-xl p-4 border-l-4" :class="getTypeBorderColor(scam.type)">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-xl" x-text="getTypeEmoji(scam.type)"></span>
+                            <span class="font-medium text-white" x-text="scam.name"></span>
+                        </div>
+                        <div class="text-xs text-slate-500 mb-2" x-text="scam.description.slice(0, 80) + '...'"></div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-red-400">$<span x-text="formatNum(scam.damage)"></span></span>
+                            <span class="text-slate-600" x-text="scam.date"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Scam Detail Modal -->
+    <div x-show="selectedScam" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80" @click.self="selectedScam = null">
+        <div class="card max-w-lg w-full rounded-2xl max-h-[90vh] overflow-hidden" @click.stop>
+            <div class="px-6 py-4 border-b border-slate-800/50 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl" x-text="getTypeEmoji(selectedScam?.type)"></span>
+                    <div>
+                        <div class="font-medium text-white" x-text="selectedScam?.name"></div>
+                        <div class="text-xs" :class="getTypeColor(selectedScam?.type)" x-text="selectedScam?.type?.toUpperCase()"></div>
+                    </div>
+                </div>
+                <button @click="selectedScam = null" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6 max-h-[70vh] overflow-y-auto scrollbar">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="p-4 rounded-lg bg-slate-900/50">
+                        <div class="text-xs text-slate-500">Severity</div>
+                        <div class="text-2xl font-bold text-red-400" x-text="selectedScam?.severity"></div>
+                    </div>
+                    <div class="p-4 rounded-lg bg-slate-900/50">
+                        <div class="text-xs text-slate-500">Estimated Damage</div>
+                        <div class="text-2xl font-bold text-white">$<span x-text="formatNum(selectedScam?.damage || 0)"></span></div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="text-xs text-slate-500 mb-1">Address</div>
+                    <div class="p-3 rounded-lg bg-slate-900 font-mono text-xs text-slate-300 break-all" x-text="selectedScam?.address"></div>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="text-xs text-slate-500 mb-1">Description</div>
+                    <p class="text-slate-300 text-sm" x-text="selectedScam?.description"></p>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="text-xs text-slate-500 mb-1">Reported</div>
+                    <p class="text-slate-400" x-text="selectedScam?.date"></p>
+                </div>
+                
+                <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/30">
+                    <div class="flex items-center gap-2 text-red-400 font-medium mb-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        Warning
+                    </div>
+                    <p class="text-sm text-slate-400">Do not interact with this address. It has been confirmed as malicious.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scamDB() {
+            return {
+                search: '',
+                filter: 'all',
+                selectedScam: null,
+                scams: [],
+                
+                get filteredScams() {
+                    let result = this.scams;
+                    if (this.filter !== 'all') {
+                        result = result.filter(s => s.type === this.filter);
+                    }
+                    if (this.search) {
+                        const q = this.search.toLowerCase();
+                        result = result.filter(s => 
+                            s.name.toLowerCase().includes(q) || 
+                            s.address.toLowerCase().includes(q) ||
+                            s.type.toLowerCase().includes(q)
+                        );
+                    }
+                    return result;
+                },
+                
+                get totalDamage() {
+                    return this.scams.reduce((sum, s) => sum + s.damage, 0);
+                },
+                
+                init() {
+                    // Generate sample scam database
+                    const types = ['honeypot', 'rugpull', 'drainer', 'phishing'];
+                    const names = ['FAKE', 'SCAM', 'RUG', 'MOON', 'SAFE', 'PUMP', 'DEGEN', 'APE'];
+                    
+                    this.scams = Array.from({ length: 50 }, (_, i) => ({
+                        id: i,
+                        name: names[Math.floor(Math.random() * names.length)] + Math.floor(Math.random() * 1000),
+                        type: types[Math.floor(Math.random() * types.length)],
+                        address: this.randomAddress(),
+                        severity: Math.floor(Math.random() * 30) + 70,
+                        damage: Math.floor(Math.random() * 500000) + 5000,
+                        description: 'This token/address was identified as malicious. Multiple users reported losing funds. The contract contains code that prevents selling or drains wallet approvals.',
+                        date: '2026-0' + (Math.floor(Math.random() * 2) + 1) + '-' + String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')
+                    }));
+                },
+                
+                randomAddress() {
+                    return Array.from({length: 44}, () => 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789'[Math.floor(Math.random() * 58)]).join('');
+                },
+                
+                getTypeEmoji(type) {
+                    const emojis = { honeypot: '🍯', rugpull: '🚨', drainer: '💀', phishing: '🎣' };
+                    return emojis[type] || '⚠️';
+                },
+                
+                getTypeBg(type) {
+                    const bgs = { honeypot: 'bg-orange-500/10 text-orange-400', rugpull: 'bg-red-500/10 text-red-400', drainer: 'bg-purple-500/10 text-purple-400', phishing: 'bg-yellow-500/10 text-yellow-400' };
+                    return bgs[type] || 'bg-slate-700 text-slate-400';
+                },
+                
+                getTypeColor(type) {
+                    const colors = { honeypot: 'text-orange-400', rugpull: 'text-red-400', drainer: 'text-purple-400', phishing: 'text-yellow-400' };
+                    return colors[type] || 'text-slate-400';
+                },
+                
+                getTypeBorderColor(type) {
+                    const colors = { honeypot: 'border-orange-500', rugpull: 'border-red-500', drainer: 'border-purple-500', phishing: 'border-yellow-500' };
+                    return colors[type] || 'border-slate-500';
+                },
+                
+                formatNum(n) {
+                    if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+                    if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+                    return n.toString();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
