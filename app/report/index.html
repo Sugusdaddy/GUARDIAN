@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN | Report Threat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="reportApp()">
+    <header class="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="../../" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <span class="font-bold">GUARDIAN</span>
+            </a>
+        </div>
+    </header>
+    
+    <main class="max-w-2xl mx-auto px-6 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">🚨 Report a Threat</h1>
+            <p class="text-xl text-slate-400">Help protect the Solana ecosystem by reporting scams and threats</p>
+        </div>
+        
+        <!-- Report Form -->
+        <div class="card rounded-2xl p-8" x-show="!submitted">
+            <form @submit.prevent="submitReport()">
+                <!-- Threat Type -->
+                <div class="mb-6">
+                    <label class="text-sm text-slate-400 mb-2 block">Threat Type *</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <template x-for="type in threatTypes" :key="type.id">
+                            <button type="button" @click="form.type = type.id" 
+                                :class="form.type === type.id ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400' : 'bg-slate-900 border-slate-700 text-slate-400'"
+                                class="p-3 rounded-lg border text-center transition-all hover:border-cyan-500/30">
+                                <div class="text-xl mb-1" x-text="type.emoji"></div>
+                                <div class="text-xs" x-text="type.label"></div>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+                
+                <!-- Address -->
+                <div class="mb-6">
+                    <label class="text-sm text-slate-400 mb-2 block">Suspicious Address/Token *</label>
+                    <input type="text" x-model="form.address" required placeholder="Enter wallet or token address" class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-white font-mono text-sm focus:border-cyan-500 focus:outline-none">
+                </div>
+                
+                <!-- Description -->
+                <div class="mb-6">
+                    <label class="text-sm text-slate-400 mb-2 block">Description *</label>
+                    <textarea x-model="form.description" required rows="4" placeholder="Describe what happened and why you think this is a threat..." class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-cyan-500 focus:outline-none resize-none"></textarea>
+                </div>
+                
+                <!-- Evidence -->
+                <div class="mb-6">
+                    <label class="text-sm text-slate-400 mb-2 block">Evidence Links (optional)</label>
+                    <input type="text" x-model="form.evidence" placeholder="Transaction links, screenshots, etc." class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-cyan-500 focus:outline-none">
+                </div>
+                
+                <!-- Loss Amount -->
+                <div class="mb-6">
+                    <label class="text-sm text-slate-400 mb-2 block">Estimated Loss (optional)</label>
+                    <div class="flex gap-3">
+                        <span class="px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-slate-400">$</span>
+                        <input type="number" x-model="form.loss" placeholder="0" class="flex-1 px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-white focus:border-cyan-500 focus:outline-none">
+                    </div>
+                </div>
+                
+                <!-- Contact -->
+                <div class="mb-8">
+                    <label class="text-sm text-slate-400 mb-2 block">Contact (optional)</label>
+                    <input type="text" x-model="form.contact" placeholder="Twitter, Discord, or email for follow-up" class="w-full px-4 py-3 rounded-lg bg-slate-900 border border-slate-700 text-white text-sm focus:border-cyan-500 focus:outline-none">
+                </div>
+                
+                <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-400 hover:to-orange-400 font-semibold text-white text-lg transition-all" :disabled="submitting">
+                    <span x-show="!submitting">🚨 Submit Report</span>
+                    <span x-show="submitting">Submitting...</span>
+                </button>
+                
+                <p class="text-center text-xs text-slate-600 mt-4">Reports are reviewed by GUARDIAN agents and may be added to the threat database</p>
+            </form>
+        </div>
+        
+        <!-- Success Message -->
+        <div x-show="submitted" x-transition class="card rounded-2xl p-12 text-center">
+            <div class="text-6xl mb-6">✅</div>
+            <h2 class="text-2xl font-bold mb-4">Report Submitted</h2>
+            <p class="text-slate-400 mb-8">Thank you for helping protect the Solana ecosystem. Our agents will review your report.</p>
+            <div class="flex gap-4 justify-center">
+                <button @click="submitted = false; resetForm()" class="px-6 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 font-medium">Submit Another</button>
+                <a href="../dashboard/" class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-600 font-medium text-white">Go to Dashboard</a>
+            </div>
+        </div>
+        
+        <!-- Recent Reports -->
+        <div class="mt-12">
+            <h2 class="text-xl font-semibold mb-6">Recent Community Reports</h2>
+            <div class="space-y-3">
+                <template x-for="report in recentReports" :key="report.id">
+                    <div class="card rounded-xl p-4 flex items-center gap-4">
+                        <div class="text-2xl" x-text="getThreatEmoji(report.type)"></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-white" x-text="report.type"></div>
+                            <div class="text-xs text-slate-500 font-mono truncate" x-text="report.address"></div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs px-2 py-1 rounded" :class="report.status === 'verified' ? 'bg-green-500/10 text-green-400' : report.status === 'reviewing' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-slate-700 text-slate-400'" x-text="report.status"></div>
+                            <div class="text-xs text-slate-600 mt-1" x-text="report.time"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function reportApp() {
+            return {
+                form: { type: '', address: '', description: '', evidence: '', loss: '', contact: '' },
+                submitting: false,
+                submitted: false,
+                threatTypes: [
+                    { id: 'honeypot', label: 'Honeypot', emoji: '🍯' },
+                    { id: 'rugpull', label: 'Rug Pull', emoji: '🚨' },
+                    { id: 'phishing', label: 'Phishing', emoji: '🎣' },
+                    { id: 'drainer', label: 'Drainer', emoji: '💀' },
+                    { id: 'scam', label: 'Scam Token', emoji: '⚠️' },
+                    { id: 'other', label: 'Other', emoji: '❓' }
+                ],
+                recentReports: [
+                    { id: 1, type: 'Honeypot', address: 'ABC123...XYZ', status: 'verified', time: '2h ago' },
+                    { id: 2, type: 'Rug Pull', address: 'DEF456...UVW', status: 'reviewing', time: '5h ago' },
+                    { id: 3, type: 'Phishing', address: 'GHI789...RST', status: 'verified', time: '1d ago' },
+                    { id: 4, type: 'Drainer', address: 'JKL012...OPQ', status: 'pending', time: '2d ago' }
+                ],
+                
+                async submitReport() {
+                    if (!this.form.type || !this.form.address || !this.form.description) return;
+                    
+                    this.submitting = true;
+                    await new Promise(r => setTimeout(r, 1500));
+                    
+                    // Save to localStorage as mock
+                    const reports = JSON.parse(localStorage.getItem('guardian_reports') || '[]');
+                    reports.push({ ...this.form, timestamp: Date.now(), status: 'pending' });
+                    localStorage.setItem('guardian_reports', JSON.stringify(reports));
+                    
+                    this.submitting = false;
+                    this.submitted = true;
+                },
+                
+                resetForm() {
+                    this.form = { type: '', address: '', description: '', evidence: '', loss: '', contact: '' };
+                },
+                
+                getThreatEmoji(type) {
+                    const emojis = { 'Honeypot': '🍯', 'Rug Pull': '🚨', 'Phishing': '🎣', 'Drainer': '💀', 'Scam Token': '⚠️' };
+                    return emojis[type] || '❓';
+                }
+            };
+        }
+    </script>
+</body>
+</html>

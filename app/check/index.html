@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUARDIAN | Address Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
+        .card { background: rgba(15, 15, 26, 0.9); border: 1px solid rgba(34, 211, 238, 0.1); }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen" x-data="checkApp()" x-init="init()">
+    <header class="border-b border-slate-800/50 bg-black/50 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="../../" class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <span class="font-bold">GUARDIAN</span>
+            </a>
+            <nav class="flex items-center gap-4">
+                <a href="../dashboard/" class="text-slate-400 hover:text-white text-sm">Dashboard</a>
+                <a href="../report/" class="text-slate-400 hover:text-white text-sm">Report</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="max-w-3xl mx-auto px-6 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">🔎 Address Checker</h1>
+            <p class="text-xl text-slate-400">Check if a wallet or token is flagged in our threat database</p>
+        </div>
+        
+        <!-- Search -->
+        <div class="card rounded-2xl p-8 mb-8">
+            <form @submit.prevent="checkAddress()">
+                <div class="flex gap-4">
+                    <input type="text" x-model="address" placeholder="Enter Solana address to check..." class="flex-1 px-4 py-4 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono focus:border-cyan-500 focus:outline-none">
+                    <button type="submit" class="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500 font-semibold text-white transition-all" :disabled="checking">
+                        <span x-show="!checking">Check</span>
+                        <span x-show="checking">...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Results -->
+        <div x-show="result" x-transition>
+            <!-- Status Card -->
+            <div class="card rounded-2xl p-8 mb-6" :class="result?.flagged ? 'border-red-500/30' : 'border-green-500/30'">
+                <div class="flex items-center gap-6">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl" :class="result?.flagged ? 'bg-red-500/10' : 'bg-green-500/10'">
+                        <span x-text="result?.flagged ? '⚠️' : '✅'"></span>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-2xl font-bold mb-1" :class="result?.flagged ? 'text-red-400' : 'text-green-400'" x-text="result?.flagged ? 'FLAGGED' : 'NOT FLAGGED'"></div>
+                        <div class="text-slate-400" x-text="result?.flagged ? 'This address has been reported as malicious' : 'No threats found for this address'"></div>
+                    </div>
+                    <div x-show="result?.flagged" class="text-right">
+                        <div class="text-3xl font-bold text-red-400" x-text="result?.severity || 0"></div>
+                        <div class="text-xs text-slate-500">Threat Level</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Details -->
+            <div x-show="result?.flagged" class="space-y-4">
+                <!-- Threat Info -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-lg font-semibold mb-4">Threat Details</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="p-4 rounded-lg bg-slate-900/50">
+                            <div class="text-xs text-slate-500">Threat Type</div>
+                            <div class="text-lg font-medium text-white" x-text="result?.type || 'Unknown'"></div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-slate-900/50">
+                            <div class="text-xs text-slate-500">First Reported</div>
+                            <div class="text-lg font-medium text-white" x-text="result?.first_reported || '-'"></div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-slate-900/50">
+                            <div class="text-xs text-slate-500">Reports Count</div>
+                            <div class="text-lg font-medium text-white" x-text="result?.report_count || 0"></div>
+                        </div>
+                        <div class="p-4 rounded-lg bg-slate-900/50">
+                            <div class="text-xs text-slate-500">Estimated Damage</div>
+                            <div class="text-lg font-medium text-red-400" x-text="'$' + formatNum(result?.damage || 0)"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-lg font-semibold mb-3">Description</h3>
+                    <p class="text-slate-400" x-text="result?.description || 'No description available.'"></p>
+                </div>
+                
+                <!-- Related Addresses -->
+                <div x-show="result?.related?.length > 0" class="card rounded-xl p-6">
+                    <h3 class="text-lg font-semibold mb-3">Related Addresses</h3>
+                    <div class="space-y-2">
+                        <template x-for="addr in result?.related || []" :key="addr">
+                            <div class="flex items-center gap-3 p-3 rounded-lg bg-slate-900/50">
+                                <span class="text-red-400">⚠️</span>
+                                <span class="font-mono text-sm text-slate-300 truncate" x-text="addr"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                
+                <!-- Warning -->
+                <div class="p-6 rounded-xl bg-red-500/10 border border-red-500/30">
+                    <div class="flex items-center gap-3 text-red-400 font-medium mb-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        Warning
+                    </div>
+                    <p class="text-sm text-slate-400">Do not interact with this address. If you have funds at risk, consider using our <a href="../dashboard/?tab=evacuator" class="text-cyan-400 hover:text-cyan-300">Emergency Evacuator</a>.</p>
+                </div>
+            </div>
+            
+            <!-- Clean Result -->
+            <div x-show="!result?.flagged" class="card rounded-xl p-6">
+                <h3 class="text-lg font-semibold mb-4">Analysis</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-green-500/5">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-sm text-slate-300">Not in GUARDIAN blacklist</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-green-500/5">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-sm text-slate-300">No community reports</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-green-500/5">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-sm text-slate-300">No Lazarus Group association</span>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-600 mt-4">Note: Clean status does not guarantee safety. Always do your own research.</p>
+            </div>
+        </div>
+        
+        <!-- Recent Blacklist Additions -->
+        <div class="mt-12">
+            <h2 class="text-xl font-semibold mb-6">Recently Blacklisted</h2>
+            <div class="space-y-3">
+                <template x-for="item in recentBlacklist" :key="item.address">
+                    <div class="card rounded-xl p-4 flex items-center gap-4 cursor-pointer hover:border-red-500/30" @click="address = item.address; checkAddress()">
+                        <div class="text-xl" x-text="item.emoji"></div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm font-medium text-white" x-text="item.type"></div>
+                            <div class="text-xs text-slate-500 font-mono truncate" x-text="item.address"></div>
+                        </div>
+                        <div class="text-lg font-bold text-red-400" x-text="item.severity"></div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function checkApp() {
+            return {
+                address: '',
+                checking: false,
+                result: null,
+                recentBlacklist: [],
+                
+                init() {
+                    this.recentBlacklist = [
+                        { address: 'ABC123456789XYZ...', type: 'Honeypot Deployer', severity: 95, emoji: '🍯' },
+                        { address: 'DEF987654321UVW...', type: 'Rug Pull Scammer', severity: 90, emoji: '🚨' },
+                        { address: 'GHI246810121416...', type: 'Drainer Wallet', severity: 100, emoji: '💀' },
+                        { address: 'JKL135791113151...', type: 'Phishing Site', severity: 85, emoji: '🎣' }
+                    ];
+                },
+                
+                async checkAddress() {
+                    if (!this.address) return;
+                    
+                    this.checking = true;
+                    this.result = null;
+                    
+                    await new Promise(r => setTimeout(r, 1500));
+                    
+                    // Mock check - 20% chance of being flagged
+                    const isFlagged = Math.random() > 0.8;
+                    
+                    if (isFlagged) {
+                        const types = ['Honeypot', 'Rug Pull', 'Drainer', 'Phishing', 'Scam'];
+                        this.result = {
+                            flagged: true,
+                            type: types[Math.floor(Math.random() * types.length)],
+                            severity: Math.floor(Math.random() * 30) + 70,
+                            first_reported: '2024-0' + (Math.floor(Math.random() * 9) + 1) + '-15',
+                            report_count: Math.floor(Math.random() * 50) + 5,
+                            damage: Math.floor(Math.random() * 500000) + 10000,
+                            description: 'This address has been identified as malicious by multiple community reports and automated detection systems.',
+                            related: [
+                                'Related1...' + Math.random().toString(36).slice(2, 10),
+                                'Related2...' + Math.random().toString(36).slice(2, 10)
+                            ]
+                        };
+                    } else {
+                        this.result = { flagged: false };
+                    }
+                    
+                    this.checking = false;
+                },
+                
+                formatNum(n) {
+                    if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+                    if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+                    return n.toString();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
